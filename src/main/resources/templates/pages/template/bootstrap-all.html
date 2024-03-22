@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+<div class="card bg-light mb-3">
+    <div class="card-header"><i class="fa-solid fa-sitemap"></i> 버튼 기본</div>
+    <div class="card-body">
+        <h5 class="card-title">서울시</h5>
+        <p class="card-text">버튼 템플릿</p>
+
+        <button type="button" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
+        <button type="button" class="btn btn-secondary"><i class="fa-solid fa-arrows-rotate"></i> 조회</button>
+        <button type="button" class="btn btn-success"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+        <button type="button" class="btn btn-success"><i class="fa-solid fa-download"></i> 다운로드</button>
+        <button type="button" class="btn btn-danger"><i class="fa-solid fa-rectangle-xmark"></i> 삭제</button>
+        <button type="button" class="btn btn-warning"><i class="fa-solid fa-wrench"></i> 설정</button>
+        <button type="button" class="btn btn-dark"><i class="fa-solid fa-link"></i> 링크</button>
+    </div>
+</div>
+<hr>
+<div class="card bg-light mb-3">
+    <div class="card-header"><i class="fa-solid fa-sitemap"></i> 버튼 작은것</div>
+    <div class="card-body">
+        <h5 class="card-title">서울시</h5>
+        <p class="card-text">버튼 템플릿</p>
+
+        <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
+        <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> 조회</button>
+        <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+        <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-download"></i> 다운로드</button>
+        <button type="button" class="btn btn-danger btn-sm"><i class="fa-solid fa-rectangle-xmark"></i> 삭제</button>
+        <button type="button" class="btn btn-warning btn-sm"><i class="fa-solid fa-wrench"></i> 설정</button>
+        <button type="button" class="btn btn-dark btn-sm"><i class="fa-solid fa-link"></i> 링크</button>
+    </div>
+</div>
+
+<hr>
+
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 서울시 무허가 건축물 관리</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-circle-arrow-right">&nbsp;</i> 대장번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-caret-right">&nbsp;</i> 관리번호</span>
+                    <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-angle-right">&nbsp;</i> 관리번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-circle-arrow-right">&nbsp;</i> 대장번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-caret-right">&nbsp; </i> 관리번호</span>
+                    <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-angle-right">&nbsp;</i> 관리번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-circle-arrow-right">&nbsp;</i> 대장번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-caret-right">&nbsp;</i> 관리번호</span>
+                    <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group input-group-sm mb-3">
+                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-angle-right">&nbsp;</i> 관리번호</span>
+                    <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 아코디언</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion" id="accordionPanelsStayOpenExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                Accordion Item #1
+                            </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                            <div class="accordion-body">
+                                <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                                Accordion Item #2
+                            </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                            <div class="accordion-body">
+                                <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                                Accordion Item #3
+                            </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                            <div class="accordion-body">
+                                <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 가로 탭</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                        This is some placeholder content the Home tab's associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+                    </div>
+                    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                        This is some placeholder content the Profile tab's associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+                    </div>
+                    <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                        This is some placeholder content the Contact tab's associated content. Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 세로 탭</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex align-items-start">
+                    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</button>
+                        <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Profile</button>
+                        <button class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">Messages</button>
+                        <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Settings</button>
+                    </div>
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div>
+                        <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">...</div>
+                        <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">...</div>
+                        <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 툴팁</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Tooltip on top">
+                    Tooltip on top
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Tooltip on right">
+                    Tooltip on right
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Tooltip on bottom">
+                    Tooltip on bottom
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="left" title="Tooltip on left">
+                    Tooltip on left
+                </button>
+            </div>
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 모달</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Launch demo modal
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Toggle a working modal demo by clicking the button below. It will slide down and fade in from the top of the page.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p>프로그래스바</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+                </div>
+
+                <br>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <br>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <br>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <br>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <br>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+                <br>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-secondary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-warning" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="spinner-border text-dark" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <fieldset class="border rounded-3 p-3">
+        <legend class="float-none w-auto px-3" ><i class="fa-solid fa-search"></i> 폼화면</legend>
+        <div class="row">
+            <div class="col-12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1"> 대장번호</span>
+                            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호임</span>
+                            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리번호</span>
+                            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">관리 번호</span>
+                            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </fieldset>
+</div>
+<hr>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1"> 대장번호</span>
+                <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <label for="customRange1" class="form-label">Example range</label>
+                <input type="range" class="form-range" id="customRange1">
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="number" class="form-control " placeholder="숫자를 입력하세요." disabled aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Default checkbox
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
+                    <label class="form-check-label" for="flexSwitchCheckChecked">Checked switch checkbox input</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                    <label class="form-check-label" for="inlineCheckbox1">1</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">
+                    <label class="form-check-label" for="inlineCheckbox2">2</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="option3" disabled>
+                    <label class="form-check-label" for="inlineCheckbox3">3 (disabled)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">대장번호</span>
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>Open this select menu</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="date" onkeydown="return false" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="basic-addon1">관리번호</span>
+                <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                <label for="floatingInput">Email address</label>
+            </div>
+        </div>
+        <div class="col-4">
+            <form class="form-floating">
+                <input type="email" class="form-control" id="floatingInputValue" placeholder="name@example.com" value="test@example.com">
+                <label for="floatingInputValue">Input with value</label>
+            </form>
+        </div>
+        <div class="col-4">
+            <div class="form-floating">
+                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+                <label for="floatingTextarea">Comments</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3 mb-3">
+        <div class="col-12">
+            <div class="pull-right">
+                <button type="button" class="btn btn-primary btn-sm"><i class="fa-regular fa-file-excel"></i> Primary</button>
+                <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-list"></i> Secondary</button>
+                <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-trash"></i> Success</button>
+                <button type="button" class="btn btn-danger btn-sm"> <i class="fa-solid fa-trash"></i> Danger</button>
+                <button type="button" class="btn btn-warning btn-sm"> <i class="fa-solid fa-heart"></i> Warning</button>
+                <button type="button" class="btn btn-info btn-sm">Info</button>
+                <button type="button" class="btn btn-light btn-sm">Light</button>
+                <button type="button" class="btn btn-dark  btn-sm">Dark</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div id="myGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+        </div>
+    </div>
+
+</div>
+<script th:inline="javascript">
+    const columnDefs = [
+        { field: "make", pinned:'left'  },
+        { field: "model", pinned:'left'  },
+        { field: "price" },
+        { field: "model" },
+        { field: "model" },
+        { field: "model" },
+        { field: "model" },
+        { field: "model" }
+    ];
+
+    // specify the data
+    const rowData = [
+        { make: "Toyota", model: "Celica", price: 35000, },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Porsche", model: "Boxster", price: 72000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 },
+        { make: "Ford", model: "Mondeo", price: 32000 }
+    ];
+
+    // let the grid know which columns and what data to use
+    const gridOptions = {
+        columnDefs: columnDefs,
+        defaultColDef: {
+            sortable:true,
+            filter:'agTextColumnFilter',
+            floatingFilter: true,
+        },
+        rowData: rowData
+    };
+
+    // setup the grid after the page has finished loading
+    document.addEventListener('DOMContentLoaded', () => {
+        const gridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(gridDiv, gridOptions);
+    });
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+</body>
+</html>

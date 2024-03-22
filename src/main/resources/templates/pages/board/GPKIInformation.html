@@ -1,0 +1,265 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<th:block layout:fragment="LNB" th:with="GPKIBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/board/GPKIInformation.js}"></script>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content">
+        <div class="title_wrap">
+            <h3 class="tit">GPKI 인증서 안내</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>GPKI 인증서 안내</span>
+            </div>
+        </div>
+        <div class="content gpki_guide">
+            <div class="part part_01">
+                <h4 class="tit_guide">GPKI 인증서란?</h4>
+                <p class="main_txt">
+                    “GPKI 인증서” 라 함은 행정전자서명이 진정한 것임을 확인ㆍ증명할 수 있도록 하기 위하여 행정기관, 보조기관, 보좌기관, 전자문서유통 및 행정정보 공공이용, 공공기반, 은행 또는 사용자에게 발급하는 전자적 정보를 말하며, 인증서 사용을 통해 시원확인, 문서의 위ㆍ변조, 거래사실의 부인 방지 등의 효과를 얻을 수 있습니다. 발급받은 인증서에는 인증서 버전, 인증서 일련번호, 인증서의 유효기간, 발급기관명 및 전자서명 알고리즘 정보, 가입자 이름 및 신원확인정보 등을 포함하고 있습니다.
+                </p>
+                <p class="sub_txt">
+                    ※ GPKI(Government Public Key Infrastructure)는 정부 공개 키 기반구조로 만든 행정전자서명 인증서라고 하며, PKI의 개념을 행정망으로 옮긴 것이다.
+                </p>
+            </div>
+
+            <!-- part 02 -->
+            <div class="part part_02">
+                <h4 class="tit_guide">인증서 발급 대상</h4>
+                <div class="numbering_box">
+                    <p class="main_txt numbering">
+                        인증관리체계상 인증업무수행 인증기관, 등록기관, 원격등록기관에 해당하는 행정기관이 대상.
+                    </p>
+                    <p class="main_txt numbering">
+                        정보화시스템에 적용하기 위한 행정기관, 보조기관, 보좌기관, 공무원 그리고 해당 공무원과 행정기관, 보조기관,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;보좌기관에서 관리하는 정보통신 장비가 일반 인증서 발급 대상
+                    </p>
+                    <p class="main_txt numbering">
+                        전자문서 유통 및 행정정보 공통이용 공공기관, 은행법으로 지정된 기관과 사용자가 발급 대상.
+                    </p>
+                </div>
+            </div>
+
+            <!-- part 03 -->
+            <div class="part part_03">
+                <h4 class="tit_guide">인증서 사용방법</h4>
+                <p class="main_txt">
+                    인증서를 신규발급 받고자하는 경우, 신청서(신청구분 : 신규)를 작성하여 공문으로 발송하시기 바랍니다.<br />(수신처 : 한국지역정보개발원 디지털인증부)
+                </p>
+                <p class="main_txt">
+                    <i class="bi bi-journal-text"></i>
+                    <a href="https://www.gpki.go.kr/jsp/certInfo/step/issue/searchIssue.jsp" target="_blank">
+                        신청절차 안내 바로가기
+                        <i class="bi bi-hand-index-thumb"></i>
+                    </a>
+                </p>
+                <p class="main_txt">
+                    <i class="bi bi-journal-text"></i>
+                    <a href="https://www.gpki.go.kr/jsp/certInfo/step/issue/searchIssue.jsp" target="_blank">
+                        발급절차 안내 바로가기
+                        <i class="bi bi-hand-index-thumb"></i>
+                    </a>
+                </p>
+            </div>
+
+            <!-- part 04 -->
+            <div class="part part_04">
+                <h4 class="tit_guide">인증서 신청절차 및 발급절차
+                </h4>
+                <p class="main_txt">
+                    인증서를 신규발급 받고자하는 경우, 신청서(신청구분 : 신규)를 작성하여 공문으로 발송하시기 바랍니다.<br />(수신처 : 한국지역정보개발원 디지털인증부)
+                </p>
+                <!-- 1. 사전준비 -->
+                <div class="numbering_box pt-4">
+                    <p class="main_txt numbering fw-bolder">
+                        사전 준비
+                    </p>
+                </div>
+                <p class="main_txt">
+                    서울시 무허가 건축물 관리 시스템은 ‘GPKISecureWebNP  EXE’ 버전을 사용하고 있어,<br />https://127.0.0.1:12233 (loopback) 주소를 개방하고 통신을 진행합니다.<br />따라서 원활한 인증을 위해 아래와 같은 사전준비가 필요합니다.
+                </p>
+                <p class="main_txt fw-bolder mt-5">
+                    - 크롬 브라우저 사용시
+                </p>
+                <!-- [크롬1] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering">
+                        인터넷 주소 검색창에 [ chrome://flags ]를 입력해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_01-01.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [크롬2] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_2 mt-5">
+                        Flags 사이트 상단 검색창에 [network]를 입력해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_01-02.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [크롬3] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_3 mt-5">
+                        Block insecure private network requests. 설정값을 [Disabled]로 변경해주세요
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_01-03.jpg}" alt="가이드이미지">
+                </div>
+                <p class="main_txt fw-bolder mt-5">
+                    - 엣지 브라우저 사용시
+                </p>
+                <!-- [엣지1] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering">
+                        인터넷 주소 검색창에 [ edge://flags ]를 입력해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_02-01.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [엣지2] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_2 mt-5">
+                        Flags 사이트 상단 검색창에 [network]를 입력해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_02-02.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [엣지3] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_3 mt-5">
+                        Block insecure private network requests. 설정값을 [Disabled]로 변경해주세요
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_02-03.jpg}" alt="가이드이미지">
+                </div>
+
+                <!-- 2. 일반 로그인 -->
+                <div class="numbering_box pt-5">
+                    <p class="main_txt numbering fw-bolder num_2">
+                        일반 로그인
+                    </p>
+                </div>
+                <p class="main_txt">
+                    발급받은 인증서 로그인에 앞서 본인에게 발급된 아이디/비밀번호로 일반 로그인이 선행되어야 합니다.<br />
+                    일반 로그인 방법은 아래와 같습니다.
+                </p>
+                <!-- [일반1] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering">
+                        서울시 기존무허가건축물관리 시스템 메인 화면에서 [일반 로그인] 버튼을 클릭해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap w900">
+                    <img th:src="@{/images/guide_03-01.jpg}" class="wp100" alt="가이드이미지">
+                </div>
+                <!-- [일반2] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_2 mt-5">
+                        활성화된 로그인 화면에서 발급 받은 아이디/비밀번호를 입력해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap w400">
+                    <img th:src="@{/images/guide_03-02.jpg}" class="wp100 gpki_img_border" alt="가이드이미지">
+                </div>
+                <!-- [일반3] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_3 mt-5">
+                        로그인 버튼을 클릭해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap w400">
+                    <img th:src="@{/images/guide_03-03.jpg}" class="wp100 gpki_img_border" alt="가이드이미지">
+                </div>
+
+                <!-- 3. GPKI 인증 로그인 -->
+                <div class="numbering_box pt-5">
+                    <p class="main_txt numbering fw-bolder num_3">
+                        GPKI 인증 로그인
+                    </p>
+                </div>
+                <p class="main_txt">
+                    최초 1회 일반 로그인 시점에서는 GPKI 인증서 등록이 필요합니다.<br />인증서 등록 방법은 아래와 같습니다.
+                </p>
+                <!-- [GPKI 1] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering">
+                        최초 1회 로그인 시점에서 [GPKI 인증서 로그인 안내 메시지] 표출 시 [인증서 로그인] 버튼을 클릭해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_04-01.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [GPKI 2] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_2 mt-5">
+                        인증서가 보관된 디바이스를 선택하여 인증서를 확인해주세요.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_04-02.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [GPKI 3] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_3 mt-5">
+                        인증서 암호를 입력 후 [확인] 버튼을 클릭하면 로그인이 완료됩니다.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_04-03.jpg}" alt="가이드이미지">
+                </div>
+
+                <!-- 4. GPKI 인증 로그인 완료 후 -->
+                <div class="numbering_box pt-5">
+                    <p class="main_txt numbering fw-bolder num_4">
+                        GPKI 인증 로그인 완료 후
+                    </p>
+                </div>
+                <p class="main_txt">
+                    GPKI 인증 로그인 완료시 부여된 권한에 따라 시스템 사용이 가능합니다.<br />GPKI 인증서가 등록된 시점부터 일반 로그인 또는 GPKI 인증 로그인 중 원하는 방법으로 로그인 하실 수 있습니다.
+                </p>
+                <!-- [로그인후 1] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering">
+                        선택 로그인을 제공합니다.
+                    </p>
+                </div>
+                <div class="img_wrap">
+                    <img th:src="@{/images/guide_05-01.jpg}" alt="가이드이미지">
+                </div>
+                <!-- [로그인후 2] -->
+                <div class="numbering_box dp2">
+                    <p class="main_txt numbering num_2 mt-5">
+                        로그인 완료 후 메인페이지 화면입니다.
+                    </p>
+                </div>
+                <div class="img_wrap w900">
+                    <img th:src="@{/images/guide_05-02.jpg}" class="wp100" alt="가이드이미지">
+                </div>
+            </div>
+            <div class="text-center">
+                <button id="gotoMain" type="button" class="btn_ btn_blue ms-4">메인화면 이동</button>
+            </div>
+        </div>
+    </div>
+    <!-- part 01 -->
+</th:block>
+</html>

@@ -1,0 +1,207 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<th:block layout:fragment="LNB" th:with="noticeBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/board/notice.js}"></script>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <input type="hidden" name="noticeSeq" th:value="${noticeDetail.noticeSeq}" />
+        <input type="hidden" name="noticeSubject" th:value="${noticeDetail.noticeSubject}" />
+        <div class="title_wrap">
+            <h3 class="tit">공지사항 상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>공지사항</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>공지사항 상세</span>
+            </div>
+        </div>
+        <div class="row row-tr">
+            <div class="col-1 col-th">
+                <div>제목</div>
+            </div>
+            <div class="col-5">
+                <span class="form-span fw-bold mt-2" th:text="${noticeDetail.noticeSubject}"></span>
+            </div>
+            <div class="col-1 col-th">
+                <div>작성자</div>
+            </div>
+            <div class="col-5">
+                <span class="form-span fw-bold mt-2" th:text="${noticeDetail.userNm}"></span>
+            </div>
+        </div>
+        <div class="row row-tr">
+            <div class="col-1 col-th">
+                <div>작성일</div>
+            </div>
+            <div class="col-5">
+                <span class="form-span fw-bold mt-2" th:text="${noticeDetail.registTs}"></span>
+            </div>
+            <div class="col-1 col-th">
+                <div>조회수</div>
+            </div>
+            <div class="col-5">
+                <span class="form-span fw-bold mt-2" th:text="${noticeDetail.readCnt}"></span>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <div class="col-12">
+                <div class="card my-3">
+                    <div class="card-body">
+                        <div class="card-text" style="white-space: pre-line; min-height: 300px;" th:utext="${noticeDetail.noticeContents}"></div>
+                    </div>
+                </div>
+                <div class="row row-tr mb-1">
+                    <!-- name="uploadfile" -->
+                    <div id="myId" ></div>
+                    <div class="row justify-content-center align-content-center mt-2">
+                        <div class="col-1 text-center">파일</div>
+                        <div class="col-9">
+                            <ul id="user-files" class="list-inline">
+                            </ul>
+                        </div>
+                        <div class="col-2">
+                            <!--<button id="allDownload" class="btn btn-sm btn-primary float-end">전체 다운로드</button>-->
+                            <button id="allDownload" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <div class="col-6 tx-left">
+                <button type="button" id="beforeBtn" class="btn btn-secondary btn-sm"
+                        th:if="${beforeCnt ne null}"
+                        th:onclick="|location.href='/board/notice/detail?noticeSeq=${beforeCnt}'|">
+                    <i class="bi bi-caret-left"></i> 이전글
+                </button>
+                <button type="button" id="afterBtn" class="btn btn-secondary btn-sm"
+                        th:if="${nextCnt ne null}"
+                        th:onclick="|location.href='/board/notice/detail?noticeSeq=${nextCnt}'|">
+                    다음글 <i class="bi bi-caret-right"></i>
+                </button>
+                <a th:href="@{|/board/notice/list|}" class="btn btn-light btn-sm" th:text="목록"></a>
+            </div>
+            <div class="col-6 tx-right">
+                <th:block sec:authorize="isAuthenticated()">
+                    <button th:if="${#authentication.principal.isAdmin}" type="button" id="deleteBtn" class="btn btn-sm btn-danger me-2">
+                        <i class="fa-regular fa-trash-can"></i> 삭제
+                    </button>
+                    <button th:if="${#authentication.principal.isAdmin}" type="button" id="modifyBtn" class="btn btn-sm btn-primary" >수정</button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/indexControl.js}"></script>
+    <script th:inline="javascript">
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const type = {
+                type:'notice',
+                fileName: 850,
+                size: 200,
+                modalId: 'modal-1',
+                readOnly: 'Y',
+                visible: true
+            }
+            const uploader = new snFileUpload.Uploader("myId", type);
+            const noticeSeq = [[${noticeDetail.noticeSeq}]];
+            uploader.parentKey = noticeSeq
+            await uploader.loadFiles();
+            // 파일정보 로딩
+            uploader.getFiles().forEach(file=>{
+                console.log(file)
+                let $link = $("<a>")
+                    .text(`${file.name} (${file.vsize})`)
+                    .attr("title", file.name)
+                    .attr("href", `${file.name}`)
+                    .data("fseq", file.fseq)
+                    .data("seq", file.seq)
+                    .on("click", (e)=>{
+                        e.preventDefault();
+                        let seq = $(e.target).data("seq");
+                        let fseq =$(e.target).data("fseq");
+
+                        console.log(seq)
+                        console.log(fseq)
+
+                        console.log(file)
+                        // 이미 파일명/확장자명을 알기때문에 전달해주면 될 듯
+                        if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                            return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                .on("click", uploader.imgPreview(file))[0];
+                        } else {
+                            uploader.downloadFile(file);
+                        }
+                    });
+
+                $("<li class='list-inline-item'>")
+                    .append($link)
+                    .appendTo($("#user-files"));
+            });
+
+            // 전체 다운로드 버튼 처리
+            const allDownloadBtn = document.getElementById('allDownload');
+            if (uploader.getFiles().length > 0) {
+                // 파일이 있을 때 버튼 보이기
+                allDownloadBtn.style.display = 'block';
+                allDownloadBtn.addEventListener('click', () => {
+                    uploader.downloadAllFile();
+                });
+            } else {
+                // 파일이 없을 때 버튼 숨기기
+                allDownloadBtn.style.display = 'none';
+            }
+
+            // 삭제 버튼 클릭 시
+            document.getElementById('deleteBtn').addEventListener('click', async () => {
+                const res = async () => uploader.filesData.forEach(f => uploader.deleteFiles(f));
+                await res()
+                // 서버로 삭제 요청 보내기
+                const deleteUrl = "/api/board/notice/delete";
+                snAlert.confirm('삭제하시겠습니까?').then((res) => {
+                    if (res.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: deleteUrl,
+                            data: JSON.stringify({ noticeSeq: [[${noticeDetail.noticeSeq}]] }),
+                            contentType: 'application/json',
+                            success: function (result) {
+                                snAlert.success("알림", "삭제 완료").then((result) => {
+                                    if (result.isConfirmed) {
+                                        location.href = "/board/notice/list";
+                                    } else if (result.isDismissed) {
+                                        snAlert.close();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+
+        })
+
+    </script>
+</th:block>
+
+</html>

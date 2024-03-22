@@ -1,0 +1,152 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<th:block layout:fragment="LNB" th:with="userBold = true">
+	<th:block th:replace="fragments/LNB :: admin"></th:block>
+</th:block>
+
+<th:block layout:fragment="css">
+	<link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+
+<th:block layout:fragment="configScript">
+	<script th:src="@{/js/admin/userRegister.js}"></script>
+	<script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+	<div class="content container-fluid">
+		<div class="title_wrap">
+			<h3 class="tit">사용자관리</h3>
+			<div class="loc">
+				<i class="bi bi-house-fill"></i>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>관리자 메뉴</span>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>사용자관리</span>
+			</div>
+		</div>
+		<div>
+			<form id="searchForm">
+				<div class="row row-tr">
+					<div class="col-1 col-th">
+						<label for="calendarSelect1" class="col-form-label col-form-label-sm">가입일자</label>
+					</div>
+					<div class="col-7">
+						<div class="row">
+							<div class="col-3">
+								<select id="calendarSelect1" class="form-select form-select-sm w150">
+									<option value="all">전체기간</option>
+									<option value="simple">기간선택</option>
+									<option value="set">기간설정</option>
+								</select>
+							</div>
+							<div id="calendarRemote1" class="col-9 row align-items-center justify-content-center ml10"></div>
+						</div>
+						<input type="hidden" name="startDate" id="startDate1" th:value="${searchParam.startDate}">
+						<input type="hidden" name="endDate" id="endDate1" th:value="${searchParam.endDate}">
+					</div>
+					<div class="col-1 col-th">
+						<label for="skkCd" class="col-form-label col-form-label-sm">자치구</label>
+					</div>
+					<div class="col-3 form-group row">
+						<div class="col-6">
+							<select id="skkCd" name="skkCd" class="form-select form-select-sm" th:skkCd="${searchParam.skkCd}" th:insttList="${searchParam.insttList}" th:deptCd="${searchParam.deptCd}">
+								<option value="" selected>전체</option>
+								<option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+							</select>
+						</div>
+						<div class="col-6">
+							<select id="insttList" name="insttList" class="form-select form-select-sm"> <!--institution-->
+								<option value="" >소속 선택</option>
+								<option value="gu" >구청</option>
+								<option value="dong">동사무소</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="row row-tr">
+					<div class="col-1 col-th">
+						<label for="searchText" class="col-form-label col-form-label-sm">검색</label>
+					</div>
+					<div class="col-2">
+						<select id="searchType" name="searchType" class="form-select form-select-sm">
+							<option value="" selected>전체</option>
+							<option value="userName" th:selected="userName == ${searchParam?.searchType}">이름</option>
+							<option value="telNo" th:selected="telNo == ${searchParam?.searchType}">전화번호</option>
+							<option value="eMail" th:selected="eMail == ${searchParam?.searchType}">이메일</option>
+						</select>
+					</div>
+					<div class="col-5">
+						<input type="text"  class="form-control form-control-sm" id="searchText" name="searchText" placeholder="검색어를 입력해주세요" th:value="${searchParam.searchText}">
+					</div>
+					<div class="col-1 col-th">
+						<label for="deptCd" id="deptCdLabel" class="col-form-label col-form-label-sm">부서명</label>
+					</div>
+					<div class="col-2">
+						<select id="deptCd" name="deptCd" class="form-select form-select-sm">
+							<option value="" selected>전체</option>
+							<option th:each="val : ${dept}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}"></option>
+						</select>
+						<select id="bjdCd" name="bjdCd" class="form-select form-select-sm d-none" disabled>
+							<option value="" selected>전체</option>
+							<option th:each="val : ${bjd}" th:value="${val?.key}" th:utext="${val?.dpname}" th:selected="${val?.key} == ${searchParam?.bjdCd}"></option>
+						</select>
+					</div>
+				</div>
+				<div class="row justify-content-center align-items-center mt-3 mb-5">
+					<div class="col-12 justify-content-end">
+						<div class="float-start">
+							<h5 style="color: #808080">※ 검색조건 및 사용자 이름, 전화번호, 이메일로 직접 검색할 수 있습니다.</h5>
+						</div>
+						<div class="float-end">
+							<button type="reset" id="btnReload" class="btn btn-secondary me-2 btn-sm">
+								<i class="bi bi-arrow-repeat"></i>
+							</button>
+							<button id="btnSearch" class="btn btn-primary btn-sm">
+								<i class="fa-solid fa-magnifying-glass"></i> 조회
+							</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			<div class="row justify-content-center align-items-center mb-2">
+				<div id="total" class="col-2">
+					<h3></h3>
+				</div>
+				<div class="col-10">
+					<div class="row align-items-center justify-content-end">
+						<select id="listCnt" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+							<option value="10">10개씩</option>
+							<option value="30">30개씩</option>
+							<option value="50">50개씩</option>
+							<option value="70">70개씩</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-2">
+				<div id="registerGrid" class="ag-theme-alpine"></div>
+			</div>
+			<div class="row">
+				<div class="col-10">
+
+				</div>
+				<div class="col-2 float-end">
+					<button id="registerAddButton" class="btn btn-primary btn-sm float-md-end">사용자 등록</button>
+					<button id="registerDeleteButton" type="button" class="btn btn-danger me-2 btn-sm float-md-end">삭제</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+
+</th:block>
+</html>

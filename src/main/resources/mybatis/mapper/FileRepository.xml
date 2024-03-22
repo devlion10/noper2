@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.FileRepository">
+    <insert id="qaFileUpload" parameterType="QaBbsFile">
+        <selectKey keyProperty="fileSeq" resultType="long" order="BEFORE">
+            select COALESCE(max(FILE_SEQ), 0) + 1
+            from QA_BBS_FILE
+        </selectKey>
+        insert into QA_BBS_FILE (
+        FILE_SEQ,
+        QA_SEQ,
+        LOGICAL_FILENAME,
+        PHYSICAL_FILENAME,
+        FILE_PATH,
+        FILE_END,
+        FILE_SIZE,
+        REGIST_ID,
+        REGIST_TS,
+        UPDATE_ID,
+        UPDATE_TS,
+        QA_FLAG
+        )
+        VALUES (
+        #{fileSeq},
+        #{qaSeq},
+        #{logicalFilename},
+        #{physicalFilename},
+        #{filePath},
+        #{fileEnd},
+        #{fileSize},
+        #{registId},
+        SYSDATE,
+        #{updateId},
+        SYSDATE,
+        #{qaFlag}
+        )
+    </insert>
+    <insert id="noticeFileUpload" parameterType="NoticeBbsFile">
+        <selectKey keyProperty="fileSeq" resultType="long" order="BEFORE">
+            select COALESCE(max(FILE_SEQ), 0) + 1
+            from NOTICE_BBS_FILE
+        </selectKey>
+        insert into NOTICE_BBS_FILE (
+        FILE_SEQ,
+        NOTICE_SEQ,
+        LOGICAL_FILENAME,
+        PHYSICAL_FILENAME,
+        FILE_PATH,
+        FILE_END,
+        FILE_SIZE,
+        REGIST_ID,
+        REGIST_TS,
+        UPDATE_ID,
+        UPDATE_TS
+        )
+        VALUES (
+        #{fileSeq},
+        #{noticeSeq},
+        #{logicalFilename},
+        #{physicalFilename},
+        #{filePath},
+        #{fileEnd},
+        #{fileSize},
+        #{registId},
+        SYSDATE,
+        #{updateId},
+        SYSDATE
+        )
+    </insert>
+    <insert id="ledgerLayoutFileUpload" parameterType="NoperImgFileinfo">
+        <selectKey keyProperty="fileSeq" resultType="String" order="BEFORE">
+            SELECT NVL(MAX(FILE_SEQ), 0) + 1 FROM NOPER_IMG_FILEINFO WHERE GMSKK = #{gmskk} AND GMDJGB = #{gmdjgb} AND GMSEQCO = #{gmseqco}
+        </selectKey>
+        INSERT INTO NOPER_IMG_FILEINFO (
+        GMSKK,
+        GMDJGB,
+        GMSEQCO,
+        FILE_SEQ,
+        FILE_FLAG,
+        LOGICAL_FILENAME,
+        PHYSICAL_FILENAME,
+        FILE_PATH,
+        FILE_END,
+        FILE_SIZE,
+        REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+        #{gmskk},
+        #{gmdjgb},
+        #{gmseqco},
+        #{fileSeq},
+        #{fileFlag},
+        #{logicalFilename},
+        #{physicalFilename},
+        #{filePath},
+        #{fileEnd},
+        #{fileSize},
+        #{registId},
+        SYSDATE
+        )
+    </insert>
+    <insert id="siteChkFileUpload" parameterType="NoperImgFileinfo">
+        <selectKey keyProperty="fileSeq" resultType="String" order="BEFORE">
+            SELECT NVL(MAX(FILE_SEQ), 0) + 1 FROM NOPER_SITE_CHK_FILE WHERE GMSKK = #{gmskk} AND GMDJGB = #{gmdjgb} AND GMSEQCO = #{gmseqco} AND CHKILNO = #{chkilno}
+        </selectKey>
+        INSERT INTO NOPER_SITE_CHK_FILE (
+        GMSKK, GMDJGB, GMSEQCO, CHKILNO,
+        FILE_SEQ, FILE_FLAG, LOGICAL_FILENAME,
+        PHYSICAL_FILENAME, FILE_PATH,
+        FILE_END, FILE_SIZE, REGT_ID, REG_DTIME
+        ) VALUES (
+        #{gmskk}, #{gmdjgb}, #{gmseqco}, #{chkilno},
+        #{fileSeq}, #{fileFlag}, #{logicalFilename},
+        #{physicalFilename}, #{filePath},
+        #{fileEnd}, #{fileSize}, #{regId},
+        SYSDATE
+        )
+    </insert>
+
+    <insert id="ownerChangeFileUpload" parameterType="NoperOwnerChangeFile">
+        <selectKey keyProperty="fileSeq" resultType="String" order="BEFORE">
+            SELECT NVL(MAX(FILE_SEQ),0) + 1 AS FILE_SEQ FROM NOPER_OWNER_CHANGE_FILE WHERE GMSKK = #{gmskk} AND GMDJGB = #{gmdjgb} AND GMSEQCO = #{gmseqco}
+        </selectKey>
+        INSERT INTO NOPER_OWNER_CHANGE_FILE (
+        GMJILNO, GMSKK, GMDJGB, FILE_SUB,
+        GMSEQCO, SUILNO, FILE_SEQ,
+        LOGICAL_FILENAME, PHYSICAL_FILENAME,
+        FILE_PATH, FILE_END, FILE_SIZE, REGIST_ID, REGIST_TS, CRADATE
+        ) VALUES (
+        #{gmjilno}, #{gmskk}, #{gmdjgb}, #{fileSub},
+        #{gmseqco}, #{suilno}, #{fileSeq},
+        #{logicalFilename}, #{physicalFilename},
+        #{filePath}, #{fileEnd}, #{fileSize}, #{registId},
+        SYSDATE,
+        SYSDATE
+        )
+    </insert>
+
+    <insert id="ledgerGreenBeltLayoutFileUpload" parameterType="NoperImgFileinfo">
+        <selectKey keyProperty="fileSeq" resultType="String" order="BEFORE">
+            SELECT NVL(MAX(FILE_SEQ), 0) + 1 FROM IMG_FILEINFO WHERE ADM_SEQ = #{admSeq}
+        </selectKey>
+        INSERT INTO IMG_FILEINFO (
+        ADM_SEQ,
+        FILE_SEQ,
+        FILE_FLAG,
+        LOGICAL_FILENAME,
+        PHYSICAL_FILENAME,
+        FILE_PATH,
+        FILE_END,
+        FILE_SIZE,
+        REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+        #{admSeq},
+        #{fileSeq},
+        #{fileFlag},
+        #{logicalFilename},
+        #{physicalFilename},
+        #{filePath},
+        #{fileEnd},
+        #{fileSize},
+        #{registId},
+        SYSDATE
+        )
+    </insert>
+    <insert id="violationBuildingFileUpload" parameterType="ViomaFileinfo">
+        <selectKey keyProperty="fileSeq" resultType="Long" order="BEFORE">
+            SELECT NVL(MAX(FILE_SEQ), 0) + 1 as fileSeq FROM VIOMA_FILEINFO WHERE GMSKK = #{gmskk}
+        </selectKey>
+        INSERT INTO VIOMA_FILEINFO (
+        GMSKK, FILE_SEQ, FILE_FLAG, LOGICAL_FILENAME,
+        PHYSICAL_FILENAME, FILE_PATH,
+        FILE_END, FILE_SIZE
+        ) VALUES (
+        #{gmskk}, #{fileSeq}, #{fileFlag}, #{logicalFilename},
+        #{physicalFilename}, #{filePath},
+        #{fileEnd}, #{fileSize}
+        )
+    </insert>
+    <select id="findByQAFile" parameterType="string" resultType="QaBbsFile">
+        select *
+        from QA_BBS_FILE
+        where FILE_SEQ = #{seq}
+    </select>
+    <select id="findByNoticeFile" parameterType="String" resultType="NoticeBbsFile">
+        select *
+        from NOTICE_BBS_FILE
+        where FILE_SEQ = #{seq}
+    </select>
+    <select id="findByQAFileList" parameterType="hashmap" resultType="QaBbsFile">
+        select *
+        from QA_BBS_FILE
+        where QA_SEQ = #{seq}
+          and QA_FLAG = #{flag}
+    </select>
+    <select id="findByNoticeFileList" parameterType="String" resultType="NoticeBbsFile">
+        select *
+        from NOTICE_BBS_FILE
+        where NOTICE_SEQ = #{seq}
+    </select>
+    <select id="findLedgerLayoutFileList" parameterType="String" resultType="FileDTO">
+        SELECT
+        FILE_SEQ,
+        GMSKK,
+        GMDJGB,
+        GMSEQCO,
+        FILE_FLAG,
+        F_CDNAME('L02',FILE_FLAG) AS FILE_FLAG,
+        LOGICAL_FILENAME,
+        PHYSICAL_FILENAME,
+        FILE_PATH,
+        FILE_END,
+        FILE_SIZE,
+        REGIST_TS
+        FROM NOPER_IMG_FILEINFO
+        WHERE GMSKK = #{gmskk}
+        AND GMDJGB = #{gmdjgb}
+        AND GMSEQCO = #{gmseqco}
+        <if test='!flag.equals("0")'>
+            AND FILE_FLAG = #{flag}
+        </if>
+        ORDER BY REGIST_TS ASC
+    </select>
+    <select id="noperSiteChkFileList" parameterType="String" resultType="FileDTO">
+        SELECT
+        ROW_NUMBER() OVER(ORDER BY CHKFILE.FILE_SEQ ASC) RN,
+        CHKFILE.GMSKK, CHKFILE.GMDJGB,
+        CHKFILE.GMSEQCO, CHKFILE.CHKILNO,
+        CHKFILE.FILE_SEQ, CHKFILE.FILE_FLAG,
+        CHKFILE.LOGICAL_FILENAME, CHKFILE.FILE_PATH,
+        CHKFILE.PHYSICAL_FILENAME, CHKFILE.FILE_END,
+        CHKFILE.REGT_ID REG_ID,
+        CHKFILE.FILE_SIZE
+        FROM NOPER_SITE_CHK_FILE CHKFILE
+        WHERE
+        CHKFILE.DELETE_AT = 'N'
+        AND CHKFILE.GMSKK= #{gmskk}
+        AND CHKFILE.GMDJGB= #{gmdjgb}
+        AND CHKFILE.GMSEQCO= #{gmseqco}
+        AND CHKFILE.CHKILNO= #{chkilno}
+        ORDER BY CHKFILE.FILE_SEQ ASC
+    </select>
+    <select id="findLedgerLayoutFile" parameterType="String" resultType="FileDTO">
+        SELECT
+            FILE_SEQ,
+            GMSKK,
+            GMDJGB,
+            GMSEQCO,
+            FILE_FLAG,
+            F_CDNAME('L02',FILE_FLAG) AS FILE_FLAG,
+            LOGICAL_FILENAME,
+            PHYSICAL_FILENAME,
+            FILE_PATH,
+            FILE_END,
+            FILE_SIZE,
+            REGIST_TS
+        FROM NOPER_IMG_FILEINFO
+        WHERE GMSKK = #{gmskk}
+          AND GMDJGB = #{gmdjgb}
+          AND GMSEQCO = #{gmseqco}
+          AND FILE_SEQ = #{flag}
+    </select>
+    <select id="violationBuildingFileList" parameterType="FileDTO" resultType="FileDTO">
+        SELECT
+            GMSKK,
+            FILE_SEQ,
+            FILE_FLAG,
+            FILE_FLAG,
+            LOGICAL_FILENAME,
+            PHYSICAL_FILENAME,
+            FILE_PATH,
+            FILE_END,
+            FILE_SIZE
+        FROM VIOMA_FILEINFO
+        WHERE GMSKK = #{gmskk}
+          and FILE_FLAG = #{fileFlag}
+    </select>
+    <select id="noperSiteChkFile" parameterType="String" resultType="FileDTO">
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY CHKFILE.FILE_SEQ ASC) RN,
+                CHKFILE.GMSKK, CHKFILE.GMDJGB,
+            CHKFILE.GMSEQCO, CHKFILE.CHKILNO,
+            CHKFILE.FILE_SEQ, CHKFILE.FILE_FLAG,
+            CHKFILE.LOGICAL_FILENAME, CHKFILE.FILE_PATH,
+            CHKFILE.PHYSICAL_FILENAME, CHKFILE.FILE_END,
+            CHKFILE.FILE_SIZE
+        FROM NOPER_SITE_CHK_FILE CHKFILE
+        WHERE
+            CHKFILE.DELETE_AT = 'N'
+          AND CHKFILE.GMSKK= #{gmskk}
+          AND CHKFILE.GMDJGB= #{gmdjgb}
+          AND CHKFILE.GMSEQCO= #{gmseqco}
+          AND CHKFILE.CHKILNO= #{chkilno}
+        ORDER BY CHKFILE.FILE_SEQ ASC
+    </select>
+    <select id="ownerChangeFileList" parameterType="String" resultType="FileDTO">
+        SELECT
+        FILEINFO.FILE_SEQ, FILEINFO.FILE_SUB,
+        FILEINFO.CRADATE, FILEINFO.GMJILNO,
+        FILEINFO.GMSKK, FILEINFO.GMDJGB,
+        FILEINFO.GMSEQCO, FILEINFO.SUILNO,
+        FILEINFO.LOGICAL_FILENAME, FILEINFO.FILE_PATH,
+        FILEINFO.PHYSICAL_FILENAME, FILEINFO.FILE_END,
+        FILEINFO.FILE_SIZE
+        FROM NOPER_OWNER_CHANGE_FILE FILEINFO
+        WHERE
+        FILEINFO.GMSKK= #{gmskk}
+        AND FILEINFO.GMDJGB= #{gmdjgb}
+        AND FILEINFO.GMSEQCO= #{gmseqco}
+        AND FILEINFO.SUILNO= #{suilno}
+        ORDER BY FILEINFO.FILE_SEQ ASC
+    </select>
+    <select id="findLedgerGreenBeltLayoutFile" parameterType="String" resultType="FileDTO">
+        SELECT
+            ADM_SEQ as seq,
+            FILE_SEQ,
+            FILE_FLAG,
+            F_CDNAME('L02', FILE_FLAG) AS FILE_FLAG,
+            LOGICAL_FILENAME,
+            PHYSICAL_FILENAME,
+            FILE_PATH,
+            FILE_END,
+            FILE_SIZE,
+            REGIST_TS
+        FROM IMG_FILEINFO
+        WHERE ADM_SEQ = #{seq}
+        AND FILE_FLAG = #{flag}
+        ORDER BY REGIST_TS ASC
+    </select>
+    <select id="findLedgerGreenBeltLayoutFileDownload" parameterType="String" resultType="FileDTO">
+        SELECT
+            ADM_SEQ as seq,
+            FILE_SEQ,
+            FILE_FLAG,
+            F_CDNAME('L02', FILE_FLAG) AS FILE_FLAG,
+            LOGICAL_FILENAME,
+            PHYSICAL_FILENAME,
+            FILE_PATH,
+            FILE_END,
+            FILE_SIZE,
+            REGIST_TS
+        FROM IMG_FILEINFO
+        WHERE ADM_SEQ = #{seq}
+          AND FILE_SEQ = #{fseq}
+    </select>
+    <select id="findViolationBuildingFileDownload" parameterType="ViomaFileinfo" resultType="FileDTO">
+        SELECT
+            FILE_SEQ,
+            FILE_FLAG,
+            FILE_FLAG,
+            LOGICAL_FILENAME,
+            PHYSICAL_FILENAME,
+            FILE_PATH,
+            FILE_END,
+            FILE_SIZE
+        FROM VIOMA_FILEINFO
+        WHERE FILE_SEQ = #{fileSeq}
+        and GMSKK = #{gmskk}
+    </select>
+    <delete id="deleteQAFile" parameterType="string">
+        delete from QA_BBS_FILE
+        where FILE_SEQ = #{seq}
+    </delete>
+    <delete id="deleteNoticeFile" parameterType="string">
+        delete from NOTICE_BBS_FILE
+        where FILE_SEQ = #{seq}
+    </delete>
+    <delete id="deleteLedgerLayoutFile" parameterType="FileDTO">
+        DELETE FROM NOPER_IMG_FILEINFO
+        WHERE
+            GMSKK = #{gmskk}
+          AND GMDJGB = #{gmdjgb}
+          AND GMSEQCO = #{gmseqco}
+          AND FILE_SEQ = #{fseq}
+    </delete>
+    <delete id="deleteLedgerGreenBeltLayoutFile" parameterType="FileDTO">
+        DELETE FROM IMG_FILEINFO
+        WHERE
+            ADM_SEQ = #{seq}
+          AND FILE_SEQ = #{fseq}
+    </delete>
+    <update id="deleteSiteChkFile" parameterType="FileDTO">
+        UPDATE NOPER_SITE_CHK_FILE SET
+            DELETE_AT = 'Y',
+            CHANG_DTIME = SYSDATE
+        WHERE
+            GMSKK = #{gmskk}
+          AND GMDJGB = #{gmdjgb}
+          AND GMSEQCO = #{gmseqco}
+          AND CHKILNO = #{chkilno}
+          AND FILE_SEQ = #{fseq}
+    </update>
+    <delete id="deleteViolationBuildingFile" parameterType="FileDTO">
+        DELETE FROM VIOMA_FILEINFO
+        WHERE GMSKK = #{gmskk}
+          AND FILE_SEQ = #{fseq}
+    </delete>
+    <delete id="deleteOwnerChangeFile" parameterType="FileDTO">
+        DELETE FROM NOPER_OWNER_CHANGE_FILE
+        WHERE GMSKK = #{gmskk}
+        AND GMDJGB = #{gmdjgb}
+        AND GMSEQCO = #{gmseqco}
+        AND FILE_SEQ = #{fseq}
+    </delete>
+
+    <select id="getImgFileNmList" parameterType="list" resultType="map">
+     SELECT
+        LIST_IDN,
+        IND_NO,
+        IDN_SCA,
+        EPSG_CDE,
+        GU_NM,
+        YMD_NM,
+        IMG_NM,
+        FILE_CDE,
+        IMG_RE,
+        REMARK
+     FROM IMG_LIST
+
+        WHERE
+        <foreach item="indNo"  collection="list"  separator="OR">
+            IND_NO = #{indNo}
+        </foreach>
+
+
+    </select>
+</mapper>

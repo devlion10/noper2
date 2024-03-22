@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+<div class="row">
+<!--    툴팁-->
+    <div class="col-12">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="위">
+            Tooltip on top
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="왼쪽">
+            Tooltip on right
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="아래">
+            Tooltip on bottom
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="left" title="오른쪽">
+            Tooltip on left
+        </button>
+    </div>
+</div>
+<script th:inline="javascript">
+    (() => {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    })();
+</script>
+</body>
+</html>

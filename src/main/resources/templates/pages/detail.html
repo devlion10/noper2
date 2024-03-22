@@ -1,0 +1,70 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+        <!--/* 주 화면 컨텐츠 */-->
+    <th:block layout:fragment="content">
+        <div class="content container-fluid my-3 content mt-5">
+            <div class="title-txt row bb-abfc7 mb20">
+                <h1 class="col-2 pb10" th:text="${detailInfo.noticeSubject}"></h1>
+                <span class="col-10 pb5"><b class="text-primary">H</b><i class="bi bi-chevron-double-right"></i>기존무허가 건축물관리<i class="bi bi-chevron-double-right"></i>공지사항관리</span>
+            </div>
+            <div class="row justify-content-start bt-abfc7 bb-abfc7">
+                <div class="col-3 th_txt">
+                    <div>작성자</div>
+                </div>
+                <div class="col-3">
+                    <span>홍길동</span>
+                </div>
+            </div>
+            <div class="row justify-content-center bt-abfc7 bb-abfc7">
+                <div class="col-3 th_txt">
+                    <div>작성일</div>
+                </div>
+                <div class="col-3">
+                    <!-- 자바에서 Null 체크fmf 모두 수행시 if문은 추가할 필요 없음 X-->
+                    <span th:if="detailInfo.date != null"
+                          th:text="${#temporals.format(detailInfo.registTs, 'yyyy-MM-dd HH:MM:SS')}"></span>
+                </div>
+                <div class="col-3 th_txt">
+                    <div>조회수</div>
+                </div>
+                <div class="col-3">
+                    <span th:text="${detailInfo.readCount}"></span>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card my-3">
+                        <div class="card-body">
+                            <div class="card-text" style="white-space: pre-line;"
+                                 th:text="${detailInfo.noticeContent}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="basic-addon1">첨부파일</span>
+                                    <input type="text" class="form-control " placeholder="첨부된 파일.txt" aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+                                    <button type="button" class="btn btn-success btn-sm" style="float:right"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        <a th:href="@{|/board/modify/1|}" class="btn btn-sm btn-outline-secondary" th:text="수정"></a>
+                        <a class="delete btn btn-sm btn-outline-secondary" th:text="삭제"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+        </script>
+    </th:block>
+</html>

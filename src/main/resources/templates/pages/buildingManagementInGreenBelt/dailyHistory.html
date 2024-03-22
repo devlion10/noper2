@@ -1,0 +1,144 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="dailyHistoryBold = true">
+    <th:block th:replace="fragments/LNB :: bldmngingb"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/buildingManagementInGreenBelt/dailyHistory.js}"></script>
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+    <th:block layout:fragment="content">
+
+        <div class="content container-fluid">
+            <div class="title_wrap">
+                <h3 class="tit">일일처리내역</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>개발제한구역내 건축물관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>일일처리내역</span>
+                </div>
+            </div>
+            <div>
+                <form id="historyFindForm" th:object="${HistoryMainDTO}" th:method="post">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label name="skkcd" class="col-form-label col-form-label-sm">기관명</label>
+                        </div>
+                        <th:block th:if="${#authentication.principal.isAdmin}">
+                            <div class="col-5">
+                                <select id="skkcdSearch" class="form-select form-select-sm w180" name="skkCd">
+                                    <option value="" selected>전체</option>
+                                    <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                                </select>
+                            </div>
+                        </th:block>
+                        <th:block th:if="!${#authentication.principal.isAdmin}">
+                            <div class="col-5">
+                                <select id="skkcdSearch" class="form-select form-select-sm w180" disabled>
+                                    <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${#authentication.principal.skkCd}"></option>
+                                </select>
+                                <input type="hidden" name="skkCd" th:value="${#authentication.principal.skkCd}"/>
+                            </div>
+                        </th:block>
+                        <!--<div class="col-5">
+                            <select id="skkcdSearch" class="form-select form-select-sm" aria-label="Default select example">
+                                <option value="">전체</option>
+                                <option th:each="codeGmskk : ${codeGmskk}" th:value="${codeGmskk.cdkey}"
+                                        th:text="${codeGmskk.cdvalue}">기관명</option>
+                            </select>
+                        </div>-->
+                        <div class="col-1 col-th">
+                            <label name="workName" class="col-form-label col-form-label-sm">업무구분</label>
+                        </div>
+                        <div class="col-5">
+                            <select id="workidSearch" class="form-select form-select-sm w180" aria-label="Default select example">
+                                <option value="">전체</option>
+                                <option th:each="codeGreenBeltWorkId : ${codeGreenBeltWorkId}" th:value="${codeGreenBeltWorkId.cdkey}"
+                                        th:text="${codeGreenBeltWorkId.cdvalue}">업무구분</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label name="bscdUsername" class="col-form-label col-form-label-sm">작업자</label>
+                        </div>
+                        <div class="col-11">
+                            <input type="text" class="form-control form-control-sm" id="searchTxt" name="searchTxt" placeholder="검색어를 입력해주세요.">
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label for="calendarSelect" name="crdate" class="col-form-label col-form-label-sm">작업일자</label>
+                        </div>
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col-3">
+                                    <select id="calendarSelect" name="calendarType" class="form-select form-select-sm w180" title="작업일자">
+                                        <option value="all">전체기간</option>
+                                        <option value="simple">기간선택</option>
+                                        <option value="set">기간설정</option>
+                                    </select>
+                                    <input type="hidden" id="startDate" name="stDate">
+                                    <input type="hidden" id="endDate" name="endDate">
+                                </div>
+                                <div id="calendarRemote" class="col-9 row align-items-center justify-content-center"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row justify-content-center">
+                    <div class="col-12 justify-content-end mt-3 mb-5">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 일일처리내역을 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="button" id="refreshBtn" class="btn btn-secondary me-2 btn-sm">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <button type="button" id="searchBtn" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center align-items-center">
+                    <div id="totCnt" class="col-2 mt-2">
+                        <h3 th:text="${findHistoryListCount}"></h3>
+                    </div>
+                    <div class="col-10">
+                        <div class="row align-items-center justify-content-end mb-3">
+                            <button type="button" id="csvBtn" class="col-2 btn btn-success btn-sm me-2 w120">
+                                <i class="fa-solid fa-file-excel"></i>
+                                액셀 다운로드
+                            </button>
+                            <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                                <option value="10">10개씩</option>
+                                <option value="30">30개씩</option>
+                                <option value="50">50개씩</option>
+                                <option value="70">70개씩</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myGrid" class="ag-theme-alpine"></div>
+            <div class="row mt-3">
+                <div class="col-12 tx-right">
+                    <button type="button" id="printBtn" class="btn btn-primary btn-sm" th:attr="data-user=${#authentication.principal.userName}">대장출력</button>
+                </div>
+            </div>
+    </div>
+    <script th:inline="javascript">
+    </script>
+</th:block>
+
+
+</html>

@@ -1,0 +1,36 @@
+# DEV Server datasource settings
+server:
+  port: 8001
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@geonpf.iptime.org:61521:FREE
+    username: noper2
+    password: noper27002
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 15000
+      #connection-init-sql: SELECT 1
+      validation-timeout: 2000
+      minimum-idle: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+noper:
+  report:
+    url: http://geonpf.iptime.org:60005/AISERVER
+  juso:
+    key: devU01TX0FVVEgyMDI0MDEwMjEwMDcxMDExNDM5NTE=
+    domain: https://business.juso.go.kr
+  media:
+    file:
+      location: /FileUpload
+  airial:
+    file:
+      window_location: D:/airialFiles
+      linux_location: /data/airialFiles
+  geoserver:
+    url: http://geonpf.iptime.org:60011/geoserver

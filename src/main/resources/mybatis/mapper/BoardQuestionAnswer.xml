@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.BoardQuestionAndAnswerRepository">
+    <select id="findQaListByQaDto" parameterType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO" resultType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        /* BoardQuestionAndAnswerRepository.findQaListByQaDto */
+        SELECT cnt
+        , QA_SEQ
+        , QA_FLAG
+        , QA_SUBJECT
+        , QA_CONTENTS
+        , REGIST_ID
+        , REGIST_TS
+        , QA_TYPE
+        , FIX_FLAG
+        , READ_CNT
+        , userNm
+        FROM ( SELECT
+        ROW_NUMBER() OVER(ORDER BY QB.REGIST_TS) cnt
+        , QB.QA_SEQ
+        , ( SELECT MAX(QA_FLAG)
+        FROM QA_BBS
+        WHERE QA_SEQ = QB.QA_SEQ
+        ) AS QA_FLAG
+        , QB.QA_SUBJECT
+        , QB.QA_CONTENTS
+        , QB.REGIST_ID
+        , TO_CHAR(QB.REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+        , QB.QA_TYPE
+        , QB.FIX_FLAG
+        , QB.SEC_YN
+        , QB.READ_CNT
+        , NU.USER_NAME AS userNm
+        FROM QA_BBS QB
+        JOIN NOPER_USER NU
+        ON QB.REGIST_ID = NU.USER_ID
+        WHERE QB.QA_FLAG = 1
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            AND TO_CHAR(QB.REGIST_TS, 'YYYY-MM-DD') >= #{stDate}
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(QB.REGIST_TS, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        ORDER BY QB.REGIST_TS DESC
+        ) A
+        WHERE 1 = 1
+        <if test='!admin and allMyChk == null and !allMyChk.equals("my")'>
+            AND A.SEC_YN = 'N' OR (A.SEC_YN = 'Y' AND A.REGIST_ID = #{userId})
+        </if>
+        <if test='allMyChk != null and allMyChk.equals("my")'>
+            AND A.REGIST_ID = #{userId}
+        </if>
+        <if test='answerState != null and !answerState.equals("all")'>
+            AND A.QA_FLAG = #{answerState}
+        </if>
+        <if test='qaType != null and !qaType.equals("all")'>
+            AND A.QA_TYPE = #{qaType}
+        </if>
+        <if test='searchTxt != null and !searchTxt.equals("") and searchState != null'>
+            <choose>
+                <when test='searchState.equals("all")'>
+                    AND A.QA_SUBJECT like '%'||#{searchTxt}||'%' or A.QA_CONTENTS like '%'||#{searchTxt}||'%' or A.userNm like '%'||#{searchTxt}||'%'
+                </when>
+                <when test='searchState.equals("subject")'>
+                    AND A.QA_SUBJECT like '%'||#{searchTxt}||'%'
+                </when>
+                <when test='searchState.equals("contents")'>
+                    AND A.QA_CONTENTS like '%'||#{searchTxt}||'%'
+                </when>
+                <when test='searchState.equals("name")'>
+                    AND A.userNm like '%'||#{searchTxt}||'%'
+                </when>
+            </choose>
+        </if>
+    </select>
+
+    <!-- Q&A 조회 화면 - List 조회 -->
+    <select id="findQaTypeByCdId" parameterType="string" resultType="QaBbs">
+        /* BoardQuestionAndAnswerRepository.findQaTypeByCdId */
+        SELECT CDVALUE AS qaType
+          FROM COM_CODE
+         WHERE CDID = #{cdId}
+    </select>
+
+    <!-- Q&A 등록 화면 - 글 등록 -->
+    <insert id="saveQaWrite" parameterType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        <selectKey keyProperty="qaSeq" resultType="Long" order="BEFORE">
+            SELECT NVL(MAX(QA_SEQ), 0) + 1 FROM QA_BBS
+        </selectKey>
+        /* BoardQuestionAndAnswerRepository.saveQaWrite */
+        INSERT INTO QA_BBS
+               ( QA_SEQ
+               , QA_FLAG
+               , QA_SUBJECT
+               , QA_CONTENTS
+               , REGIST_ID
+               , REGIST_TS
+               , FIX_FLAG
+               , SEC_YN
+               , QA_TYPE
+               )
+        VALUES ( #{qaSeq}
+               , 1
+               , #{qaSubject, jdbcType=VARCHAR}
+               , #{qaContents, jdbcType=CLOB}
+               , #{userId, jdbcType=VARCHAR}
+               , SYSDATE
+               , #{fixFlag, jdbcType=CHAR}
+               , #{secYn, jdbcType=CHAR}
+               , #{qaType, jdbcType=VARCHAR}
+               )
+    </insert>
+
+<!--
+    <select id="findQaDetailByQaSeq" parameterType="integer" resultType="QaBbs">
+        /* BoardQuestionAndAnswerRepository.findQaDetailByQaSeq */
+        SELECT QA_SEQ
+             , QA_FLAG
+             , QA_SUBJECT
+             , QA_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD HH24:MI:SS') AS REGIST_TS
+             , UPDATE_ID
+             , TO_CHAR(UPDATE_TS, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_TS
+             , FIX_FLAG
+             , SEC_YN
+             , QA_TYPE
+          FROM QA_BBS
+         WHERE QA_SEQ = #{qaSeq}
+           AND QA_FLAG = 1
+    </select>
+-->
+
+    <!-- Q&A 상세 화면 - 상세 조회 -->
+    <select id="findQaDetailByQaSeq" parameterType="integer" resultType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        /* BoardQuestionAndAnswerRepository.findQaDetailByQaSeq */
+        SELECT A.QA_SEQ
+             , A.QA_FLAG
+             , A.REGIST_ID
+             , TO_CHAR(A.REGIST_TS, 'YYYY-MM-DD HH24:MI:SS') AS REGIST_TS
+             , A.QA_SUBJECT
+             , A.QA_CONTENTS
+             , F_CDNAME('89',B.SKK_CD) AS SKK_CD
+             , B.USER_NAME
+             , B.TEL_NO
+             , B.E_MAIL
+             , A.FIX_FLAG
+             , A.SEC_YN
+             , A.READ_CNT
+             , A.QA_TYPE
+          FROM QA_BBS A, NOPER_USER B
+         WHERE A.REGIST_ID = B.USER_ID
+           AND A.QA_SEQ = #{qaSeq}
+           AND A.QA_FLAG = 1
+    </select>
+
+    <!-- Q&A 수정 화면 - 수정 -->
+    <update id="modifyQaWrite" parameterType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        /* BoardQuestionAndAnswerRepository.modifyQaWrite */
+        UPDATE QA_BBS
+           SET QA_SUBJECT = #{qaSubject, jdbcType=VARCHAR}
+             , QA_CONTENTS = #{qaContents, jdbcType=CLOB}
+             , UPDATE_ID = #{userId, jdbcType=VARCHAR}
+             , UPDATE_TS = SYSDATE
+             , FIX_FLAG = #{fixFlag, jdbcType=CHAR}
+             , SEC_YN = #{secYn, jdbcType=CHAR}
+             , QA_TYPE = #{qaType, jdbcType=VARCHAR}
+         WHERE QA_SEQ = #{qaSeq}
+           AND QA_FLAG = 1
+    </update>
+    <update id="increaseQAViews">
+        UPDATE QA_BBS
+        SET READ_CNT = READ_CNT + 1
+        WHERE QA_SEQ = #{qaSeq}
+    </update>
+
+    <!-- Q&A 조회 화면 - 글 삭제 -->
+    <delete id="deleteQa" parameterType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        /* BoardQuestionAndAnswerRepository.deleteQa */
+        DELETE FROM QA_BBS WHERE QA_SEQ = #{qaSeq}
+    </delete>
+
+    <delete id="deleteQaFile" parameterType="kr.go.seoul.noper2.dto.QuestionAndAnswerDTO">
+        /* BoardQuestionAndAnswerRepository.deleteQa */
+        DELETE FROM QA_BBS_FILE WHERE QA_SEQ = #{qaSeq}
+    </delete>
+
+    <!-- Q&A 상세 화면 - 답변 등록 -->
+    <insert id="saveAnswer">
+        /* BoardQuestionAndAnswerRepository.saveAnswer */
+        MERGE INTO QA_BBS A
+        USING DUAL
+           ON (A.QA_SEQ = #{qaSeq} AND A.QA_FLAG = 2)
+         WHEN MATCHED THEN
+       UPDATE
+          SET QA_CONTENTS = #{qaContents, jdbcType=VARCHAR}
+            , UPDATE_ID = #{userId, jdbcType=VARCHAR}
+            , UPDATE_TS = SYSDATE
+         WHEN NOT MATCHED THEN
+       INSERT ( QA_SEQ
+              , QA_FLAG
+              , QA_SUBJECT
+              , QA_CONTENTS
+              , REGIST_ID
+              , REGIST_TS
+              )
+       VALUES ( #{qaSeq}
+              , 2
+              , #{qaSubject, jdbcType=VARCHAR}
+              , #{qaContents, jdbcType=VARCHAR}
+              , #{userId}
+              , SYSDATE
+              )
+    </insert>
+
+    <!-- Q&A 상세 화면 - 상세 답변 조회 -->
+    <select id="findAnswerDetailByQaSeq" parameterType="integer" resultType="QaBbs">
+        /* BoardQuestionAndAnswerRepository.findAnswerDetailByQaSeq */
+        SELECT QA_SEQ
+             , QA_FLAG
+             , QA_SUBJECT
+             , QA_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD HH24:MI:SS') AS REGIST_TS
+             , UPDATE_ID
+             , TO_CHAR(UPDATE_TS, 'YYYY-MM-DD HH24:MI:SS') AS UPDATE_TS
+             , FIX_FLAG
+             , SEC_YN
+             , QA_TYPE
+        FROM QA_BBS
+        WHERE QA_SEQ = #{qaSeq}
+          AND QA_FLAG = 2
+    </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<th:block layout:fragment="LNB" th:with="viobldmngStatusBold = true">
+    <th:block th:replace="fragments/LNB :: viobldmng"></th:block>
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/violatingBuildingManagement/violatedStatus.js}"></script>
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">위반건축물 통계</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물 통계</span>
+            </div>
+        </div>
+        <div>
+            <form id="searchForm">
+                <th:block th:if="${#authentication.principal.deptName} != '주택과'">
+                    <div class="row row-tr">
+                        <th:block th:if="${#authentication.principal.isAdmin}">
+                            <div class="col-1 col-th">
+                                <label for="skkCd" class="col-form-label col-form-label-sm">자치구</label>
+                            </div>
+                            <div class="col-8">
+                                <select id="skkCd" class="form-select form-select-sm w180" name="skkCd">
+                                    <option value="" selected>전체</option>
+                                    <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                                </select>
+                            </div>
+                        </th:block>
+                        <div class="col-1 col-th">
+                            <label for="violationType" class="col-form-label col-form-label-sm">위반내역</label>
+                        </div>
+                        <div class="col-2">
+                            <select id="violationType" class="form-select form-select-sm" name="violationType">
+                                <option value="" selected>전체</option>
+                                <option th:selected="${searchParam.violationType} == '위법시공 건축물'">위법시공 건축물</option>
+                                <option th:selected="${searchParam.violationType} == '무단 용도변경 건축물'">무단 용도변경 건축물</option>
+                                <option th:selected="${searchParam.violationType} == '기타 위반건축물'">기타 위반건축물</option>
+                                <option th:selected="${searchParam.violationType} == '기존 무허가 건축물'">기존 무허가 건축물</option>
+                            </select>
+                        </div>
+                    </div>
+                </th:block>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label for="calendarSelect1" class="col-form-label col-form-label-sm">적발일자</label>
+                    </div>
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-3">
+                                <select id="calendarSelect1" class="form-select form-select-sm w180">
+                                    <option value="all" th:selected="${searchParam.calendarType} == all">전체기간</option>
+                                    <option value="simple" th:selected="${searchParam.calendarType} == simple">기간선택</option>
+                                    <option value="set" th:selected="${searchParam.calendarType} == set">기간설정</option>
+                                </select>
+                                <input type="hidden" name="startDate" id="startDate1" th:startDate="${searchParam.startDate}">
+                                <input type="hidden" name="endDate" id="endDate1" th:startDate="${searchParam.endDate}">
+                            </div>
+                            <div id="calendarRemote1" class="col-9 row align-items-center justify-content-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label for="useType" class="col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <select id="useType" class="form-select form-select-sm" name="useType">
+                            <option value="" selected>전체</option>
+                            <option th:selected="${searchParam.useType} == '주거용'">주거용</option>
+                            <option th:selected="${searchParam.useType} == '비주거용'">비주거용</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-3 mb-5">
+                    <div class="col-12 justify-content-end">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 위반건축물통계를 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="reset" id="btnReload" class="btn btn-secondary me-2 btn-sm">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <button id="btnSearch" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i> 조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-5">
+                    <span class="d-flex float-start">
+                        <span id="skk">전체</span>
+                    </span>
+                </div>
+                <div class="col-7">
+                    <div class="row align-items-center justify-content-end mb-3">
+                        <button type="button" class="col-2 btn btn-success me-2 w150 btn-sm" name="excelDownload">
+                            <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myGrid" class="ag-theme-alpine"></div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+    </script>
+</th:block>
+</html>

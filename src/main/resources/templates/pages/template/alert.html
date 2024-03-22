@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body style="padding: 5px">
+<button id="alertError" class="btn me-2">ajax Test</button>
+<button type="button" id="btn1" class="btn btn-secondary me-2">Alert 확인 예제</button>
+<button type="button" id="btn2" class="btn btn-primary me-2">Confirm 확인/취소 예제</button>
+<button type="button" id="btn3" class="btn btn-danger me-2">에러 Alert 예제</button>
+
+<script th:inline="javascript">
+    // promise ( vanilla js + Promise then )
+    document.getElementById('btn1')
+        .addEventListener('click', () => {
+            snAlert.alert('titleText')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        console.log('확인함.')
+                    }
+                })
+        });
+
+    // then 혹은 async / await 둘중에 익숙한 걸 사용하시면 됩니다.
+
+    // async / await ( Jquery + async / await )
+    $('#btn2').click(async () => {
+        const result = await snAlert.confirm('titleText');
+        if (result.isConfirmed) {
+            // 확인을 눌렀을 때
+            console.log('확인함.')
+        } else {
+            // 취소를 눌렀을 때
+            console.log('취소함.')
+        }
+    })
+
+    // promise ( Jquery + Promise then )
+    $('#btn3').click(() => {
+        snAlert.error('titleText', 'subText')
+            .then((result) => {
+                if (result.isConfirmed) {
+                    console.log('확인함.')
+                }
+            })
+    })
+
+    $("#dddd").on('click', () => {
+        $.ajax({
+            type: "GET",
+            url: "/api/board/user/test/legeno",
+            contentType : "application/json;charset=UTF-8",
+            success: (data) => {
+                console.log("통신데이터 값 : " + data);
+            }
+        });
+    })
+</script>
+</body>
+</html>

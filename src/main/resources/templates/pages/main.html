@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/jquery-ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/dialog_css/gsw-jquery-ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/dialog_css/mljquery-ui.min.css}" />
+    <script th:src="@{/gpkisecureweb/client/jquery-1.7.1.min.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/jquery-ui.min.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/var.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/json2.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/Issuer.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/CertSelector.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/CertSearchWindow.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/CertSearchWindow_ko-KR.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/GPKISecureWebNP.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/CertSelector_ko-KR.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/CertViewer.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/certviewR_ko-KR.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/common.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/pinWindow.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/pinWindowR_ko-KR.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/SecureTokenWindow.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/SecureTokenWindow_ko-KR.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/ui/vKeyboardWindow.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/GPKIErrorText.js}"></script>
+    <script th:src="@{/js/map/openMap.js}"></script>
+
+    <title>서울시 기존무허가건축물관리시스템</title>
+</head>
+<body>
+<!-- 스킵 네비게이션(웹접근성 준수 위함) -->
+<div id="wrap">
+    <!--/* header 호출 */-->
+    <th:block th:replace="fragments/header :: header"></th:block>
+
+    <!-- 컨테이너 -->
+    <div id="container" class="main_container">
+        <!-- 메인 비주얼 -->
+        <div class="main_visual">
+            <div class="inner">
+                <div class="img_brand"><span class="hide">seoul my soul</span></div>
+                <p class="ment">
+                    서울시 기존무허가건축물
+                    <br />
+                    관리 시스템
+                </p>
+                <!-- 로그인 박스 -->
+                <!-- 로그인시 표출 됨 -->
+                <div class="login_box" sec:authorize="!isAuthenticated()">
+                    <form th:action="@{/login/gpki}" method="post" name="popForm">
+                        <input disabled="" type="hidden" name="challenge" th:value="${challenge}">
+                        <input type="hidden" name="sessionid" id="sessionid" th:value="${session.id}">
+                        <div>
+                            <a id="default-login" type="button" class="btn btn_login btn_blue">일반 로그인</a>
+                            <button type="button" class="btn btn_login btn_navy mt-3" onclick="return Login(this, popForm)">GPKI 인증 로그인</button>
+                        </div>
+                        <div class="gpki_wrap">
+                            <a href="#none" onclick="GPKISecureWebUi.downLoadFile()">GPKI 인증서 설치</a>
+                            <a th:href="@{/find-id}" >아이디 찾기</a>
+                        </div>
+                    </form>
+                </div>
+                <!-- // 로그인시 표출 됨 -->
+            </div>
+        </div>
+        <!-- 메인 컨텐츠 -->
+        <div class="content">
+            <section class="section_01">
+                <div class="left">
+                    <ul>
+                        <li>
+                            <a th:href="@{/unlcebldmng/ledger}">
+                                <h2>대장조회</h2>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/unlcebldmng/confirmationAdd}">
+                                <h2>확인원<br />발급</h2>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/unlcebldmng/ownerChangeAdd(addFlage='change')}">
+                                <h2>소유자<br />변경신고</h2>
+                            </a>
+                        </li>
+                        <li>
+                            <a th:href="@{/unlcebldmng/demolition/add}">
+                                <h2>철거신고</h2>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="right">
+                    <ul class="tabs">
+                        <li class="tab tab_01 on">
+                            <a href="#none">공지사항</a>
+                        </li>
+                        <li class="tab tab_02">
+                            <a href="#none">Q & A</a>
+                        </li>
+                    </ul>
+                    <div class="tabcontents">
+                        <div class="tab tab_01 on">
+                            <button type="button" class="btn_more" onclick="location.href = '/board/notice/list'">공지사항 더보기&nbsp<i class="bi bi-arrow-right"></i></button>
+                            <ul>
+                                <li th:each="val, valStat : ${noticeList}" th:if="${valStat.index < 5}">
+                                    <a th:href="@{/board/notice/detail(noticeSeq=${val.noticeSeq})}" th:text="${val.noticeSubject}"></a>
+                                    <span class="date" th:text="${#strings.replace(val.registTs, '-', '.')}"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab tab_02">
+                            <button type="button" class="btn_more" onclick="location.href = '/board/questionAndAnswer/list'">Q&A 더보기&nbsp<i class="bi bi-arrow-right"></i></button>
+                            <ul>
+                                <li th:each="val, valStat : ${qaList}" th:if="${valStat.index < 5}">
+                                    <a th:href="@{/board/questionAndAnswer/detail(qaSeq=${val.qaSeq})}" th:text="${val.qaSubject}"></a>
+                                    <span class="date" th:text="${#strings.replace(val.registTs, '-', '.')}"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="section_02">
+                <div class="left">
+                    <ul>
+                        <li>
+                            <h2>My Q&A</h2>
+                            <ul>
+                                <li>
+                                    <button type="button" class="btn_more" onclick="location.href = '/board/questionAndAnswer/add'">문의하기&nbsp<i class="bi bi-arrow-right"></i></button>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn_more" onclick="location.href = '/board/questionAndAnswer/list'">문의글 확인하기&nbsp<i class="bi bi-arrow-right"></i></button></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h2>위반건축물관리</h2>
+                            <ul class="list_02">
+                                <li>
+                                    <button type="button" class="btn_more" onclick="location.href = '/viobldmng/list'">위반현황&nbsp<i class="bi bi-arrow-right"></i></button>
+                                </li>
+                                <li>
+                                    <button type="button" class="btn_more" onclick="location.href = '/viobldmng/status'">통계현황&nbsp<i class="bi bi-arrow-right"></i></button>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="right">
+                    <ul>
+                        <li onclick="menuIdCheck(isAuthenticated, this)">
+                            <a href="#"></a>
+                            <span>항공사진측량 현황도</span>
+                        </li>
+                        <li onclick="location.href = '/board/GPKI'">
+                            <a href="#"></a>
+                            <span>GPKI 인증서 사용안내</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+    <!--/* footer 호출 */-->
+    <th:block th:replace="fragments/footer :: footer"></th:block>
+
+    <th:block sec:authorize="!isAuthenticated()">
+        <th:block th:replace="pages/auth/login :: container"></th:block>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()">
+        <th:block th:replace="pages/auth/gpki :: container"></th:block>
+        <form id="hiddenForm" th:action="@{/login/gpki}" method="post" name="hiddenForm">
+            <input disabled="" type="hidden" name="challenge" th:value="${challenge}">
+            <input type="hidden" name="sessionid" th:value="${session.id}">
+            <a id="hiddenLogin" onclick="return Login(this, hiddenForm)"></a>
+        </form>
+    </th:block>
+</div>
+
+<th:block>
+    <div class="popup_layer" id="popup_layer" style="display: none;">
+        <div class="popup_box">
+            <div class="popup_cont">
+                <h5>장애 발생 및 시스템 문의</h5>
+                <p style="border-top: 1px dotted #666">
+                <!--
+                    서울시에서 추진중인 기존무허가건축물관리시스템<br> 재개발 사업과 관련하여 신규서버로의 DB이관 작업이<br>
+                    아래의 일정으로 진행될 예정입니다. <br>
+                    알림 게시 등 민원인이 미리 인지할 수 있도록 공지하여 <br>
+                    업무처리에 지장이 없도록 해주시기 바랍니다. <br>
+                -->
+                </p>
+                <p class="p2">
+                    Tel. 02-857-0717
+                </p>
+            </div>
+            <div class="popup_btn" style="float: bottom; margin-top: 30px;">
+                <div>
+                    <input id="odsx" type="checkbox">
+                    <label for="odsx">오늘 하루 그만 보기</label>
+                </div>
+                <a href="javascript:closePop();">닫기</a>
+            </div>
+        </div>
+    </div>
+    <style>
+        .popup_layer {position:fixed;top:0;left:0;z-index: 10000; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); }
+        /*팝업 박스*/
+        .popup_box{position: relative;top:50%;left:50%; overflow: auto; height: 308px; width:500px;transform:translate(-50%, -50%);z-index:1002;box-sizing:border-box;background:#fff;box-shadow: 2px 5px 10px 0px rgba(0,0,0,0.35);-webkit-box-shadow: 2px 5px 10px 0px rgba(0,0,0,0.35);-moz-box-shadow: 2px 5px 10px 0px rgba(0,0,0,0.35);}
+        /*컨텐츠 영역*/
+        .popup_box .popup_cont {padding:5px 30px 30px;line-height:1.4rem;font-size:14px; }
+        .popup_box .popup_cont h5 {margin: 25px 0px; text-align: center; font-size: 20px; font-weight: bold; color: #000; line-height: 25px;}
+        .popup_box .popup_cont p{ border-top: 1px solid #000;padding-top: 30px; text-align: left; font-size: 16px; line-height:25px; font-weight: bold; color: #000;}
+        .popup_box .popup_cont p.p2{border-top: 0px; margin-top:10px; font-size: 24px; font-weight: bold; color: #000; text-align: center;}
+        /*버튼영역*/
+        .popup_box .popup_btn {display:table;table-layout: fixed;width:100%;height:70px;background:#ECECEC;word-break: break-word;}
+        .popup_box .popup_btn a {position: relative; display: table-cell; height:70px;  font-size:17px;text-align:center;vertical-align:middle;text-decoration:none; background:#ECECEC;}
+        .popup_box .popup_btn a.close_day {background:#5d5d5d;}
+        .popup_box .popup_btn a.close_day:before, .popup_box .popup_btn a.close_day:after{display:none;}
+        .popup_box .popup_btn div {position: relative; display: table-cell; height:70px;  font-size:17px;text-align:center;vertical-align:middle; background:#ECECEC;}
+    </style>
+    <script>
+        $(document).ready(function(){
+        if(new Date() < new Date('01/04/2025 18:00:00')){
+            if(sessionStorage.getItem('odsx') !== null && sessionStorage.getItem('odsx').length > 2 &&
+                sessionStorage.getItem('odsx').indexOf('-') !== -1 && sessionStorage.getItem('odsx').split('-')[1] !== null) {
+                let keyDateString = sessionStorage.getItem('odsx').split('-')[1];
+                if(keyDateString.length === 8 && keyDateString === nowDateString()) {
+                    $("#popup_layer").css("display", "hidden");
+                } else {
+                    sessionStorage.setItem("odsx", "f");
+                    $("#popup_layer").css("display", "block");
+                }
+            } else {
+                $("#popup_layer").css("display", "block");
+            }
+        }
+            if(sessionStorage.getItem('atlg') !== null && sessionStorage.getItem('atlg').length > 2 &&
+                sessionStorage.getItem('atlg').indexOf('-') !== -1 && sessionStorage.getItem('atlg').split('-')[1] !== null) {
+                let userId = sessionStorage.getItem('atlg').split('-')[0];
+                let userPw = sessionStorage.getItem('atlg').split('-')[1];
+                $('#autoLogin').prop('checked', 'true');
+                $('#inputId').val(userId);
+                $('#inputPw').val(userPw);
+            }
+        });
+
+        function nowDateString() {
+            let nowDate = new Date()
+            let nowDateString = '' + nowDate.getFullYear();
+            if(nowDate.getMonth() + 1 < 10) nowDateString += '0';
+            nowDateString += nowDate.getMonth() + 1;
+            if(nowDate.getDate() < 10) nowDateString += '0';
+            nowDateString += nowDate.getDate();
+
+            return nowDateString;
+        }
+
+        //팝업 닫기
+        function closePop() {
+            document.getElementById("popup_layer").style.display = "none";
+            if(document.getElementById("odsx").checked) {
+                let keyString = 't-' + nowDateString();
+                sessionStorage.setItem("odsx", keyString);
+            } else sessionStorage.setItem("odsx", "f");
+        }
+    </script>
+</th:block>
+
+<script th:src="@{/js/auth/login.js}"></script>
+</body>
+</html>

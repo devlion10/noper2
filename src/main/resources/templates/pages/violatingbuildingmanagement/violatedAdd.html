@@ -1,0 +1,1120 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko">
+<th:block layout:fragment="css">
+<!--    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >-->
+</th:block>
+<th:block layout:fragment="LNB" th:with="viobldmngListBold = true">
+    <th:block th:replace="fragments/LNB :: viobldmng"></th:block>
+</th:block>
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/common/calendar.js}"></script>
+    <script th:src="@{/js/violatingBuildingManagement/violatedAdd.js}"></script>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap bdnn">
+            <h3 class="tit" th:text="${#httpServletRequest.getRequestURI()} eq '/viobldmng/create' ? '위반건축물 등록' : '위반건축물 수정'"></h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span th:text="${#httpServletRequest.getRequestURI()} eq '/viobldmng/create' ? '위반건축물 등록' : '위반건축물 수정'"></span>
+            </div>
+        </div>
+        <div>
+            <form id="violatedAdd" class="needs-validation" novalidate>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-1">
+                                <p class="fw-bold">기본정보</p>
+                            </div>
+                            <div class="col-11">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="gmskk" class="col-form-label col-form-label-sm">관리번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-7">
+                                <input id="gmskk" type="text" name="gmskk" th:value="${vioma.gmskk}" required>
+                                <div class="invalid-feedback">
+                                    ※ 관리번호를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="gmbjdcd" class="col-form-label col-form-label-sm">관리행정동<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <select id="gmbjdcd" name="gmbjdcd" class="form-select form-select-sm" required>
+                                    <option value="">동 선택</option>
+                                    <option th:each="val : ${bjdCd}" th:value="${val?.key}" th:utext="${val?.dpname}" th:selected="${vioma.gmbjdcd} == ${val?.dpname}"></option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    ※ 관리행정동을 선택해주세요
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">건축물 주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <input id="gmnaddr" class="form-control form-control-sm disabled" name="gmnaddr" placeholder="도로명주소" th:value="${vioma.gmnaddr}" readonly required/>
+                                <div class="invalid-feedback">
+                                    ※ 건축물 도로명주소를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <input id="gmaddr" class="form-control form-control-sm disabled" name="gmaddr" placeholder="지번주소" th:value="${vioma.gmaddr}" readonly required/>
+                                <div class="invalid-feedback">
+                                    ※ 건축물 지번주소를 입력해주세요
+                                </div>
+                                <input type="hidden" id="gmcsah" name="gmcsah" th:value="${vioma.gmcsah}">
+                            </div>
+                            <div class="col-1">
+                                <button type="button" id="jusoBtn" name="jusoBtn" class="btn btn-secondary btn-sm float-end">
+                                    <i class="fa-solid fa-search"></i> 주소
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-1">
+                                <p class="fw-bold">대지정보</p>
+                            </div>
+                            <div class="col-11">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="dejimj" class="col-form-label col-form-label-sm">대지위치<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="dejimj" class="form-control form-control-sm" name="dejimj" placeholder="대지위치 입력" th:value="${vioma.dejimj}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 대지위치를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="dejijmg" class="col-form-label col-form-label-sm">지목<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <select id="dejijmg" class="form-select form-select-sm" name="dejijmg" th:value="${vioma.dejijmg}" required>
+                                    <option selected>전</option>
+                                    <option>후</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    ※ 지목을 선택해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="dejisg" class="col-form-label col-form-label-sm">토지소유권<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <select id="dejisg" class="form-select form-select-sm" name="dejisg" required>
+                                    <option th:selected="${vioma.dejisg} == '자기토지'">자기토지</option>
+                                    <option th:selected="${vioma.dejisg} == '자기토지2'">자기토지2</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    ※ 토지소유권을 선택해주세요
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="dejiju" class="col-form-label col-form-label-sm">용도지역<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="dejiju" class="form-control form-control-sm" name="dejiju" placeholder="용도지역 입력" th:value="${vioma.dejiju}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 용도지역을 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="dejijg" class="col-form-label col-form-label-sm">용도지구<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="dejijg" class="form-control form-control-sm" name="dejijg" placeholder="용도지구 입력" th:value="${vioma.dejijg}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 용도지구를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="dejigu" class="col-form-label col-form-label-sm">용도구역<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="dejigu" class="form-control form-control-sm" name="dejigu" placeholder="용도구역 입력" th:value="${vioma.dejigu}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 용도구역을 입력해주세요
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">건축주 정보</p>
+                            </div>
+                            <div class="col-9">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="gcname" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gcname" class="form-control form-control-sm" name="gcname" placeholder="성명 입력" data-input-type="noNumberString" th:value="${vioma.gcname}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 성명을 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="gcbirth" class="col-form-label col-form-label-sm">생년월일<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-1">
+                                <select class="form-select form-select-sm w100" name="gcforigb" required>
+                                    <option value="t" th:selected="${vioma.gcforigb} == 't'">내국인</option>
+                                    <option value="f" th:selected="${vioma.gcforigb} == 'f'">외국인</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    ※ 내/외국인을 선택해주세요
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <input id="gcbirth" class="form-control form-control-sm" name="gcbirth" placeholder="생년월일 입력" minlength="8" maxlength="8" data-input-type="number" th:value="${vioma.gcbirth}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 생년월일을 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="gctelno" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gctelno" type="number" class="form-control form-control-sm" name="gctelno" minlength="10" maxlength="11" data-input-type="number" placeholder="전화번호 입력" th:value="${vioma.gctelno}" required/>
+                                <div class="invalid-feedback">
+                                    ※ 전화번호를 입력해주세요
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <input id="gcnaddr" class="form-control form-control-sm disabled" name="gcnaddr" placeholder="도로명주소" th:value="${vioma.gcnaddr}" readonly required/>
+                                <div class="invalid-feedback">
+                                    ※ 건축주 주소를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <input id="gcaddr" class="form-control form-control-sm disabled" name="gcaddr" placeholder="지번주소" th:value="${vioma.gcaddr}" readonly required/>
+                                <div class="invalid-feedback">
+                                    ※ 건축주 주소를 입력해주세요
+                                </div>
+                            </div>
+                            <div class="col-1">
+                                <button type="button" id="jusoBtn2" name="jusoBtn" class="btn btn-secondary btn-sm float-end">
+                                    <i class="fa-solid fa-search"></i> 주소
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">현거주자 정보</p>
+                            </div>
+                            <div class="col-8">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                            <div class="col-1">
+                                <button id="resiAdd" type="button" class="btn btn-secondary btn-sm float-end">추가&nbsp;+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resiBody" class="card-body">
+                        <th:block th:each="r: ${resi}">
+                            <input type="hidden" name="resiSeq" th:value="${r.resiSeq}">
+                            <div class="row row-tr"></div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label th:for="|resiName${rStat.count}|" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-3">
+                                    <input th:id="|resiName${rStat.count}|" class="form-control form-control-sm" name="resiName" data-input-type="noNumberString" placeholder="성명 입력" th:value="${r.resiName}" required/>
+                                    <div class="invalid-feedback">
+                                        ※ 현거주자 성명을 입력해주세요
+                                    </div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label th:for="|resiBrith${rStat.count}|" class="col-form-label col-form-label-sm">생년월일<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-1">
+                                    <select class="form-select form-select-sm w100" name="resiForigb" required>
+                                        <option value="t" th:selected="${r.resiForigb} == 't'">내국인</option>
+                                        <option value="f" th:selected="${r.resiForigb} == 'f'">외국인</option>
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <input th:id="|resiBrith${rStat.count}|" class="form-control form-control-sm" name="resiBirth" minlength="8" maxlength="8" data-input-type="number" placeholder="생년월일 입력" th:value="${r.resiBirth}" required/>
+                                    <div class="invalid-feedback">
+                                        ※ 현거주자 생년월일을 입력해주세요
+                                    </div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label th:for="|resiTelno${rStat.count}|" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-3">
+                                    <input th:id="|resiTelno${rStat.count}|" class="form-control form-control-sm" name="resiTelno" minlength="10" maxlength="11" data-input-type="number" placeholder="전화번호 입력" th:value="${r.resiTelno}" required/>
+                                    <div class="invalid-feedback">
+                                        ※ 현거주자 전화번호를 입력해주세요
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row-tr mb-3">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input th:id="|resiNewAddress${rStat.count}|" class="form-control form-control-sm disabled" name="resiNewAddress" placeholder="도로명주소" th:value="${r.resiNewAddress}" readonly required/>
+                                    <div class="invalid-feedback">
+                                        ※ 현거주자 도로명주소을 입력해주세요
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <input th:id="|resiAddress${rStat.count}|" class="form-control form-control-sm disabled" name="resiAddress" placeholder="지번주소" th:value="${r.resiAddress}" readonly required/>
+                                    <div class="invalid-feedback">
+                                        ※ 현거주자 지번주소을 입력해주세요
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                    <button type="button" th:id="|resiJusoBtn${rStat.count}|" name="jusoBtn" class="btn btn-secondary btn-sm float-end">
+                                        <i class="fa-solid fa-search"></i> 주소
+                                    </button>
+                                </div>
+                            </div>
+                        </th:block>
+                        <th:block th:if="${#lists.size(resi)} > 0">
+                            <input type="hidden" id="resiCount" th:value="${#lists.size(resi)}">
+                        </th:block>
+                       <script id="resi-template" type="text/x-handlebars-template">
+                           <div class="row row-tr"></div>
+                           <div class="row row-tr">
+                               <div class="col-1 col-th">
+                                   <label for="resiName{{this}}" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                               </div>
+                               <div class="col-3">
+                                   <input id="resiName{{this}}" class="form-control form-control-sm" name="resiName" minlength="1" maxlength="10" data-input-type="noNumberString" placeholder="성명 입력" required/>
+                                   <div class="invalid-feedback">
+                                       ※ 현거주자 성명을 입력해주세요
+                                   </div>
+                               </div>
+                               <div class="col-1 col-th">
+                                   <label for="resiBirth{{this}}" class="col-form-label col-form-label-sm">생년월일<th:block th:replace="pages/common/util :: required"></th:block></label>
+                               </div>
+                               <div class="col-1">
+                                   <select class="form-select form-select-sm w100" name="resiForigb" required>
+                                       <option value="f" selected>내국인</option>
+                                       <option value="t">외국인</option>
+                                   </select>
+                               </div>
+                               <div class="col-2">
+                                   <input id="resiBirth{{this}}" class="form-control form-control-sm" name="resiBirth" minlength="8" maxlength="8" data-input-type="number" placeholder="생년월일 입력" required/>
+                                   <div class="invalid-feedback">
+                                       ※ 현거주자 생년월일을 입력해주세요
+                                   </div>
+                               </div>
+                               <div class="col-1 col-th">
+                                   <label for="resiTelno{{this}}" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                               </div>
+                               <div class="col-3">
+                                   <input id="resiTelno{{this}}" class="form-control form-control-sm" name="resiTelno" minlength="10" maxlength="11" data-input-type="number" placeholder="전화번호 입력" required/>
+                                   <div class="invalid-feedback">
+                                       ※ 현거주자 전화번호를 입력해주세요
+                                   </div>
+                               </div>
+                           </div>
+                           <div class="row row-tr mb-3">
+                               <div class="col-1 col-th">
+                                   <label class="col-form-label col-form-label-sm">주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                               </div>
+                               <div class="col-5">
+                                   <input id="resiNewAddress{{this}}" class="form-control form-control-sm disabled" name="resiNewAddress" placeholder="도로명주소" readonly required/>
+                                   <div class="invalid-feedback">
+                                       ※ 현거주자 도로명주소를 입력해주세요
+                                   </div>
+                               </div>
+                               <div class="col-5">
+                                   <input id="resiAddress{{this}}" class="form-control form-control-sm disabled" name="resiAddress" placeholder="지번주소" readonly required/>
+                                   <div class="invalid-feedback">
+                                       ※ 현거주자 지번주소을 입력해주세요
+                                   </div>
+                               </div>
+                               <div class="col-1">
+                                   <button type="button" id="resiJusoBtn{{this}}" onclick="jusoClick(this)" name="jusoBtn" class="btn btn-secondary btn-sm float-end">
+                                       <i class="fa-solid fa-search"></i> 주소
+                                   </button>
+                               </div>
+                           </div>
+                       </script>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">위반내역</p>
+                            </div>
+                            <div class="col-7">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                            <div class="col-2">
+                                <select id="gmtype" name="gmtype" class="form-select form-select-sm float-end w170 text-center" required>
+                                    <option value="" selected>선택</option>
+                                    <option th:selected="${vioma.gmtype} == '위법시공 건축물'">위법시공 건축물</option>
+                                    <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물'">무단 용도변경 건축물</option>
+                                    <option th:selected="${vioma.gmtype} == '기타 위반건축물'">기타 위반건축물</option>
+                                    <option th:selected="${vioma.gmtype} == '무허가 건축물'">무허가 건축물</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <!--선택 후 바뀌는 영역-->
+                        <div id="unauthorizedChange" th:style="${vioma.gmtype == '무단 용도변경 건축물' ? 'display: block' : 'display: none'}">
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmdate" class="col-form-label col-form-label-sm">적발일자
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w170" name="gmdate" th:value="${vioma.gmtype == '무단 용도변경 건축물' ? vioma.gmdate : ''}" th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'"/>
+                                    <div class="invalid-feedback">※ 적발일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmftype" class="col-form-label col-form-label-sm">적발유형
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="gmftype" class="form-select form-select-sm w170 text-center" name="gmftype" th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'">
+                                        <option value="">선택</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmftype} == '1'">1</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmftype} == '2'">2</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmftype} == '3'">3</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 적발유형을 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th text-center">
+                                    <label for="gmcdate" class="col-form-label col-form-label-sm">발생일자
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmcdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w170" name="gmcdate" th:value="${vioma.gmtype} == '무단 용도변경 건축물' ? ${vioma.gmcdate} : ''" th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'"/>
+                                    <div class="invalid-feedback">※ 발생일자를 선택해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmmunjuk" class="col-form-label col-form-label-sm w110">위반면적(m²)
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <div class="d-flex align-items-center">
+                                        <input id="gmmunjuk" class="form-control form-control-sm w150" name="gmmunjuk" data-input-type="digitNumber" placeholder="위반면적 입력" th:value="${vioma.gmtype} == '무단 용도변경 건축물' ? ${vioma.gmmunjuk} : ''" th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'"/>
+                                        <span class="ml6">m²</span>
+                                    </div>
+                                    <div class="invalid-feedback">※ 위반면적 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmfloor" class="col-form-label col-form-label-sm">위반층수
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <div class="d-flex align-items-center">
+                                        <input id="gmfloor" class="form-control form-control-sm w150" name="gmfloor" data-input-type="number" maxlength="1" placeholder="위반층수 입력" th:value="${vioma.gmtype == '무단 용도변경 건축물' ? vioma.gmfloor : ''}" th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'"/>
+                                        <span class="ml6">층</span>
+                                    </div>
+                                    <div class="invalid-feedback">※ 위반층수를 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 text-center">
+                                </div>
+                                <div class="col-3">
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmbsub" class="col-form-label col-form-label-sm w120">변경 전 용도
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="gmbsub" class="form-select form-select-sm w170" name="gmbsub"  th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'">
+                                        <option value="">선택</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmbsub} == '주거용'">주거용</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmbsub} == '비주거용'">비주거용</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 변경 전 용도를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmasub" class="col-form-label col-form-label-sm w120">변경 후 용도
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="gmasub" class="form-select form-select-sm w170" name="gmasub"  th:required="${vioma.gmtype} == '무단 용도변경 건축물'" th:disabled="${vioma.gmtype} != '무단 용도변경 건축물'">
+                                        <option value="">선택</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmasub} == '주거용'">주거용</option>
+                                        <option th:selected="${vioma.gmtype} == '무단 용도변경 건축물' and ${vioma.gmasub} == '비주거용'">비주거용</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 변경 후 용도를 선택해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">파일첨부</label>
+                                </div>
+                                <div class="col-11">
+                                    <div id="file1"></div>
+                                </div>
+                            </div>
+                            <div class="row row-tr border-end-0 mt-2 mb-2 files">
+                                <div class="col-1 text-center">파일</div>
+                                <div class="col-9">
+                                    <ul id="files1" class="list-inline">
+                                    </ul>
+                                </div>
+                                <div class="col-2 tx-right">
+                                    <button type="button" id="allDownload1" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="illegalConstruction" th:style="${vioma.gmtype == '위법시공 건축물' ? 'display: block' : 'display: none'}">
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmdate2" class="col-form-label col-form-label-sm">적발일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmdate2" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmdate" th:value="${vioma.gmtype eq '위법시공 건축물' ? vioma?.gmdate : ''}"  th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 적발일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmname2" class="col-form-label col-form-label-sm">적발자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmname2" class="form-control form-control-sm w200" name="gmname" minlength="1" maxlength="10" data-input-type="noNumberString" placeholder="적발자 성명 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmname} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 적발자 이름을 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmcdate2" class="col-form-label col-form-label-sm">발생일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmcdate2" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmcdate" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmcdate} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 발생일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmbsub2" class="col-form-label col-form-label-sm">위반용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <select id="gmbsub2" class="form-select form-select-sm w200" name="gmbsub" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmbsub} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'">
+                                        <option value="">선택</option>
+                                        <option th:selected="${vioma.gmtype} == '위법시공 건축물' and ${vioma.gmbsub} == '주거용'">주거용</option>
+                                        <option th:selected="${vioma.gmtype} == '위법시공 건축물' and ${vioma.gmbsub} == '비주거용'">비주거용</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 위반용도를 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmmunjuk2" class="col-form-label col-form-label-sm">위반면적<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <div class="align-items-center d-flex">
+                                        <input id="gmmunjuk2" type="text" class="form-control form-control-sm w200" name="gmmunjuk" data-input-type="digitNumber" placeholder="위반면적 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmmunjuk} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                        <span class="ml6">m²</span>
+                                    </div>
+                                    <div class="invalid-feedback">※ 위반면적을 선택해주세요.</div>
+                                </div>
+                                <div class="col-6"></div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmsname2" class="col-form-label col-form-label-sm">시공사명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmsname2" type="text" class="form-control form-control-sm w200" name="gmsname" data-input-type="string" placeholder="시공사명 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmsname} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 시공사 이름을 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmsnumber2" class="col-form-label col-form-label-sm w110">시공사 면허번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmsnumber2" type="text" class="form-control form-control-sm w200" name="gmsnumber" placeholder="시공사 면허번호 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmsnumber} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 시공사 면허번호를 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmgname2" class="col-form-label col-form-label-sm">감리자명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmgname2" type="text" class="form-control form-control-sm w200" name="gmgname" minlength="1" maxlength="10" data-input-type="noNumberString" placeholder="감리자명 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmgname} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 감리자 이름을 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmgnumber2" class="col-form-label col-form-label-sm w110">감리자 면허번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmgnumber2" type="text" class="form-control form-control-sm w200" name="gmgnumber" placeholder="감리자 면허번호 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gmgnumber} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 감리자 면허번호를 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gminfo2" class="col-form-label col-form-label-sm">위반내용<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-10">
+                                    <input id="gminfo2" type="text" class="form-control form-control-sm" name="gminfo" placeholder="위반내용 입력" th:value="${vioma.gmtype} == '위법시공 건축물' ? ${vioma.gminfo} : ''" th:required="${vioma.gmtype} == '위법시공 건축물'" th:disabled="${vioma.gmtype} != '위법시공 건축물'"/>
+                                    <div class="invalid-feedback">※ 위반내용을 입력해주세요.</div>
+                                </div>
+                                <div class="col-1"></div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">파일첨부</label>
+                                </div>
+                                <div class="col-11">
+                                    <div id="file2"></div>
+                                </div>
+                            </div>
+                            <div class="row row-tr border-end-0 mt-2 mb-2 files">
+                                <div class="col-1 text-center">파일</div>
+                                <div class="col-9">
+                                    <ul id="files2" class="list-inline">
+                                    </ul>
+                                </div>
+                                <div class="col-2 tx-right">
+                                    <button type="button" id="allDownload2" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="etc" th:style="${vioma.gmtype == '기타 위반건축물' ? 'display: block' : 'display: none'}">
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmdate3" class="col-form-label col-form-label-sm">적발일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmdate3" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmdate" th:value="${vioma.gmtype} == '기타 위반건축물' ? ${vioma.gmdate} : ''" th:required="${vioma.gmtype} == '기타 위반건축물'" th:disabled="${vioma.gmtype} != '기타 위반건축물'"/>
+                                    <div class="invalid-feedback">※ 적발일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmname3" class="col-form-label col-form-label-sm">적발자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmname3" type="text" class="form-control form-control-sm w200" name="gmname" minlength="1" maxlength="10" data-input-type="noNumberString" placeholder="적발자 성명 입력" th:value="${vioma.gmtype} == '기타 위반건축물' ? ${vioma.gmname} : ''" th:required="${vioma.gmtype} == '기타 위반건축물'" th:disabled="${vioma.gmtype} != '기타 위반건축물'"/>
+                                    <div class="invalid-feedback">※ 적발자 이름을 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmcdate3" class="col-form-label col-form-label-sm">발생일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <input id="gmcdate3" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmcdate" th:value="${vioma.gmtype} == '기타 위반건축물' ? ${vioma.gmcdate} : ''" th:required="${vioma.gmtype} == '기타 위반건축물'" th:disabled="${vioma.gmtype} != '기타 위반건축물'"/>
+                                    <div class="invalid-feedback">※ 발생일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmbsub3" class="col-form-label col-form-label-sm">위반용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-5">
+                                    <select id="gmbsub3" class="form-select form-select-sm w200" name="gmbsub" th:required="${vioma.gmtype} == '기타 위반건축물'" th:disabled="${vioma.gmtype} != '기타 위반건축물'">
+                                        <option value="" selected>선택</option>
+                                        <option th:selected="${vioma.gmtype} == '기타 위반건축물' and ${vioma.gmbsub} == '주거용'">주거용</option>
+                                        <option th:selected="${vioma.gmtype} == '기타 위반건축물' and ${vioma.gmbsub} == '비주거용'">비주거용</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 위반용도를 선택해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gminfo3" class="col-form-label col-form-label-sm">위반내용<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                </div>
+                                <div class="col-10">
+                                    <input id="gminfo3" type="text" class="form-control form-control-sm" name="gminfo" placeholder="위반내용 입력" th:value="${vioma.gmtype} == '기타 위반건축물' ? ${vioma.gminfo} : ''" th:required="${vioma.gmtype} == '기타 위반건축물'" th:disabled="${vioma.gmtype} != '기타 위반건축물'"/>
+                                    <div class="invalid-feedback">※ 위반내용을 입력해주세요.</div>
+                                </div>
+                                <div class="col-1"></div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">파일첨부</label>
+                                </div>
+                                <div class="col-11">
+                                    <div id="file3"></div>
+                                </div>
+                            </div>
+
+                            <div class="row row-tr border-end-0 mt-2 mb-2 files">
+                                <div class="col-1 text-center">파일</div>
+                                <div class="col-9">
+                                    <ul id="files3" class="list-inline">
+                                    </ul>
+                                </div>
+                                <div class="col-2 tx-right">
+                                    <button type="button" id="allDownload3" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="noper" th:style="${vioma.gmtype == '무허가 건축물' ? 'display: block' : 'display: none'}">
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmdate4" class="col-form-label col-form-label-sm">적발일자
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmdate4" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w170" name="gmdate" th:value="${vioma.gmtype == '무허가 건축물' ? vioma.gmdate : ''}" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                    <div class="invalid-feedback">※ 적발일자를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmname4" class="col-form-label col-form-label-sm">적발자
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmname4" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w170" name="gmname" minlength="1" maxlength="10" data-input-type="noNumberString" th:value="${vioma.gmtype == '무허가 건축물' ? vioma.gmname : ''}" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                    <div class="invalid-feedback">※ 적발자를 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th text-center">
+                                    <label for="gmcdate4" class="col-form-label col-form-label-sm">발생일자
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmcdate4" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w170" name="gmcdate" th:value="${vioma.gmtype} == '무허가 건축물' ? ${vioma.gmcdate} : ''" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                    <div class="invalid-feedback">※ 발생일자를 선택해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmbsub4" class="col-form-label col-form-label-sm w120">변경 후 용도
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="gmbsub4" class="form-select form-select-sm w170" name="gmbsub" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'">
+                                        <option value="">선택</option>
+                                        <option th:selected="${vioma.gmtype} == '무허가 건축물' and ${vioma.gmbsub} == '주거용'">주거용</option>
+                                        <option th:selected="${vioma.gmtype} == '무허가 건축물' and ${vioma.gmbsub} == '비주거용'">비주거용</option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 위반용도를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmmunjuk4" class="col-form-label col-form-label-sm w110">위반면적(m²)
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <div class="d-flex align-items-center">
+                                        <input id="gmmunjuk4" class="form-control form-control-sm w150" name="gmmunjuk" placeholder="위반면적 입력" data-input-type="digitNumber" th:value="${vioma.gmtype} == '무허가 건축물' ? ${vioma.gmmunjuk} : ''" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                        <span class="ml6">m²</span>
+                                    </div>
+                                    <div class="invalid-feedback">※ 위반면적 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmfloor4" class="col-form-label col-form-label-sm">위반층수
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <div class="d-flex align-items-center">
+                                        <input id="gmfloor4" class="form-control form-control-sm w150" name="gmfloor" data-input-type="number" placeholder="위반층수 입력" th:value="${vioma.gmtype == '무허가 건축물' ? vioma.gmfloor : ''}" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                        <span class="ml6">층</span>
+                                    </div>
+                                    <div class="invalid-feedback">※ 위반층수를 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label for="gmrst4" class="col-form-label col-form-label-sm w120">지붕구조</label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmrst4" type="text" class="form-control form-control-sm w170" name="gmrst" th:value="${vioma.gmtype} == '무허가 건축물' ? ${vioma.gmrst} : ''" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'"/>
+                                    <div class="invalid-feedback">※ 지붕구조를 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmmst4" class="col-form-label col-form-label-sm w120">주 구조
+                                        <th:block th:replace="pages/common/util :: required"></th:block>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <select id="gmmst4" name="gmmst" class="form-select form-select-sm required" title="용도" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'">
+                                        <option th:each="usage : ${codeUsage}" th:value="${usage.cdvalue}"
+                                                th:utext="${usage.cdvalue}">용도
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback">※ 변경 후 용도를 선택해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label for="gmfacseq4" class="col-form-label col-form-label-sm w120">향측도엽번호</label>
+                                </div>
+                                <div class="col-3">
+                                    <input id="gmfacseq4" type="text" class="form-control form-control-sm w170" name="gmfacseq" th:value="${vioma.gmtype} == '무허가 건축물' ? ${vioma.gmfacseq} : ''" th:required="${vioma.gmtype} == '무허가 건축물'" th:disabled="${vioma.gmtype} != '무허가 건축물'" />
+                                    <div class="invalid-feedback">※ 향측도엽번호를 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">파일첨부</label>
+                                </div>
+                                <div class="col-11">
+                                    <div id="file4"></div>
+                                </div>
+                            </div>
+
+                            <div class="row row-tr border-end-0 mt-2 mb-2 files">
+                                <div class="col-1 text-center">파일</div>
+                                <div class="col-9">
+                                    <ul id="files4" class="list-inline">
+                                    </ul>
+                                </div>
+                                <div class="col-2 tx-right">
+                                    <button type="button" id="allDownload4" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--선택 후 바뀌는 영역-->
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">이행강제금 부과내역</p>
+                            </div>
+                            <div class="col-9">
+                                <button type="button" id="impoAdd" class="btn btn-secondary btn-sm float-end">추가&nbsp;+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th border-end-0 text-center">
+                                <label class="col-form-label col-form-label-sm">No.</label>
+                            </div>
+                            <div class="col-5 col-th border-end-0 text-center">
+                                <p>부과일자</p>
+                            </div>
+                            <div class="col-6 col-th border-end-0 text-center">
+                                <p>부과금액</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div id="impoBody">
+                                <th:block th:each="i: ${impo}">
+                                    <input type="hidden" name="impoSeq" th:value="${i.impoSeq}">
+                                    <div class="row row-tr">
+                                        <div class="col-1 border-start text-center">
+                                            <p th:text="${iStat.count}"></p>
+                                        </div>
+                                        <div class="col-5 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6">
+                                                    <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="impoDate" th:value="${i.impoDate}"/>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 부과일자를 선택해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6 d-flex">
+                                                    <input type="text" class="form-control form-control-sm tx-right" name="impoAmount" data-input-type="number" data-amount-value="true" data-amount-source="impoTotal" placeholder="0" th:value="${i.impoAmount}"/>
+                                                    <span class="ml6">원</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 부과금액을 입력해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th:block>
+                                <th:block th:if="${#lists.size(impo)} > 0">
+                                    <input type="hidden" id="impoCount" th:value="${#lists.size(impo)}">
+                                </th:block>
+                                <script id="impo-template" type="text/x-handlebars-template">
+                                    <div class="row row-tr">
+                                        <div class="col-1 border-start text-center">
+                                            <p>{{this}}</p>
+                                        </div>
+                                        <div class="col-5 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6">
+                                                    <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="impoDate" value=""/>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 부과일자를 선택해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6 d-flex">
+                                                    <input id="impoAmount{{this}}" type="text" class="form-control form-control-sm tx-right" maxlength="8"  name="impoAmount" data-input-type="number" data-amount-value="true"  placeholder="0"/>
+                                                    <span class="ml6">원</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 부과금액을 입력해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </script>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col border-start text-center">
+                                    <p>합계</p>
+                                </div>
+                                <div class="col border-start text-center"><span id="impoTotal" data-amount-target="impoAmount">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">이행강제금 징수내역</p>
+                            </div>
+                            <div class="col-9">
+                                <button type="button" id="collAdd" class="btn btn-secondary btn-sm float-end">추가&nbsp;+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th border-end-0 text-center">
+                                <label class="col-form-label col-form-label-sm">No.</label>
+                            </div>
+                            <div class="col-5 col-th border-end-0 text-center">
+                                <p>징수일자</p>
+                            </div>
+                            <div class="col-6 col-th border-end-0 text-center">
+                                <p>징수금액</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div id="collBody">
+                                <th:block th:each="c: ${coll}">
+                                    <input type="hidden" name="collSeq" th:value="${c.collSeq}">
+                                    <div class="row row-tr">
+                                        <div class="col-1 border-start text-center">
+                                            <p th:text="${cStat.count}"></p>
+                                        </div>
+                                        <div class="col-5 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6">
+                                                    <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="collDate" th:value="${c.collDate}"/>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 징수일자를 선택해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 border-start">
+                                            <div class="row align-items-center">
+                                                <div class="col-6 d-flex">
+                                                    <input type="text" class="form-control form-control-sm tx-right" name="collAmount" data-input-type="number" data-amount-value="true" data-amount-source="collTotal" placeholder="0" th:value="${c.collAmount}"/>
+                                                    <span class="ml6">원</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 징수금액을 입력해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th:block>
+                                <th:block th:if="${#lists.size(coll)} > 0">
+                                    <input type="hidden" id="collCount" th:value="${#lists.size(coll)}">
+                                </th:block>
+                                <script id="coll-template" type="text/x-handlebars-template">
+                                    <div class="row row-tr">
+                                        <div class="col-1 border-start text-center">
+                                            <p>{{this}}</p>
+                                        </div>
+                                        <div class="border-start col-5">
+                                            <div class="row align-items-center">
+                                                <div class="col-6">
+                                                    <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="collDate" value=""/>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 징수일자를 선택해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="border-start col-6">
+                                            <div class="row align-items-center">
+                                                <div class="col-6 d-flex">
+                                                    <input id="collAmount{{this}}" type="text" class="form-control form-control-sm tx-right" name="collAmount" data-input-type="number" data-amount-value="true" placeholder="0"/>
+                                                    <span class="ml6">원</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h5 style="color: #808080">※ 징수금액을 입력해주세요.</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </script>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col border-start text-center">
+                                    <p>합계</p>
+                                </div>
+                                <div class="col border-start text-center"><span id="collTotal" data-amount-target="collAmount">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">고발내역</p>
+                            </div>
+                            <div class="col-9">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="gmgdate" class="col-form-label col-form-label-sm">고발일자</label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gmgdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmgdate" th:value="${vioma.gmgdate}"/>
+                            </div>
+                            <div class="col-1 col-th text-center">
+                                <label for="gmjdate" class="col-form-label col-form-label-sm">고발에 의한<br />정비완료일자</label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gmjdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmjdate" th:value="${vioma.gmjdate}"/>
+                            </div>
+                            <div class="col-1 col-th text-center">
+                                <label for="gmhdate" class="col-form-label col-form-label-sm w110">행정대집행<br />일자</label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gmhdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmhdate" th:value="${vioma.gmhdate}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <p class="fw-bold">행정조치내역</p>
+                            </div>
+                            <div class="col-9">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr"></div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">담당부서</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" class="form-control form-control-sm w200" name="deptCd" th:value="${vioma.deptCd} == null ? ${#authentication.principal.deptName} : ${vioma.deptCd}" disabled/>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">담당자</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" class="form-control form-control-sm w200" name="registId" th:value="${vioma.registId} == null ? ${#authentication.principal.userName} : ${vioma.registId}" disabled/>
+                            </div>
+                            <div class="col-1 col-th text-center">
+                                <label for="gmhcdate" class="col-form-label col-form-label-sm">담당부서</label>
+                            </div>
+                            <div class="col-3">
+                                <input id="gmhcdate" type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm w200" name="gmhcdate" th:value="${vioma.gmhcdate}"/>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="gmhcont" class="col-form-label col-form-label-sm">조치내용</label>
+                            </div>
+                            <div class="col-11">
+                                <textarea id="gmhcont" name="gmhcont" th:text="${vioma.gmhcont}" placeholder="조치내용을 입력해주세요"></textarea>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">파일첨부</label>
+                            </div>
+                            <div class="col-11">
+                                <div id="file5"></div>
+                            </div>
+                        </div>
+                        <div class="row row-tr border-end-0 mt-2 mb-2 files">
+                            <div class="col-1 text-center">파일</div>
+                            <div class="col-9">
+                                <ul id="files5" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2 tx-right">
+                                <button type="button" id="allDownload5" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3 align-items-center">
+                    <div class="col-10">
+                        <button type="button" id="list" class="btn btn-light btn-sm">목록</button>
+                    </div>
+                    <div class="col-2 tx-right">
+                        <button class="btn btn-primary btn-sm" th:text="${vioma.gmskk} ? '저장' : '등록'"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+</html>

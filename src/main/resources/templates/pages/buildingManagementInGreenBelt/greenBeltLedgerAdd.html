@@ -1,0 +1,314 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="ledgerBold = true, ledger = 'on'">
+    <th:block th:replace="fragments/LNB :: bldmngingb"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}">
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/buildingManagementInGreenBelt/greenBeltLedgerAdd.js}"></script>
+    <script th:src="@{/moment-js/moment.min.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap bdnn">
+            <h3 class="tit">개발제한구역내 신규대장등록</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>개발제한구역내 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>신규대장등록</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion" id="accordionPanelsStayOpenExample">
+                    <div class="accordion-item">
+                        <form id="ledgerLimitedAddForm" name="ledgerLimitedAddForm" th:action="@{/api/bldmngingb/ledgerAdd}" method="post" class="row needs-validation" novalidate >
+                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                    건축물현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">기본현황</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축시기<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="radio" name="buildFlag" id="buildFlagBefore" value="01" checked />구역지정이전&nbsp;&nbsp;
+                                            <input type="radio" name="buildFlag" id="buildFlagAfter" value="02" />구역지정이후
+                                            <div class="invalid-feedback">
+                                                구역지정을 선택 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">관리행정동<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="hjdCd" class="form-select form-select-sm required" title="관리행정동" required>
+                                                <option value="" disabled selected>관리행정동</option>
+                                                <option th:each="mngAdminstrBld : ${mngAdminstrBld}" th:value="${mngAdminstrBld.hjdcd}"
+                                                        th:utext="${mngAdminstrBld.hnam}">관리행정동</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                관리행정동을 선택 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">관리번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" id="splitAdmSeq" class="form-control form-control-sm" placeholder="관리번호는 자동부여됩니다." disabled readonly />
+                                            <input type="hidden" name="admSeq" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축물주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" name="buildAddr1" id="buildAddr1" class="form-control form-control-sm disabled"
+                                                   aria-label="건축물 도로명주소" placeholder="건축물 도로명주소" readonly required />
+                                            <div class="invalid-feedback">
+                                                ※ 건축물 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" name="buildAddr2" id="buildAddr2" class="form-control form-control-sm disabled"
+                                                   aria-label="건축물 지번주소" placeholder="건축물 지번주소" readonly required />
+                                            <div class="invalid-feedback">
+                                                ※ 건축물 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="button" id="buildingJusoBtn" class="btn btn-secondary btn-sm">
+                                                <i class="fa-solid fa-search"></i> 주소
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">건축물현황</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">대지면적<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" oninput="numberMaxLength(this, 10)" class="form-control form-control-sm" name="groundArea" required/>
+                                            <div class="invalid-feedback">
+                                                대지면적을 입력 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">주용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="jydCd" class="form-select form-select-sm required" title="용도" required>
+                                                <option value="">전체</option>
+                                                <option th:each="codeJydCd : ${codeJydCd}" th:value="${codeJydCd.cdkey}"
+                                                        th:utext="${codeJydCd.cdvalue}">용도
+                                                </option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                용도를 선택 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">작성사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="writeReason" required/>
+                                            <div class="invalid-feedback">
+                                                작성사유를 입력 해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축면적<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" oninput="numberMaxLength(this, 10)" class="form-control form-control-sm" name="buildMj" required/>
+                                            <div class="invalid-feedback">
+                                                건축면적을 입력 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="stCd" class="form-select form-select-sm required" title="구조" required>
+                                                <option value="">전체</option>
+                                                <option th:each="codeStCd : ${codeStCd}" th:value="${codeStCd.cdkey}"
+                                                        th:utext="${codeStCd.cdvalue}">구조
+                                                </option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                구조를 선택 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">작성자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="registId" th:value="${#authentication.principal.userName}"disabled readonly required/>
+                                            <div class="invalid-feedback">
+                                                작성자를 입력 해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">소유자</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="owner1Name" required/>
+                                            <div class="invalid-feedback">
+                                                성명을 입력 해주세요.
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">확인자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="confirmName" required/>
+                                            <div class="invalid-feedback">
+                                                확인자를 입력 해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">소유자주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" id="owner1Addr1" name="owner1Addr1" class="form-control form-control-sm disabled"
+                                                   aria-label="소유자 도로명주소" placeholder="소유자 도로명주소" readonly required/>
+                                            <div class="invalid-feedback">
+                                                ※ 소유자 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" id="owner1Addr2" name="owner1Addr2" class="form-control form-control-sm disabled"
+                                                   aria-label="소유자 지번주소" placeholder="소유자 지번주소" readonly required/>
+                                            <div class="invalid-feedback">
+                                                ※ 소유자 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="button" id="ownerJusoBtn" class="btn btn-secondary btn-sm">
+                                                <i class="fa-solid fa-search"></i> 주소
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">기타</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">위법사항<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="illegal" required/>
+                                            <div class="invalid-feedback">
+                                                위법사항을 입력 해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">비고<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="bigo" required/>
+                                            <div class="invalid-feedback">
+                                                비고를 입력 해주세요.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Building -->
+                            <input type="hidden" id="skkCd" name="skkCd" aria-label="위치시군구코드" value="" />
+                            <input type="hidden" id="gmcSahBuilding" name="gmcSah" aria-label="대지/산" value="" />
+                            <input type="hidden" id="bjdCdBuilding" name="bjdCd" aria-label="법정동" value="" />
+                            <input type="hidden" id="gmcbuhBuilding" name="gmcbuh" aria-label="번" value="" />
+                            <input type="hidden" id="gmcjiBuilding" name="gmcji" aria-label="지" value="" />
+                            <input type="hidden" id="gmcohBuilding" name="gmcoh" aria-label="상세주소" value="" />
+                            <!-- Owner -->
+                            <input type="hidden" id="gmcSahOwner" name="gmcSahOwner" aria-label="대지/산" value="" />
+                            <input type="hidden" id="bjdCdOwner" name="bjdCdOwner" aria-label="법정동" value="" />
+                            <input type="hidden" id="gmcbuhOwner" name="gmcbuhOwner" aria-label="번" value="" />
+                            <input type="hidden" id="gmcjiOwner" name="gmcjiOwner" aria-label="지" value="" />
+                            <input type="hidden" id="gmcohOwner" name="gmcohOwner" aria-label="상세주소" value="" />
+                            <input type="hidden" id="owner1Zip1" name="owner1Zip1" aria-label="우편번호 앞" value="" />
+                            <input type="hidden" id="owner1Zip2" name="owner1Zip2" aria-label="우편번호 뒤" value="" />
+                            <input type="hidden" id="registId" name="registId" aria-label="작성자" value="" />
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 tx-right">
+                    <button type="button" id="listBtn" class="btn btn-light btn-sm">목록</button>
+                    <button type="button" id="resetBtn" class="btn btn-danger btn-sm">취소</button>
+                    <button type="button" id="saveBtn" class="btn btn-primary btn-sm">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+
+        function jusoCallBack(roadFullAddr, roadAddrPart1, addrDetail, roadAddrPart2, engAddr, jibunAddr, zipNo, admCd, rnMgtSn, bdMgtSn,
+                              detBdNmList, bdNm, bdKdcd, siNm, sggNm, emdNm, liNm, rn, udrtYn, buldMnnm, buldSlno, mtYn, lnbrMnnm, lnbrSlno, emdNo) {
+            console.log(arguments);
+
+            // 분리된 관리기관 코드를 설정
+            const admCdStr = admCd.toString();
+            const skkCd = admCdStr.substring(0, 5);
+            const bjdCd = admCdStr.substring(5);
+
+            //$('#skkCd').val(skkCd); // 관리기관코드 admCd 앞 5자리
+            $('#bjdCd').val(bjdCd); // 관리기관코드 admCd 뒤 5자리
+
+            if (jusoCheck === 'building') {
+                $('#buildAddr1').val(arguments[0]); // 도로명 roadFullAddr
+                $('#buildAddr2').val(arguments[5]); // 지번 jibunAddr
+                $('#gmcSahBuilding').val(arguments[21]); // 대지/산 mtYn
+                $('#bjdCdBuilding').val(bjdCd); // 법정동 admCd 뒤 5자리
+                $('#gmcbuhBuilding').val(lnbrMnnm); // 번 lnbrMnnm
+                $('#gmcjiBuilding').val(lnbrSlno); // 지 lnbrSlno
+                $('#gmcohBuilding').val(addrDetail); // 기타 addrDetail
+            } else if(jusoCheck === 'owner') {
+                $('#owner1Addr1').val(arguments[0]); // 소유자 도로명 roadFullAddr
+                $('#owner1Addr2').val(arguments[5]); // 소유자 지번 jibunAddr
+                $('#gmcSahOwner').val(arguments[21]); // 대지/산 mtYn
+                $('#bjdCdOwner').val(bjdCd); // 법정동 admCd 뒤 5자리
+                $('#gmcbuhOwner').val(lnbrMnnm); // 번 lnbrMnnm
+                $('#gmcjiOwner').val(lnbrSlno); // 지 lnbrSlno
+                $('#gmcohOwner').val(addrDetail); // 기타 addrDetail
+                $('#owner1Zip1').val(zipNo); // 우편번호1 zipNo
+            }
+        }
+
+        let jusoCheck;
+        document.querySelector("#buildingJusoBtn").addEventListener("click", (e) => {
+            jusoCheck = 'building'
+            const w = window.open('/common/juso', 'buildingJuso', 'width=500px,height=500px');
+            w.focus();
+        });
+
+        document.querySelector("#ownerJusoBtn").addEventListener("click", (e) => {
+            jusoCheck = 'owner'
+            const w = window.open('/common/juso', 'ownerJuso', 'width=500px,height=500px');
+            w.focus();
+        });
+
+    </script>
+</th:block>
+
+</html>

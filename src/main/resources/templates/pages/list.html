@@ -1,0 +1,383 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <!--/* 주 화면 컨텐츠 */-->
+    <th:block layout:fragment="content">
+        <div class="content">
+            <div class="title_wrap mb-4">
+                <!--  추가된 타이틀 -->
+                <h3 class="tit">대장관리</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>기존무허가 건물관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>대장관리</span>
+                </div>
+            </div>
+            <div>
+                <div class="row mb-3">
+                    <div class="col-1">
+                        Validation
+                    </div>
+                    <div class="col-11">
+                        <form class="row needs-validation" novalidate>
+                            <div class="col-3">
+                                <input type="text" placeholder="아이디를 입력하세요.(문자)" minlength="10" maxlength="20" required class="form-control form-control-sm" id="userId">
+                                <div class="invalid-feedback">
+                                    ID는 10자리 이상 20자리 이하입니다.
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <input type="number" required min="10" max="100" placeholder="나이를 입력하세요. (숫자)" class="form-control form-control-sm" id="userAge">
+                                <div class="invalid-feedback">
+                                    10~100사이 숫자를 입력하세요.
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" required pattern="\d+" placeholder="숫자만 입력하세요. (패턴)" class="form-control form-control-sm" id="userAddr">
+                                <div class="invalid-feedback">
+                                    패턴(\d+) 숫자를 입력하세요.
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn btn-primary btn-sm" type="submit">전송 (Submit)</button>
+                            </div>
+                        </form>
+                        <script>
+
+            </script>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <pre class="border bg-light">
+                          &lt;form class="row <span class="text-danger fw-bold">needs-validation</span>" <span class="text-danger fw-bold">novalidate</span>&gt;
+                            &lt;div class="col-3"&gt;
+                            &lt;input type="text" placeholder="아이디를 입력하세요.(문자)" <span class="text-danger fw-bold">minlength="10" maxlength="20" required</span> class="form-control form-control-sm" id="userId"&gt;
+                              <span class="text-danger fw-bold">
+                              &lt;div class="invalid-feedback"&gt;
+                                ID는 10자리 이상 20자리 이하입니다.
+                              &lt;/div&gt;
+                              </span>
+                            &lt;/div&gt;
+                            &lt;div class="col-3"&gt;
+                              &lt;input type="number" <span class="text-danger fw-bold">required min="10" max="100"</span> placeholder="나이를 입력하세요. (숫자)" class="form-control form-control-sm" id="userAge"&gt;
+                              <span class="text-danger fw-bold">
+                              &lt;div class="invalid-feedback"&gt;
+                                10~100사이 숫자를 입력하세요.
+                              &lt;/div&gt;
+                              </span>
+                            &lt;/div&gt;
+                            &lt;div class="col-3"&gt;
+                              &lt;button class="btn btn-primary btn-sm" type="submit">전송 (Submit)&lt;/button&gt;
+                            &lt;/div&gt;
+                          &lt;/form&gt;
+                          &lt;div class="col-3"&gt;
+                            &lt;input type="text" <span class="text-danger fw-bold">required pattern="\d+" </span> placeholder="숫자만 입력하세요. (패턴)" class="form-control form-control-sm" id="userAddr"&gt;
+                            <span class="text-danger fw-bold">
+                            &lt;div class="invalid-feedback"&gt;
+                              패턴(\d+) 숫자를 입력하세요.
+                            &lt;/div&gt;
+                            </span>
+                          &lt;/div&gt;
+                        </pre>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mt-5 mb-5">
+                        <div class="float-end">
+                            <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-search"></i> 주소</button>
+                            <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                            <button type="button" class="btn btn-success w150 btn-sm"><i class="fa-solid fa-file-excel"></i> 엑셀 다운로드</button>
+                            <button type="button" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-repeat"></i></button>
+                            <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                            <button type="button" class="btn btn-secondary btn-sm">취소</button>
+                            <button type="button" class="btn btn-secondary btn-sm">닫기</button>
+                            <button type="button" class="btn btn-primary btn-sm">저장</button>
+                            <button type="button" class="btn btn-primary btn-sm">수정</button>
+                            <button type="button" class="btn btn-light btn-sm">목록</button>
+                            <button type="button" class="btn btn-danger btn-sm">철거</button>
+                            <button type="button" class="btn btn-danger btn-sm">삭제</button>
+                            <button type="button" class="btn btn-warning btn-sm">업로드</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-2">
+                        <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-search"></i> 주소</button>
+                        <script>
+                        function jusoCallBack(roadFullAddr,roadAddrPart1,addrDetail,roadAddrPart2,engAddr, jibunAddr, zipNo, admCd, rnMgtSn, bdMgtSn
+                            , detBdNmList, bdNm, bdKdcd, siNm, sggNm, emdNm, liNm, rn, udrtYn, buldMnnm, buldSlno, mtYn, lnbrMnnm, lnbrSlno, emdNo){
+                                alert('console 확인하세요');
+                                console.log(arguments);
+                            }
+                            document.querySelector("#jusoBtn").addEventListener("click", (e)=>{
+                                const w = window.open('/common/juso', 'juso', 'width=500px,height=500px');
+                                w.focus();
+                            });
+                        </script>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="a" class="col-form-label col-form-label-sm">대장번호</label>
+                    </div>
+                    <div class="col-11">
+                        <input type="text" class="form-control form-control-sm" id="a" value="대장번호">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="b" class=" col-form-label col-form-label-sm">관리행정동</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control form-control-sm" id="b" value="관리행정동">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="c" class=" col-form-label col-form-label-sm">건축기간</label>
+                    </div>
+                    <div class="col-5">
+                        <input type="text" class="form-control form-control-sm" id="c" value="건축기간">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="d" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm" id="d" oninput="numberMaxLength(this, 3)">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="e" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm" id="e">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="f" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm" id="f">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 required ">
+                        <label for="x1" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control form-control-sm" id="x1">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="x2" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control form-control-sm" id="x2">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="x3" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control form-control-sm" id="x3">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="x4" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" class="form-control form-control-sm" id="x4">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="e0" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <select id="e0" class="form-select form-select-sm" aria-label="Default select example">
+                            <option selected>선택하세요</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                    </div>
+                    <div class="col-1 ">
+                        <label for="e1" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="date" onkeydown="return false" class="form-control form-control-sm" id="e1">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="e2" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control form-control-sm" id="e2" value="12000">
+                    </div>
+                    <div class="col-1 ">
+                        <label for="e3" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="password" class="form-control form-control-sm" id="e3" value="1234512345">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="flexCheckDefault" class=" col-form-label col-form-label-sm">체크</label>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-check small">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                체크박스
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-1 ">
+                        <label for="inlineRadio1" class=" col-form-label col-form-label-sm">라디오</label>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                            <label class="form-check-label" for="inlineRadio1">1</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                            <label class="form-check-label" for="inlineRadio2">2</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="t1" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-10">
+                        <div class="row">
+                            <div class="col-2">
+                                <input type="text" class="form-control form-control-sm" id="t1" value="1200">
+                            </div>
+                            <div class="col-2">
+                                <input type="text" class="form-control form-control-sm" id="t2" value="1200">
+                            </div>
+                            <div class="col-2">
+                                <input type="text" class="form-control form-control-sm" id="t3" value="1200">
+                            </div>
+                            <div class="col-3">
+                                <input type="text" class="form-control form-control-sm" id="t4" value="1200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="t1" class=" col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" id="basic-addon1">레이블</span>
+                            <input type="text" class="form-control" placeholder="Username" aria-label="Username"
+                                   aria-describedby="basic-addon1">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i
+                                    class="fa-solid fa-magnifying-glass"></i> 버튼</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-1 ">
+                        <label for="t1" class=" col-form-label col-form-label-sm">내용</label>
+                    </div>
+                    <div class="col-11">
+                        <textarea class="form-control form-control-sm" placeholder="내용을 입력하세요." aria-label="Username" rows="7"></textarea>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-9">
+                        전체 <span class="fw-bold">12</span>건의 데이터가 조회되었습니다.
+                    </div>
+                    <div class="col-1">
+                        <div class="float-end">
+                            <select class="form-select" aria-label="Default select example">
+                                <option selected>10개씩</option>
+                                <option value="1">30개씩</option>
+                                <option value="2">50개씩</option>
+                                <option value="3">100개씩</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <select class="form-select" aria-label="Default select example">
+                            <option selected>작성일순</option>
+                            <option value="1">작성일순</option>
+                            <option value="2">작성일순</option>
+                            <option value="3">작성일순</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="myGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+    const columnDefs = [
+      { field: "make", pinned: 'left' },
+      { field: "model", pinned: 'left' },
+      { field: "price" },
+      { field: "model" },
+      { field: "model" },
+      { field: "model" },
+      { field: "model" },
+      { field: "model" }
+    ];
+
+    // specify the data
+    const rowData = [
+      { make: "Toyota", model: "Celica", price: 35000, },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Porsche", model: "Boxster", price: 72000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 },
+      { make: "Ford", model: "Mondeo", price: 32000 }
+    ];
+
+    // let the grid know which columns and what data to use
+    const gridOptions = {
+      columnDefs: columnDefs,
+      defaultColDef: {
+        sortable: true,
+        filter: 'agTextColumnFilter',
+        floatingFilter: false,
+      },
+      pagination: true,
+      paginationPageSize: 10,
+      rowData: rowData
+    };
+
+    // setup the grid after the page has finished loading
+    document.addEventListener('DOMContentLoaded', () => {
+      const gridDiv = document.querySelector('#myGrid');
+      new agGrid.Grid(gridDiv, gridOptions);
+    });
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
+
+    </th:block>
+
+    <!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/indexControl.js}"></script>
+    </th:block>
+</html>

@@ -1,0 +1,241 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/board/notice.js}"></script>
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+<th:block layout:fragment="LNB" th:with="noticeBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">공지사항</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>공지사항</span>
+            </div>
+        </div>
+        <form id="noticeFindForm" th:object="${NoticeDTO}" th:action="@{/api/board/notice/search}" th:method="post">
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label for="calendarSelect" class="col-form-label col-form-label-sm">작성일자</label>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-3">
+                            <select id="calendarSelect" name="calendarType" class="form-select form-select-sm w180" title="작성일자">
+                                <option value="all">전체기간</option>
+                                <option value="simple">기간선택</option>
+                                <option value="set">기간설정</option>
+                            </select>
+                            <input type="hidden" id="startDate" name="stDate">
+                            <input type="hidden" id="endDate" name="endDate">
+                        </div>
+                        <div id="calendarRemote" class="col-9 row align-items-center justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">검색</label>
+                </div>
+                <div class="col-2">
+                    <select id="searchState" class="form-select form-select-sm w180">
+                        <option selected>전체</option>
+                        <option value="subject">제목</option>
+                        <option value="name">작성자</option>
+                    </select>
+                </div>
+                <div class="col-9">
+                    <input type="text" class="form-control form-control-sm" id="searchTxt" name="searchTxt" placeholder="검색어를 입력해주세요.">
+                </div>
+            </div>
+        </form>
+        <div class="row justify-content-center">
+            <div class="col-12 justify-content-end mt-3 mb-5">
+                <div class="float-start">
+                    <h5 style="color: #808080">※ 작성일자 및 공지사항 제목, 작성자로 직접 검색할 수 있습니다.</h5>
+                </div>
+                <div class="float-end">
+                    <button type="button" id="refreshBtn" class="btn btn-secondary me-2 btn-sm">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button type="button" id="searchBtn" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> 조회
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center justify-content-center mb-3">
+            <div id="totCnt" class="col-2">
+                <h3></h3>
+            </div>
+            <div class="col-10">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" onchange="flexSwitchCheckChecked()" role="switch" name="pinCnt" id="flexSwitchCheckChecked" checked="">
+                        <label class="form-check-label" for="flexSwitchCheckChecked">고정글</label>
+                    </div>
+                    <div class="ml20">
+                        <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 d-block form-select form-select-sm w100" title="리스트 갯수">
+                            <option value="10">10개씩</option>
+                            <option value="30">30개씩</option>
+                            <option value="50">50개씩</option>
+                            <option value="70">70개씩</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-end">
+            <div id="myGrid" class="col-12 ag-theme-alpine m-lg-auto"></div>
+        </div>
+        <div class="float-end mt-3">
+            <th:block sec:authorize="isAuthenticated()">
+                <button th:if="${#authentication.principal.isAdmin}" type="button" id="deleteBtn" class="btn btn-sm btn-danger me-2">
+                    <i class="fa-regular fa-trash-can"></i> 삭제
+                </button>
+                <button th:if="${#authentication.principal.isAdmin}" type="button" id="registBtn" class="btn btn-sm btn-primary" th:onclick="|location.href='/board/notice/regist'|">
+                    <i class="fa-regular fa-floppy-disk"></i> 등록
+                </button>
+            </th:block>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // 캘린더
+            const myCalendar = new customCalendar(document.getElementById('calendarSelect'),
+                                                  document.getElementById('calendarRemote'),
+                                                  document.getElementById('startDate'),
+                                                  document.getElementById('endDate'));
+            myCalendar.setClass('buttonDiv', 'btn-group-sm row col-5')
+            myCalendar.setClass('dateStartView', 'col-3')
+            myCalendar.setClass('dateEndView', 'col-3')
+            myCalendar.setClass('dateSpan', 'col-1 w40 mx-2 text-center')
+
+            // 검색 함수 정의
+            function performSearch() {
+                var param = {
+                    searchState: $('#searchState').val(), // 선택한 검색 조건
+                    searchTxt: $('#searchTxt').val(), // 검색어
+                    stDate: $('#startDate').val(), // 시작 날짜
+                    endDate: $('#endDate').val() // 종료 날짜
+                };
+
+                // 검색 기준에 따라 표시된 행을 필터링합니다.
+                data.gridOptions.api.setQuickFilter(param.searchTxt);
+
+                // 필터링 후 표시되는 총 행 수를 검색합니다.
+                var visibleRowCount = data.gridOptions.api.getDisplayedRowCount();
+                $('#totCnt > h3').text("Total "+visibleRowCount);
+
+                $.ajax({
+                    url: "/api/board/notice/search",
+                    type: "post",
+                    data: JSON.stringify(param),
+                    contentType: 'application/json',
+                    dataType: 'json', // Set the dataType to 'json'
+                    success: function(result) {
+
+                        $('#totCnt > h3').text("Total "+result.findNoticeListCount);
+
+                        result.findNoticeList.forEach(item=> item.visible = item.pinYn=="N")
+                        data.gridOptions.api.setRowData(result.findNoticeList);
+                        data.gridOptions.api.setPinnedTopRowData(result.findNoticeList.filter(n=>n.pinYn=='Y'));
+                        data.gridOptions.api.onFilterChanged();
+
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error:', textStatus, errorThrown);
+                    }
+                });
+            }
+
+            // 페이지 로드시 검색 수행
+            performSearch();
+
+            // 검색 버튼 클릭 이벤트 핸들러
+            $('#searchBtn').click(function(event) {
+                event.preventDefault();
+                performSearch();
+            });
+
+            // Enter 키를 눌렀을 때 검색 수행
+            $('#searchTxt').on('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    performSearch();
+                }
+            });
+
+            // 검색어 입력 필드에서 Enter 키 이벤트 처리
+            $('#searchTxt').on('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // 폼 제출 방지
+                    performSearch(); // 검색 실행
+                }
+            });
+
+            // 새로고침 버튼 클릭 이벤트 핸들러
+            $('#refreshBtn').click(function() {
+                location.reload();
+            });
+
+            // 검색 버튼 클릭 이벤트 핸들러 (기존 검색 버튼)
+            $('#searchBtn').click(function(event) {
+                event.preventDefault();
+                performSearch();
+            });
+
+            // 날짜로 검색 버튼 클릭 이벤트 핸들러
+            $('#searchByDateBtn').click(function(event) {
+                event.preventDefault();
+                performSearchByDate();
+            });
+
+            // 날짜로 검색 수행 함수
+            function performSearchByDate() {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+
+                // startDate와 endDate를 사용하여 검색을 수행
+                var param = {
+                    stDate: startDate,
+                    endDate: endDate
+                };
+
+                $.ajax({
+                    url: "/api/board/notice/search",
+                    type: "post",
+                    data: JSON.stringify(param),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function(result) {
+                        $('#totCnt > h3').text("Total "+result.findNoticeListCount);
+                        data.gridOptions.api.setRowData(result.findNoticeList.filter(n=>n.pinYn=='N'));
+                        data.gridOptions.api.setPinnedTopRowData(result.findNoticeList.filter(n=>n.pinYn=='Y'));
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error:', textStatus, errorThrown);
+                    }
+                });
+            }
+        });
+
+        const noticeFindForm = $("#noticeFindForm").serializeArray();
+        var param = {};
+        noticeFindForm.map(function(data,index){
+            param[data.name] = data.value;
+        });
+    </script>
+</th:block>
+
+
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+
+<!-- 모달 창 - 대장번호찾기 -->
+<th:block th:fragment="noperNumSearchModal">
+    <div class="modal" id="noperNumSearchDiv" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content w1000">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel1">기존무허가 대장조회</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="noperNumSearchForm">
+                        <div class="row row-tr btccc">
+                            <div class="col-1 col-th">
+                                <label for="noperNumGmskk" class="col-form-label col-form-label-sm">대장번호</label>
+                            </div>
+                            <div class="col-2">
+                                <select id="noperNumGmskk" class="form-select form-select-sm" name="gmskk" sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                                </select>
+                                <input type="text" name="gmskk" id="noperNumGmskk" class="form-control form-control-sm disabled" aria-label="Small" aria-describedby="inputGroup-sizing-sm" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" readonly>
+                            </div>
+                            <div class="col-2">
+                                <select name="gmdjgb" id="noperNumGmdjgb" class="form-select form-select-sm" title="등재관리구분">
+                                    <option value="" selected="selected">전체</option>
+                                    <option value="1" selected="selected">등재</option>
+                                    <option value="2" selected="selected">미등재</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="gmseqco" id="noperNumGmseqco" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm" />
+                            </div>
+                            <div class="col-2 col-th">
+                                <label for="noperNumGmbunho" class="col-form-label col-form-label-sm text-nowrap">대장 등재번호</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" name="gmbunho" id="noperNumGmbunho" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="noperNumGmjname" class="col-form-label col-form-label-sm">건물주</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" name="gmjname" id="noperNumGmjname" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-2 col-th">
+                                <label class="col-form-label col-form-label-sm">건물주 주민번호</label>
+                            </div>
+                            <div class="col-6 row align-items-center m0">
+                                <input type="text" name="gmjjuminTemp1" id="noperNumGmjjuminTemp1" maxlength="6" class="form-control form-control-sm side-input" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                                <span class="side-input-center tx-center">-</span>
+                                <input type="text" name="gmjjuminTemp2" id="noperNumGmjjuminTemp2" maxlength="7" class="form-control form-control-sm side-input" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위치</label>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="gmskkcd" id="noperNumGmskkcd" class="form-control form-control-sm disabled" readonly aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-3">
+                                <select name="gmbjdcd" id="noperNumGmbjdcd" class="form-select form-select-sm" title="법정동">
+                                    <option value="all" selected="selected">전체</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <select name="gmcsah" id="noperNumGmcsah" class="form-select form-select-sm" title="대지산구분">
+                                    <option value="all" selected="selected">전체</option>
+                                </select>
+                            </div>
+                            <div class="col-4 d-flex align-items-center">
+                                <input type="text" name="gmcbuh" id="noperNumGmcbuh" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                                <span class="tx-center mx-3">-</span>
+                                <input type="text" name="gmcji" id="noperNumGmcji" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <input type="hidden" name="popFlag" aria-label="팝업구분"/>
+                    </form>
+                    <div class="row row-tr">
+                        <div class="col-12 justify-content-end">
+                            <div class="float-end">
+                                <button type="button" id="btnNoperNumReset" class="btn btn-sm btn-secondary" alt="새로고침"><i class="bi bi-arrow-repeat"></i></button>
+                                <button type="button" id="btnNoperNumSearch" class="btn btn-sm btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="myGridNoperNumModal" style="width: 100%;height: 300px" class="col-12 ag-theme-alpine justify-content-center m-lg-auto"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary closeBtn" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<!--모달 창-->
+<th:block th:fragment="siteCnkModal">
+    <div class="modal fade" id="siteCnkModal" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content w1000 h750">
+                <div class="modal-header">
+                    <h5 class="modal-title">현장점검 및 조치사항</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="font-weight-bold d-inline-block bdnn">위반사항</p>
+                    <div class="float-end d-inline-block" th:style="${auth.canUpdate ? 'display: inline-block' : 'display:none'}">
+                        <button type="button" id="siteChkModaModylBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" aria-label="위반사항 수정">위반사항 수정</button>
+                    </div>
+                    <form id="modalSiteChkForm">
+                        <div class="row row-tr align-items-center btccc mt-1">
+                            <div class="col-2 form-group col-th">
+                                점검담당자
+                            </div>
+                            <div class="col-6 form-group">
+                                <div class="userInfo"></div>
+                            </div>
+                            <!--
+                           <div class="col-2 form-group col-th">
+                               승인여부
+                           </div>
+
+                           <div class="col-2 form-group confirm1">
+                               <input type="hidden" name="confirm1" class="form-control input-group-sm mt-2 h-75" aria-label="승인여부" aria-describedby="inputGroup-sizing-sm">
+                           </div>
+                           -->
+                        </div>
+                        <div class="row row-tr align-items-center">
+                            <div class="col-2 form-group col-th text-center">점검일자</div>
+                            <div class="col-2 form-group chkDateTemp">
+                            </div>
+                            <div class="col-2 form-group col-th text-center">수정일자</div>
+                            <div class="col-2 form-group changDtime">
+                            </div>
+                            <div class="col-2 form-group col-th text-center">위반여부</div>
+                            <div class="col-2 form-group violYn">
+                           </div>
+                       </div>
+                       <div class="row row-tr align-items-center">
+                           <div class="col-2 form-group col-th text-center">위반내용</div>
+                           <div class="col-10 form-group violCntt">
+                           </div>
+                       </div>
+                       <div class="row row-tr align-items-center">
+                           <div class="col-2 form-group col-th text-center">비고/기타</div>
+                           <div class="col-10 form-group rem">
+                           </div>
+                       </div>
+                       <div class="row row-tr align-items-center">
+                           <div class="col-2 form-group col-th text-center">점검사진</div>
+                           <div class="col-10 form-group">
+                               <ul id="user-files2" class="list-inline">
+                               </ul>
+                           </div>
+                       </div>
+                   </form>
+
+                   <form id="modalSiteChkActionForm">
+                       <p class="font-weight-bold mt-4">조치사항</p>
+                       <div class="row row-tr">
+                           <div class="col-2 col-th">조치담당자</div>
+                           <div class="col-5 p-0">
+                               <div class="siteChkAtionNon trsctCnfmNm p8"></div>
+                               <div class="siteChkAtion">
+                                   <div class="row row-tr border-end-0 align-items-center">
+                                       <div class="col-2 col-th border-start-0">
+                                           행정구
+                                       </div>
+                                       <div class="col-10">
+                                           <div class="bjdongNm" th:utext="${bjdongMgm.bnam}"></div>
+                                       </div>
+                                   </div>
+                                   <div class="row row-tr border-end-0 align-items-center">
+                                       <div class="col-2 col-th border-start-0">
+                                           성명
+                                       </div>
+                                       <div class="col-10">
+                                           <div th:utext="${userName}"></div>
+                                           <input type="hidden" name="trsctCnfmNm" th:value="${userName}" placeholder="성명" aria-label="성명" class="form-control form-control-sm" />
+                                       </div>
+                                   </div>
+                                   <div class="row row-tr border-bottom-0 border-end-0 align-items-center">
+                                       <div class="col-2 form-group col-th border-start-0">
+                                           직급
+                                       </div>
+                                       <div class="col-10 form-group p-0 ps-1 pe-1">
+                                           <input type="text" name="trsctCnfmClspos" maxlength="10" placeholder="직급을 입력해주세요." aria-label="직급" class="form-control form-control-sm" />
+                                           <input type="hidden" name="trsctCnfmId"  class="form-control input-group-sm mt-2 h-75" aria-label="조치담당자" aria-describedby="inputGroup-sizing-sm">
+                                       </div>
+                                   </div>
+                                </div>
+                           </div>
+                           <div class="col-2 col-th">조치일자</div>
+                           <div class="col-3">
+                               <div class="siteChkAtionNon trsctDate"></div>
+                               <div class="siteChkAtion">
+                                   <input type="date" onkeydown="return false" max="9999-12-31" name="trsctDateTemp" class="form-control input-group-sm" aria-label="조치일자" aria-describedby="inputGroup-sizing-sm" required>
+                                   <div class="invalid-feedback">
+                                       ※ 조치일자를 선택해주세요.
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                       <div class="row row-tr">
+                           <div class="col-2 form-group col-th">조치내용</div>
+                           <div class="col-10 form-group">
+                               <div class="siteChkAtionNon trsctCntt"></div>
+                               <div class="form-group siteChkAtion">
+                                   <textarea name="trsctCntt" class="form-control input-group-sm" aria-label="조치내용" aria-describedby="inputGroup-sizing-sm" required></textarea>
+                                   <div class="invalid-feedback">
+                                       ※ 조치내용을 입력해주세요.
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                       <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+                       <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+                       <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+                       <input type="hidden" th:value="${ledger.gmskk}"  class="trsctChkChargeGmskk" name="chkChargeGmskk" aria-label="기관코드" />
+                       <input type="hidden" th:value="${ledger.gmskk}" class="trsctChkilno" name="chkilno" aria-label="기관코드" />
+                       <input type="hidden" name="trsctDate" aria-label="조치일자" />
+                       <input type="hidden" name="trsctCnfmGmskk" aria-label="" />
+                       <input type="hidden" name="sitechkParam" aria-label="분기"/>
+                   </form>
+               </div>
+               <div class="modal-footer" th:style="${auth.canUpdate ? 'display:block' : 'display:none'}">
+                   <button type="button" id="siteChkList" class="btn btn-sm btn-light" data-bs-dismiss="modal">목록</button>
+                   <button type="button" id="trsctSiteChkSave" class="btn btn-sm btn-primary">조치사항 등록</button>
+                   <button type="button" id="trsctSiteChkMody" class="btn btn-sm btn-primary">조치사항 저장</button>
+               </div>
+           </div>
+       </div>
+   </div>
+</th:block>
+<th:block th:fragment="permitSearchModal">
+    <div class="modal fade"  id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content w1000">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalSearchForm">
+                        <input type="hidden" id="perId" name="perId">
+                        <div class="row">
+                            <div class="col-5">
+                                <label class="form-label fw-bold">자치구</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <select id="skkCd" name="skkCd" class="form-select select-equal-height">
+                                            <option value="" selected>시/군/구</option>
+                                            <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <select id="bjdCd" name="bjdCd" class="form-select select-equal-height">
+                                            <option value="" selected>동 선택</option>
+                                            <option th:each="val : ${bjd}" th:value="${val?.key}" th:utext="${val?.dpname}" th:selected="${val?.key} == ${searchParam?.bjdCd}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <label for="deptCd" class="form-label fw-bold">부서명</label>
+                                <select id="deptCd" name="deptCd" class="form-select">
+                                    <option value="" selected>선택</option>
+                                    <option th:each="val : ${dept}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.deptCd}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="form-group col-md-2">
+                                <label for="modalSearchType" class="fw-bold">검색</label>
+                                <select id="modalSearchType" name="searchType" class="form-control">
+                                    <option value="all" selected>전체</option>
+                                    <option value="userName" th:selected="userName == ${searchParam?.searchType}">이름</option>
+                                    <option value="deptName" th:selected="deptName == ${searchParam?.searchType}">부서명</option>
+                                    <option value="telNo" th:selected="telNo == ${searchParam?.searchType}">전화번호</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="modalSearchText" class="fw-bold"> </label>
+                                <input type="text" class="form-control" id="modalSearchText" name="searchText" placeholder="검색어를 입력해주세요" th:value="${searchParam.searchText}">
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-3 float-end">
+                                <button id="dddd" class="btn btn-primary me-2">검색</button>
+                                <button id="modalReload" type="button" class="btn btn-secondary" onclick="$('#modalSearchForm')[0].reset()">새로고침</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div id="modalGrid1" class="ag-theme-alpine m-lg-auto w-100 h320"></div>
+                </div>
+                <div class="row">
+                    <button id="modalUpBtn" class="bi-chevron-double-up"></button>
+                    <button id="modalDownBtn" class="bi-chevron-double-down"></button>
+                </div>
+                <div class="row">
+                    <div id="modalGrid2" class="ag-theme-alpine m-lg-auto w-100 h320"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="modalCancel" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="modalSave" type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block th:fragment="viomaNumSearchModal">
+    <div class="modal" id="viomaNumSearchDiv" tabindex="-1" aria-labelledby="modalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content w1000">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2">위반건축물 현황 대장조회</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="viomaNumSearchForm">
+                        <div class="row row-tr btccc">
+                            <div class="col-1 col-th">
+                                <label for="noperNumGmskk" class="col-form-label col-form-label-sm">대장번호</label>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="gmskk" id="viomaNumGmskk" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-2">
+                                <select name="gmdjgb" id="viomaNumGmdjgb" class="form-select form-select-sm w120" title="등재관리구분">
+                                    <option value="" selected="selected">전체</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="gmseqco" id="viomaNumGmseqco" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm" />
+                            </div>
+                            <div class="col-2 col-th">
+                                <label for="viomaNumGmbunho" class="col-form-label col-form-label-sm">대장 등재번호</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" name="gmbunho" id="viomaNumGmbunho" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="viomaNumGmjname" class="col-form-label col-form-label-sm">건물주</label>
+                            </div>
+                            <div class="col-3">
+                                <input type="text" name="gmjname" id="viomaNumGmjname" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-2 col-th">
+                                <label class="col-form-label col-form-label-sm">건물주 주민번호</label>
+                            </div>
+                            <div class="col-6 row align-items-center m0">
+                                <input type="text" name="gmjjuminTemp1" id="viomaNumGmjjuminTemp1" class="form-control form-control-sm w200" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                                &nbsp;-&nbsp;
+                                <input type="text" name="gmjjuminTemp2" id="viomaNumGmjjuminTemp2" class="form-control form-control-sm w200" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위치</label>
+                            </div>
+                            <div class="col-2">
+                                <input type="text" name="gmskkcd" id="viomaNumGmskkcd" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-3">
+                                <select name="gmbjdcd" id="viomaNumGmbjdcd" class="form-select form-select-sm" title="법정동">
+                                    <option value="" selected="selected">전체</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <select name="gmcsah" id="viomaNumGmcsah" class="form-select form-select-sm" title="대지산구분">
+                                    <option value="" selected="selected">전체</option>
+                                </select>
+                            </div>
+                            <div class="col-4 row align-items-center">
+                                <input type="text" name="gmcbuh" id="viomaNumGmcbuh" class="form-control form-control-sm w120" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                                &nbsp;-&nbsp;
+                                <input type="text" name="gmcji" id="viomaNumGmcji" class="form-control form-control-sm w120" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                        </div>
+                        <input type="hidden" name="popFlag" aria-label="팝업구분"/>
+                        <div class="row row-tr">
+                            <div class="col-12 justify-content-end">
+                                <div class="float-end">
+                                    <button type="button" id="btnViomaNumReset" class="btn btn-sm btn-secondary" alt="초기화"><i class="bi bi-arrow-repeat"></i></button>
+                                    <button id="btnViomaNumSearch" class="btn btn-sm btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div id="myGridViomaNumModal" style="width: 100%;height: 300px" class="col-12 ag-theme-alpine justify-content-center m-lg-auto"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary closeBtn" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block th:fragment="resetPassword">
+    <div class="modal" id="findPasswordModal" tabindex="-1" aria-labelledby="findPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content w600">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="findPasswordModalLabel">비밀번호 변경</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resetPasswordModalForm" class="needs-validation" novalidate>
+                        <input type="hidden" id="modalUserId" name="userId">
+                        <div class="row row-tr"></div>
+                        <div th:if="!${#authentication.principal.isAdmin}" class="row row-tr">
+                            <div class="col-3 col-th">
+                                <label for="currentPw" class="col-form-label col-form-label-sm">현재 비밀번호</label>
+                            </div>
+                            <div class="col-9">
+                                <input type="password" name="currentPw" id="currentPw" class="form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm" required>
+                                <p class="invalid-feedback tx-left">※ 비밀번호를 입력해주세요.</p>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-3 col-th">
+                                <label for="newPw" class="col-form-label col-form-label-sm">새 비밀번호</label>
+                            </div>
+                            <div class="col-9">
+                                <input type="password" name="newPw" id="newPw" class="form-control form-control-sm" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$" aria-label="Small" aria-describedby="inputGroup-sizing-sm" required>
+                                <p class="invalid-feedback">※ 비밀번호는 영문, 특수문자, 숫자가 모두 포함되게 입력해주세요.</p>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-3 col-th">
+                                <label for="newPwCk" class="col-form-label col-form-label-sm">새 비밀번호 확인</label>
+                            </div>
+                            <div class="col-9">
+                                <input type="password" name="newPwCk" id="newPwCk" class="form-control form-control-sm" disableCommon="true" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                                <p class="invalid-feedback tx-left">※ 비밀번호를 다시 입력해주세요.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary closeBtn" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" id="changePw" class="btn btn-sm btn-warning" disabled>비밀번호 변경</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

@@ -1,0 +1,363 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<meta charset="UTF-8">
+<!--/* meta 호출 */-->
+<th:block th:replace="config/meta :: meta"></th:block>
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="demolition = 'on', demolitionBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<!--/* library 호출 */-->
+<th:block th:replace="config/library :: library"></th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <!--/* modal 호출 */-->
+    <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+    <div class="content container-fluid" id="demolitionAddContainer">
+        <div class="title_wrap">
+            <h3 class="tit">철거신고등록</h3>
+            <div class="loc">
+                <a th:href="@{/}"><i class="bi bi-house-fill"></i></a>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/ledger}"><span>기존무허가 건축물관리</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/demolition}"><span>철거신고관리</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/demolition}"><span>철거신고현황</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><a><span>철거신고등록</span></a></label>
+            </div>
+        </div>
+        <div class="contentSearchDiv">
+            <form id="demolitionReportSearchForm">
+                <p class="font-weight-bold mt-3">대장검색</p>
+                <div class="searchDataDiv">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">대장번호</label>
+                        </div>
+                        <div class="col-1">
+                            <input type="text" id="gmskk" class="form-control form-control-sm w90" name="gmskk" sec:authorize="hasRole('ROLE_ADMIN')" th:value="${gmskk}" aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                            <input type="text" id="gmskk" class="form-control form-control-sm w90 disabled" name="gmskk" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" readonly aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                        </div>
+                        <div class="col-2">
+                            <select name="gmdjgb" id="gmdjgb" class="form-select form-select-sm" title="대장구분">
+                                <option value="" selected="selected">전체</option>
+                                <option th:each="gmdjgb : ${gmdjgbList}" th:value="${gmdjgb.cdkey}" th:text="${gmdjgb.cdvalue}">대장구분</option>
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            <input type="text" name="gmseqco" id="gmseqco" class="gmseqco form-control form-control-sm w70" aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                        </div>
+                        <div class="col-3">
+                            <button type="button" id="btnNoperNumModalCall" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#noperNumSearchDiv">
+                                <i class="fa-solid fa-search"></i> 번호찾기
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="float-end">
+                                <button type="button" id="btnReset" class="btn btn-sm btn-secondary" alt="초기화"><i class="bi bi-arrow-repeat"></i></button>
+                                <button type="button" id="btnSearch" class="btn btn-sm btn-primary me-2" alt="조회"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="contentDiv mt-5">
+            <p class="font-weight-bold mt-3">기본현황</p>
+            <div class="basicCsDiv">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대장번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="daejangBunho"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dhbh"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽건물번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dhgbh"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">동번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dongbh"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">동일련번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="donggbh"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대장등재</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="daejang"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물주소</label>
+                    </div>
+                    <div class="col-1 p-0">
+                        <div class="row row-tr p-0 h-50 border-end-0">
+                            <div class="col-th border-bottom border-start-0">
+                                <label class="col-form-label col-form-label-sm">도로명주소</label>
+                            </div>
+                        </div>
+                        <div class="row row-tr p-0 h-50 border-0">
+                            <div class="col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">지번주소</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 p-0">
+                        <div class="row row-tr align_items_center h-50 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="newAddr1"></span>
+                            </label>
+                        </div>
+                        <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="newAddr2"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">관리행정동</label>
+                    </div>
+                    <div class="col-3" style="display:none">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmhjdcd"></span>
+                        </label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmhjdnm"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-3">대장내역</p>
+            <div class="ledgerDiv">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">구조</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmgzcd"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmyd"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">부속건물동수</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmbsdong"></span></label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물면적(당초)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmmunjuk"></span></label>
+                        <label class="col-form-label col-form-label-sm"><span id="gmgunp"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물면적(현재)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="currentGmbmjuk"></span></label>
+                        <label class="col-form-label col-form-label-sm"><span id="currentGmbgunp"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건축일자</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmgunil"></span></label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">토지면적(당초)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="tojimunjuk"></span></label>
+                        <label class="col-form-label col-form-label-sm"><span id="tojimj"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">토지면적(현재)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="currentGmbtojimjuk"></span></label>
+                        <label class="col-form-label col-form-label-sm"><span id="currentGmbtojimj"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지목</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="tojijmgnm"></span></label>
+                    </div>
+                    <div style="display:none">
+                        <label class="col-form-label col-form-label-sm"><span id="tojijmg"></span></label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도시계획</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm"><span id="tojidp"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">재개발지구<br />여부</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm"><span id="jigujdg"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지구구분</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm"><span id="jigugb"></span></label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지구여건</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="jiguug"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도로저촉</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="jigudz"></span></label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물층수</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm"><span id="gmfoors"></span></label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">소유권</label>
+                    </div>
+                    <div class="col-11">
+                        <label class="col-form-label col-form-label-sm"><span id="tojisg"></span></label>
+                    </div>
+                </div>
+            </div>
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade active show" id="pills-report" role="tabpanel" aria-labelledby="pills-report-tab">
+                        <form id="demolitionReportAddForm" name="demolitionReportAddForm" th:method="post">
+                            <p class="font-weight-bold mt-3">신고사항</p>
+                            <div class="reportDiv">
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거일자<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" onkeydown="return false" name="deilja" id="deiljaRpt" max="9999-12-31" class="form-control form-control-sm w150" required/>
+                                        <div class="invalid-feedback">철거일자를 입력해주세요.</div>
+                                    </div>
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">발급기관<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-5">
+                                        <select name="issueorgkey" id="issueorgkeyRpt" class="form-select form-select-sm w-75">
+                                            <option>발급기관</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거유형<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-11">
+                                        <select name="deuh" id="deuhRpt" class="form-select form-select-sm w150" required>
+                                            <option>철거유형</option>
+                                        </select>
+                                        <div class="invalid-feedback">철거유형을 선택해주세요.</div>
+                                    </div>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거사유<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-11">
+                                        <textarea name="desau" id="desauRpt" class="form-control form-control-sm lh-sm my-1" aria-label="철거사유" required></textarea>
+                                        <div class="invalid-feedback">철거사유를 입력해주세요.</div>
+                                    </div>
+                                </div>
+                                <div id="formDataDiv"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-2">
+                            <button type="button" class="btn btn-light btn-sm bdaaa" id="listBtn" th:onclick="|location.href='@{/unlcebldmng/demolition}'|">목록</button>
+                        </div>
+                        <div class="col-7"></div>
+                        <div class="col-3">
+                            <button type="button" class="btn btn-sm btn-primary" id="saveBtn" style="float:right;">저장</button>
+                            <button type="button" class="btn btn-sm btn-secondary me-2" id="cancelBtn" style="float:right;">취소</button>
+                        </div>
+                    </div>
+                    <div id="formDataDetailDiv">
+                        <form id="demolitionDetailForm" th:action="@{/unlcebldmng/demolition/detail}" th:method="get">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript" th:src="@{/js/buildingmanagement/demolitionAdd.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+</th:block>
+</html>

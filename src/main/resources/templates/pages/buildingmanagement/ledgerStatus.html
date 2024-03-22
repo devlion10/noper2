@@ -1,0 +1,320 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko">
+<th:block layout:fragment="LNB" th:with="ledgerStatus = 'on', ledgerStatusBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">기존무허가건축물 관리현황</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>기존무허가 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>통계/관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>관리 현황</span>
+            </div>
+        </div>
+        <div>
+            <form id="searchForm" th:if="${#authentication.principal.isAdmin}">
+                <div class="row row-tr">
+                    <div class="col-th col-1">
+                        <label for="skkCd" class="col-form-label col-form-label-sm">기관</label>
+                    </div>
+                    <div class="col-2">
+                        <select id="skkCd" class="form-select form-select-sm w180" name="skkCd" th:hidden="${!#authentication.principal.isAdmin}" th:value="${#authentication.principal.isAdmin ? '' : #authentication.principal.skkCd}">
+                            <option value="" selected>전체</option>
+                            <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-3 mb-5">
+                    <div class="col-12 justify-content-end">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 기존무허가건축물통계를 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="reset" id="btnReload" class="btn btn-secondary me-2 btn-sm">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <button id="btnSearch" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i> 조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form id="searchForm" th:if="${!#authentication.principal.isAdmin}">
+                <select id="skkCd" class="form-select form-select-sm w180" name="skkCd" hidden>
+                    <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:if="${#authentication.principal.skkCd} == ${val?.CDKEY}"></option>
+                </select>
+                <div class="row justify-content-center mt-3 mb-3">
+                </div>
+            </form>
+            <div class="row justify-content-center align-items-center mb-2">
+                <div class="col-5">
+                    <p>
+                        <span id="skk">전체</span>
+                    </p>
+                </div>
+                <div class="col-7">
+                    <div class="row align-items-center justify-content-end">
+                        <button type="button" class="col-2 btn btn-success me-3 w150 btn-sm" name="excelDownload">
+                            <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myGrid" class="ag-theme-alpine"></div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        class LedgerStatus {
+            constructor() {
+                this.columnDefs = [
+                    {
+                        headerName: "기관",
+                        field: "gmskkcd",
+                        width: 198,
+                        cellStyle: {
+                            textAlign: 'center',
+                            alignItem: 'center',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }
+                        ,cellClassRules: {'fw-bold text-danger': (params) => { return params.data.gmskkcd === '계'}}
+                    },
+                    {
+                        headerName: "전체 계",
+                        field: 'totalCount',
+                        width: 130,
+                        cellStyle: {textAlign: "center"},
+                        valueFormatter: (params) => {
+                            if (params.value != '-') {
+                                return Number(params.value).toLocaleString()
+                            } else return '-'
+                        },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                    },
+                    {
+                        headerName: "기존무허가건물대장", width: 260, cellStyle: {textAlign: "center"},
+                        children: [
+                            {
+                                headerName: "기존무허가건물",
+                                field: 'normalCount',
+                                width: 130,
+                                cellStyle: {textAlign: "center"},
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                            {
+                                headerName: "부분철거",
+                                field: 'partRemoveCount',
+                                width: 130,
+                                cellStyle: {textAlign: "center"},
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                        ]
+                    },
+                    {
+                        headerName: "철거내역", width: 520, cellStyle: {textAlign: "center"},
+                        children: [
+                            {
+                                headerName: "자진철거",
+                                field: "type1",
+                                type: "addrColumn",
+                                cellStyle: {textAlign: "center"},
+                                width: 130,
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                            {
+                                headerName: "재개발",
+                                field: "type2",
+                                type: "addrColumn",
+                                cellStyle: {textAlign: "center"},
+                                width: 130,
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                            {
+                                headerName: "보상",
+                                field: "type3",
+                                type: "addrColumn",
+                                cellStyle: {textAlign: "center"},
+                                width: 130,
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                            {
+                                headerName: "기타",
+                                field: "type4",
+                                type: "addrColumn",
+                                cellStyle: {textAlign: "center"},
+                                width: 130,
+                                valueFormatter: (params) => {
+                                    if (params.value != '-') {
+                                        return Number(params.value).toLocaleString()
+                                    } else return '-'
+                                },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                            },
+                        ]
+                    },
+                    {
+                        headerName: "철거 계",
+                        field: 'removeCount',
+                        width: 130,
+                        cellStyle: {textAlign: "center"},
+                        valueFormatter: (params) => {
+                            if (params.value != '-') {
+                                return Number(params.value).toLocaleString()
+                            } else return '-'
+                        },cellClassRules: {'fw-bold': (params) => { return params.data.gmskkcd === '계'}}
+                    }
+                ];
+                this.defaultColDef = {
+                    headerClass: ["center", "justCenter"],
+                    cellClass: ["center", "justCenter"],
+                    sortable: true,
+                    editable: false,
+                    floatingFilter: false,
+                    resizable: true,
+                    cellDataType: false,
+                    enableRowGroup: false,
+                    enablePivot: false,
+                    enableValue: false,
+                    minWidth: 50,
+                };
+                this.gridOptions = {
+                    columnDefs: this.columnDefs,
+                    defaultColDef: this.defaultColDef,
+                    pagination: false,
+                    domLayout: 'autoHeight',
+                    animateRows: true,
+                    rowData: [],
+                    onCellClicked: function (params) {
+                        if (params.colDef.field === 'aa') goViolatedList(params.data.gmtype1, params.data.gmsub)
+                    },
+                    onGridReady(params) {
+                        let header = $('.ag-header')
+                        let headerPos = $('#myGrid').position().top
+                        $(window).on("scroll", function () {
+                            if ($(window).scrollTop() > headerPos) {
+                                header.css("position", "fixed").css("top", $('.header_inner').height()).css("z-index", "99");
+                                $('.ag-body-viewport.ag-layout-normal').css("margin-top", "88px");
+                            } else {
+                                header.css("position", "static");
+                                $('.ag-body-viewport.ag-layout-normal').css("margin-top", "0px");
+                            }
+                        });
+                    },
+                    overlayNoRowsTemplate: `
+                <div>
+                    <p style="color: #6c757d">조회된 데이터가 없습니다.</p>
+                </div>
+            `,
+                    suppressRowTransform: true,
+                };
+            }
+
+            name(name) {
+                const input = document.querySelector(`input[name=${name}]`);
+                if (input) return input;
+                else console.error(`Element name:'${name}' not found.`);
+            }
+
+            gridStyle(gridDiv) {
+                if (gridDiv && gridDiv.style) {
+                    Object.assign(gridDiv.style, {
+                        width: `${this.gridStyleValue.width}%`,
+                        height: `${this.gridStyleValue.height}px`,
+                    });
+                } else {
+                    console.error("Invalid GridStyle Element.");
+                }
+            }
+
+            excelAjax(url, fileName) {
+                snExcelDownload.excelDownload($.ajax({
+                    url: url,
+                    type: 'POST',
+                    cache: false,
+                    data: $('#searchForm').serialize(),
+                    xhrFields: {
+                        responseType: "blob",
+                    },
+                }), fileName)
+            }
+        }
+
+        const ledger = new LedgerStatus();
+        const isAdmin = [[${#authentication.principal.isAdmin}]];
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const gridDiv = document.querySelector('#myGrid')
+            const grid = new agGrid.Grid(gridDiv, ledger.gridOptions);
+            // 엑셀 다운로드 버튼 이벤트
+            document.querySelector('button[name=excelDownload]').addEventListener('click', () => {
+                ledger.excelAjax('/unlcebldmng/download/leaderStatus', '기존무허가건축물 관리현황');
+            });
+
+            $('#searchForm').submit(function () {
+                $.post('/api/unlicensedBuilingManagement/ledgerStatus', $('#searchForm').serialize(), function (data) {
+                    $('#skk').text($('#skkCd').val() === '' ? '전체' : $('#skkCd option:selected').text())
+                    let rows = [];
+                    let count = 1;
+                    grid.gridOptions.api.setRowData([]);
+                    for(let i = 0; i < data.length; i++) {
+                        rows.push({...data[i], countRow: 0});
+                        if(i > 0) {
+                            if(data[i].year === data[i-1].year) {
+                                rows[i].year = null;
+                                count++;
+                            } else {
+                                rows[i - count].countRow = count;
+                                count = 1;
+                            }
+                        }
+                    }
+                    grid.gridOptions.api.setRowData(rows);
+                })
+                return false;
+            });
+
+            if(!isAdmin) $('#searchForm').submit()
+        });
+    </script>
+</th:block>
+</html>

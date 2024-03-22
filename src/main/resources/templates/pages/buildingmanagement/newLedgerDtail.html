@@ -1,0 +1,263 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <th:block layout:fragment="LNB" th:with="ledger = 'on', newledgerBold = true">
+        <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+    </th:block>
+
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+    </th:block>
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/buildingmanagement/ledgerAdd.js}"></script>
+        <script th:src="@{/moment-js/moment.min.js}"></script>
+    </th:block>
+    <th:block layout:fragment="content">
+        <div class="content container-fluid">
+            <div class="title_wrap">
+                <h3 class="tit">기존무허가 신규대장 상세</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>대장관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>신규대장상세</span></label>
+                </div>
+            </div>
+            <form id="ledgerAddForm" name="ledgerAddForm" th:action="@{/api/unlicensedBuilingManagement/regerAdd}" method="post">
+                <p class="font-weight-bold mt-3">기본정보</p>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대장번호</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <div class="row align-items-center">
+                            <span class="w70" th:utext="${ledger.gmskk}"></span> -
+                            <span class="w70" th:text="${(ledger.gmdjgb == '0') ? '등재' : (ledger.gmdjgb == '1') ? '미등재' : '항측판독'}"></span>
+                            - <span class="w70" th:utext="${ledger.gmseqco}"></span>
+                        </div>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽번호</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.dhbh}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽건물관리번호</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.dhgbh}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">동번호</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <span th:utext="${ledger.dongbh}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">동일련번호</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.donggbh}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">대장등재</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.daejang}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물주소</label>
+                    </div>
+                    <div class="col-7 p-0">
+                        <div class="row row-tr border-end-0">
+                            <div class="col-2 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">도로명주소</label>
+                            </div>
+                            <div class="col-10 align_items_center">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span th:utext="${ledger.newaddr1}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr border-bottom-0 border-end-0">
+                            <div class="col-2 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">지번주소</label>
+                            </div>
+                            <div class="col-10 align_items_center">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span th:utext="${ledger.newaddr2}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">관리행정동</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm"><span th:utext="${ledger.gmhjdnm}"></span></label>
+                    </div>
+                </div>
+                <p class="font-weight-bold mt-5">대장내역</p>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">구조</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <span th:utext="${ledger.gmgzcd}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.gmyd}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">부속건축물동수</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.gmbsdong}"></span>
+                    </div>
+                </div>
+
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물면적<br />(당초)</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <span th:utext="${ledger.gmmunjuk}"></span>㎡ /
+                        <span th:utext="${ledger.gmgunp}"></span> 평
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">건물층수</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.gmfoors}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">건축일자</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:if="${not #strings.isEmpty(ledger.gmgunil)}" th:utext="${#temporals.createDate(ledger.gmgunil, 'yyyyMMdd')}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">토지면적<br />(당초)</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <span th:utext="${ledger.gmmunjuk}"></span>㎡ /
+                        <span th:utext="${ledger.tojimj}"></span> 평
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">소유권</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.tojisg}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">지목</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.tojijmg}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도시계획</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <span th:utext="${ledger.tojidp}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">재개발지구여부</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.jigujdg}"></span>
+                    </div>
+                    <div class="col-2 col-th">
+                        <label class="col-form-label col-form-label-sm">지구구분</label>
+                    </div>
+                    <div class="col-2 align_items_center">
+                        <span th:utext="${ledger.jigugb}"></span>
+                    </div>
+                </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">지구여건</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.jiguug}"></span>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">도로저촉</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <span th:utext="${ledger.jigudz}"></span>㎡
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">위반사유</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <span th:utext="${ledger.gmweban}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">위반건수</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${(ledger.gmwebanno == null) ? '-' : ledger.gmwebanno}"></span>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">확정일자</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <span th:if="${not #strings.isEmpty(ledger.decision)}" th:text="${#temporals.createDate(ledger.decision, 'yyyyMMdd')}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">등록사유</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span th:utext="${(ledger.reason == null) ? '-' : ledger.reason}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급정지<br>사유</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span th:utext="${(ledger.bgstop == null) ? '-' : ledger.bgstop}"></span>
+                </div>
+            </div>
+            <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+            <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+            <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+            </form>
+            <div class="row mt-3">
+                <div class="col-2">
+                    <button type="button" id="newListBtn" class="btn btn-light btn-sm bdaaa">목록</button>
+                </div>
+                <div class="col-10 tx-right">
+                    <button th:if="${auth.canDelete}" type="button" id="deleteBtn" class="btn btn-danger btn-sm">삭제</button>
+                    <button type="button" id="approvalBtn" class="btn btn-primary btn-sm" form="ledgerAddForm" >승인</button>
+                </div>
+            </div>
+            <form id="ledgerFindForm" onsubmit="return false;">
+
+            </form>
+        </div>
+        <script th:inline="javascript">
+            const ledgerFindForm = [[${ledgerFindForm}]] || {}
+            addSearchFormDataToHiddenInputInForm($('#ledgerFindForm')[0], ledgerFindForm)
+        </script>
+    </th:block>
+</html>

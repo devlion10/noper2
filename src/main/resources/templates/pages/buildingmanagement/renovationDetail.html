@@ -1,0 +1,669 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<meta charset="UTF-8">
+<!--/* meta 호출 */-->
+<th:block th:replace="config/meta :: meta"></th:block>
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="renovationBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<!--/* library 호출 */-->
+<th:block th:replace="config/library :: library"></th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <!--/* modal 호출 */-->
+    <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+
+    <div class="container-fluid content" id="renivationDetailContainer">
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade active show" id="pills-detail" role="tabpanel" aria-labelledby="pills-detail-tab">
+                <div class="title_wrap">
+                    <h3 class="tit">개보수신고 상세</h3>
+                    <div class="loc">
+                        <i class="bi bi-house-fill"></i>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>기존무허가 건축물관리</span>
+                        </label>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>개보수신고관리</span>
+                        </label>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>개보수신고 상세</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="contentDiv mt-3" id="detailDiv">
+                    <p class="font-weight-bold mt-3">기본현황</p>
+                    <div class="basicCsDiv">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">대장번호</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="numDtl" th:text="${renovationDetailSearchDto.num}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">구조</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gmgzcdDtl" th:text="${renovationDetailSearchDto.gmgzcd}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">소유권</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="tojisgDtl" th:text="${renovationDetailSearchDto.tojisg}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">건물면적</label>
+                            </div>
+                            <div class="col-7">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gmmunjukDtl" th:text="${renovationDetailSearchDto.gmmunjuk}"></span><span> ㎡</span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">토지면적</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="tojimjDtl" th:text="${renovationDetailSearchDto.tojimj}"></span><span> ㎡</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">건물주소</label>
+                            </div>
+                            <div class="col-1 p-0">
+                                <div class="row row-tr p-0 h-50 border-end-0">
+                                    <div class="col-th border-bottom border-start-0">
+                                        <label class="col-form-label col-form-label-sm">도로명주소</label>
+                                    </div>
+                                </div>
+                                <div class="row row-tr p-0 h-50 border-0">
+                                    <div class="col-th border-start-0">
+                                        <label class="col-form-label col-form-label-sm">지번주소</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-10 p-0">
+                                <div class="row row-tr align_items_center h-50 border-end-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span id="buildingNewAddr1Dtl" th:text="${renovationDetailSearchDto.buildingNewAddr1}"></span>
+                                    </label>
+                                </div>
+                                <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span id="buildingNewAddr2Dtl" th:text="${renovationDetailSearchDto.buildingNewAddr2}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ownerCsDiv mt-3">
+                        <p class="font-weight-bold mt-3">소유자현황</p>
+                        <div class="row row-tr" style="background-color: #f8f8f8">
+                            <div class="col-1 d-flex align-items-center" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">No.</label>
+                            </div>
+                            <div class="col-1 d-flex align-items-center" style="border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">성명</label>
+                            </div>
+                            <div class="col-8" style="padding: 0px 10px 0px 10px;">
+                                <div class="row" style="border-bottom: 1px solid #ccc; height: 50px">
+                                    <div class="col-12 d-flex align-items-center">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">소유자주소</label>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 mb-2">
+                                    <div class="col-6 d-flex align-items-center" style="border-right: 1px solid #ccc;">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">도로명주소</label>
+                                    </div>
+                                    <div class="col-6 d-flex align-items-center">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">지번주소</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2 d-flex align-items-center" style="border-left: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">소유자 주민번호</label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="rnDtl" th:text="${renovationDetailSearchDto.rn}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1" style="border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="gmjnameDtl" th:text="${renovationDetailSearchDto.gmjname}"></span>
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col-6 p-0" style="border-right: 1px solid #ccc; height: 30px;">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">
+                                            <span id="gmjNewAddr1Dtl" th:text="${renovationDetailSearchDto.gmjNewAddr1}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">
+                                            <span id="gmjNewAddr2Dtl" th:text="${renovationDetailSearchDto.gmjNewAddr2}"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2" style="border-left: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="gmjjuminDtl" th:text="${renovationDetailSearchDto.gmjjumin}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reportCsDiv mt-3">
+                        <p class="font-weight-bold mt-3">신고현황</p>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>접수일자</span>
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gbsgoilDtl" th:text="${renovationDetailDto.gbsgoilV}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>준공일자</span>
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="jgongDtl" th:text="${renovationDetailDto.jgongV}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>발급기관</span>
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="issueorgkeyDtl" th:each="list : ${renovationIssuerKey}" th:if="${list.key}==${renovationDetailDto.issueorgkey}" th:text="${list.prntnm}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>위반내용</span>
+                                </label>
+                            </div>
+                            <div class="col-11">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="wbgbDtl" th:text="${renovationDetailDto.wbgb}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>신고내용</span>
+                                </label>
+                            </div>
+                            <div class="col-11">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gbscotentDtl" th:text="${renovationDetailDto.gbscotent}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>조치내용</span>
+                                </label>
+                            </div>
+                            <div class="col-11">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="chcontentDtl" th:text="${renovationDetailDto.chcontent}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>현장확인자</span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>직명</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="hhgnameDtl" th:text="${renovationDetailDto.hhgname}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>성명</span>
+                                </label>
+                            </div>
+                            <div class="col-5">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="hhnameDtl" th:text="${renovationDetailDto.hhname}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>신고</span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>담당</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="sindaDtl" th:text="${renovationDetailDto.sinda}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>동장</span>
+                                </label>
+                            </div>
+                            <div class="col-5">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="sinda1Dtl" th:text="${renovationDetailDto.sinda1}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>준공</span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>담당</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="jungonDtl" th:text="${renovationDetailDto.jungon}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span>동장</span>
+                                </label>
+                            </div>
+                            <div class="col-5">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="jungon1Dtl" th:text="${renovationDetailDto.jungon1}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row nav nav-pills mt-3" id="pills-tab" role="tablist">
+                    <div class="col-1">
+                        <button type="button" class="btn btn-sm btn-light bdaaa" th:onclick="|location.href='@{/unlcebldmng/renovation/list}'|">목록</button>
+                    </div>
+                    <div class="col-11 btn-group-sm">
+                        <div class="nav-item hidden" role="presentation">
+                            <button class="active btn btn-sm btn-primary" id="pills-detail-tab" data-bs-toggle="pill" data-bs-target="#pills-detail" type="button" role="tab" aria-controls="pills-detail" aria-selected="true">상세</button>
+                        </div>
+                        <div class="nav-item d-flex float-end" role="presentation">
+                            <button type="button" class="btn btn-sm btn-primary me-2" id="reportCallBtn" style="float:right;">개보수필증</button>
+                            <button th:if="${auth.canUpdate}" class="btn btn-sm btn-primary" id="pills-modify-tab" data-bs-toggle="pill" data-bs-target="#pills-modify" type="button" role="tab" aria-controls="pills-modify" aria-selected="false" style="background:#0d6efd;color:#fff">수정</button>
+                        </div>
+                        <form id="renovationDetailForm" th:action="@{/unlcebldmng/renovation/detail}" th:method="get">
+                            <input type="hidden" name="gmskk" id="gmskkDtlIp" th:value="${renovationDetailDto.gmskk}"/>
+                            <input type="hidden" name="gmdjgb" id="gmdjgbDtlIp" th:value="${renovationDetailDto.gmdjgb}"/>
+                            <input type="hidden" name="gmseqco" id="gmseqcoDtlIp" th:value="${renovationDetailDto.gmseqco}"/>
+                            <input type="hidden" name="gmilno" id="gmilnoDtlIp" th:value="${renovationDetailDto.gmilno}"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pills-modify" role="tabpanel" aria-labelledby="pills-modify-tab">
+                <div class="title_wrap">
+                    <h3 class="tit">개보수신고 수정</h3>
+                    <div class="loc">
+                        <i class="bi bi-house-fill"></i>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>기존무허가 건축물관리</span>
+                        </label>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>개보수신고관리</span>
+                        </label>
+                        <i class="bi bi-chevron-compact-right"></i>
+                        <label class="col-form-label col-form-label-sm">
+                            <span>개보수신고 수정</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="contentDiv mt-3" id="modifyDiv">
+                    <p class="font-weight-bold mt-3">기본현황</p>
+                    <div class="basicCsDiv">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">대장번호</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="num" th:text="${renovationDetailSearchDto.num}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">구조</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gmgzcd" th:text="${renovationDetailSearchDto.gmgzcd}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">소유권</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="tojisg" th:text="${renovationDetailSearchDto.tojisg}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">건물면적</label>
+                            </div>
+                            <div class="col-7">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="gmmunjuk" th:text="${renovationDetailSearchDto.gmmunjuk}"></span><span> ㎡</span>
+                                </label>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">토지면적</label>
+                            </div>
+                            <div class="col-3">
+                                <label class="col-form-label col-form-label-sm">
+                                    <span id="tojimj" th:text="${renovationDetailSearchDto.tojimj}"></span><span> ㎡</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">건물주소</label>
+                            </div>
+                            <div class="col-1 p-0">
+                                <div class="row row-tr p-0 h-50 border-end-0">
+                                    <div class="col-th border-bottom border-start-0">
+                                        <label class="col-form-label col-form-label-sm">도로명주소</label>
+                                    </div>
+                                </div>
+                                <div class="row row-tr p-0 h-50 border-0">
+                                    <div class="col-th border-start-0">
+                                        <label class="col-form-label col-form-label-sm">지번주소</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-10 p-0">
+                                <div class="row row-tr align_items_center h-50 border-end-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span id="buildingNewAddr1" th:text="${renovationDetailSearchDto.buildingNewAddr1}"></span>
+                                    </label>
+                                </div>
+                                <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span id="buildingNewAddr2" th:text="${renovationDetailSearchDto.buildingNewAddr2}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ownerCsDiv mt-3">
+                        <p class="font-weight-bold mt-3">소유자현황</p>
+                        <div class="row row-tr" style="background-color: #f8f8f8">
+                            <div class="col-1 d-flex align-items-center" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">No.</label>
+                            </div>
+                            <div class="col-1 d-flex align-items-center" style="border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">성명</label>
+                            </div>
+                            <div class="col-8" style="padding: 0px 10px 0px 10px;">
+                                <div class="row" style="border-bottom: 1px solid #ccc; height: 50px">
+                                    <div class="col-12 d-flex align-items-center">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">소유자주소</label>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 mb-2">
+                                    <div class="col-6 d-flex align-items-center" style="border-right: 1px solid #ccc;">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">도로명주소</label>
+                                    </div>
+                                    <div class="col-6 d-flex align-items-center">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">지번주소</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2 d-flex align-items-center" style="border-left: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">소유자 주민번호</label>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="rn" th:text="${renovationDetailSearchDto.rn}"></span>
+                                </label>
+                            </div>
+                            <div class="col-1" style="border-right: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="gmjname" th:text="${renovationDetailSearchDto.gmjname}"></span>
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <div class="row">
+                                    <div class="col-6 p-0" style="border-right: 1px solid #ccc; height: 30px;">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">
+                                            <span id="gmjNewAddr1" th:text="${renovationDetailSearchDto.gmjNewAddr1}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">
+                                            <span id="gmjNewAddr2" th:text="${renovationDetailSearchDto.gmjNewAddr2}"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-2" style="border-left: 1px solid #ccc">
+                                <label class="col-form-label col-form-label-sm w-100 text-center">
+                                    <span id="gmjjumin" th:text="${renovationDetailSearchDto.gmjjumin}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reportCsDiv mt-3">
+                        <p class="font-weight-bold mt-3">신고현황</p>
+                        <form id="renovationModifyForm" th:action="@{/unlcebldmng/renovation/modify}" th:method="post">
+                            <input type="hidden" name="gmskk" id="gmskkRpIp" th:value="${renovationDetailDto.gmskk}"/>
+                            <input type="hidden" name="gmdjgb" id="gmdjgbRpIp" th:value="${renovationDetailDto.gmdjgb}"/>
+                            <input type="hidden" name="gmseqco" id="gmseqcoRpIp" th:value="${renovationDetailDto.gmseqco}"/>
+                            <input type="hidden" name="gmilno" id="gmilnoRpIp" th:value="${renovationDetailDto.gmilno}"/>
+                            <input type="hidden" id="userName" th:value="${#authentication.principal.userName}"/>
+                            <input type="hidden" name="daejang" id="daejangRpIp" th:value="${renovationDetailDto.daejang}"/>
+                            <input type="hidden" name="gmjname" id="gmjnameRpIp" th:value="${renovationDetailDto.gmjname}"/>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>접수일자</span><span style="color:red">*</span>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input type="date" onkeydown="return false" id="gbsgoil" class="form-control form-control-sm w120" max="9999-12-31" th:value="${renovationDetailDto.gbsgoilV}" required/>
+                                    <input type="hidden" name="gbsgoil" id="gbsgoilRpIp" th:value="${renovationDetailDto.gbsgoilV.replace('-', '')}"/>
+                                    <div class="invalid-feedback">접수일자를 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>준공일자</span><span style="color:red">*</span>
+                                    </label>
+                                </div>
+                                <div class="col-3">
+                                    <input type="date" onkeydown="return false" id="jgong" class="form-control form-control-sm w120" max="9999-12-31" th:value="${renovationDetailDto.jgongV}" required/>
+                                    <input type="hidden" name="jgong" id="jgongRpIp" th:value="${renovationDetailDto.jgongV.replace('-', '')}"/>
+                                    <div class="invalid-feedback">준공일자를 입력해주세요.</div>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">발급기관</label>
+                                </div>
+                                <div class="col-3">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span id="issueorgkey" th:each="list : ${renovationIssuerKey}" th:if="${list.key}==${renovationDetailDto.issueorgkey}" th:text="${list.prntnm}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>위반내용</span><span style="color:red">*</span>
+                                    </label>
+                                </div>
+                                <div class="col-11">
+                                    <input type="text" class="form-control form-control-sm" name="wbgb" id="wbgb" th:value="${renovationDetailDto.wbgb}" placeholder="위반내용 입력" required/>
+                                    <div class="invalid-feedback">위반내용을 입력해주세요.</div>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>신고내용</span>
+                                    </label>
+                                </div>
+                                <div class="col-11">
+                                    <input type="text" class="form-control form-control-sm" name="gbscotent" id="gbscotent" th:value="${renovationDetailDto.gbscotent}" placeholder="신고내용 입력"/>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>조치내용</span>
+                                    </label>
+                                </div>
+                                <div class="col-11">
+                                    <input type="text" class="form-control form-control-sm" name="chcontent" id="chcontent" th:value="${renovationDetailDto.chcontent}" placeholder="조치내용 입력"/>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>현장확인자</span>
+                                    </label>
+                                </div>
+                                <div class="col-1 col-th border-start-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>직명</span>
+                                    </label>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" name="hhgname" id="hhgname" th:value="${renovationDetailDto.hhgname}" placeholder="직명 입력"/>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>성명</span>
+                                    </label>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" class="form-control form-control-sm" name="hhname" id="hhname" th:value="${renovationDetailDto.hhgname}" placeholder="성명 입력"/>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>신고</span>
+                                    </label>
+                                </div>
+                                <div class="col-1 col-th border-start-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>담당</span>
+                                    </label>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" name="sinda" id="sinda" th:value="${renovationDetailDto.sinda}" placeholder="담당자명 입력"/>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>동장</span>
+                                    </label>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" class="form-control form-control-sm" name="sinda1" id="sinda1" th:value="${renovationDetailDto.sinda1}" placeholder="동장명 입력"/>
+                                </div>
+                            </div>
+                            <div class="row row-tr">
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>준공</span>
+                                    </label>
+                                </div>
+                                <div class="col-1 col-th border-start-0">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>담당</span>
+                                    </label>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" class="form-control form-control-sm" name="jungon" id="jungon" th:value="${renovationDetailDto.jungon}" placeholder="담당자명 입력"/>
+                                </div>
+                                <div class="col-1 col-th">
+                                    <label class="col-form-label col-form-label-sm">
+                                        <span>동장</span>
+                                    </label>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" class="form-control form-control-sm" name="jungon1" id="jungon1" th:value="${renovationDetailDto.jungon1}" placeholder="동장명 입력"/>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="row mt-3">
+                            <div class="col-2">
+                                <button type="button" class="btn btn-sm btn-light me-2 bdaaa" id="listBtn" th:onclick="|location.href='@{/unlcebldmng/renovation/list}'|">목록</button>
+                            </div>
+                            <div class="col-10 tx-right">
+                                <button th:if="auth.canUpdate" type="button" class="btn btn-sm btn-primary" id="modifyBtn">저장</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<script th:inline="javascript">
+    var isAdmin = [[${#authentication.principal.isAdmin}]]
+    var gmskkcd = [[${#authentication.principal.skkCd}]]
+</script>
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript" th:src="@{/js/buildingmanagement/renovationDetail.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+</th:block>
+</html>

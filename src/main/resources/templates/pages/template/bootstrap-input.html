@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+<!--/*
+    class 의 col-4 에서 숫자를 최상위의 크기에 맞게 조절하여 사용하시면 됩니다.
+*/-->
+<div class="row">
+<!--    아이콘 + Input Disable-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-circle-arrow-right">&nbsp;</i> 대장번호</span>
+            <input type="text" id="1" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+<!--    아이콘 + Input-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon2"><i class="fa-solid fa-caret-right">&nbsp;</i> 관리번호</span>
+            <input type="text" id="2" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+    <!--    아이콘 + Input Disable-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon3"><i class="fa-solid fa-angle-right">&nbsp;</i> 관리번호</span>
+            <input type="text" id="3" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+</div>
+<!--/* --------------------------------------------------------------- */-->
+<div class="row">
+<!--    Input 2개-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon4"> 대장번호</span>
+            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+<!--    Input 우측 버튼-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon5">관리번호</span>
+            <input type="text" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            <button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
+        </div>
+    </div>
+<!--    disable 기본-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon6">관리번호</span>
+            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+</div>
+<!--/* --------------------------------------------------------------- */-->
+<div class="row">
+<!--    select-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon7">대장번호</span>
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Open this select menu</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </div>
+    </div>
+<!--    Date-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon8">관리번호</span>
+            <input type="date" onkeydown="return false" class="form-control " placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+<!--    Input 3개 Disable-->
+    <div class="col-4">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="basic-addon9"> 대장번호</span>
+            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+            <input type="text" class="form-control " disabled placeholder="사용자명을 입력하세요." aria-label="사용자명을 입력하세요." aria-describedby="basic-addon1">
+        </div>
+    </div>
+</div>
+<!--/* --------------------------------------------------------------- */-->
+<div class="row">
+<!--    기본-->
+    <div class="col-4">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+            <label for="floatingInput">Email address</label>
+        </div>
+    </div>
+<!--    값이 선입력 되어있음-->
+    <div class="col-4">
+        <form class="form-floating">
+            <input type="email" class="form-control" id="floatingInputValue" placeholder="name@example.com" value="test@example.com">
+            <label for="floatingInputValue">Input with value</label>
+        </form>
+    </div>
+<!--    입력 input 크기 조절 가능-->
+    <div class="col-4">
+        <div class="form-floating">
+            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+            <label for="floatingTextarea">Comments</label>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+</script>
+</body>
+</html>

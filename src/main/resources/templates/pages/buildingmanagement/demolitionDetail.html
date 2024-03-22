@@ -1,0 +1,894 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="demolition = 'on', demolitionBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="configScript">
+    <script>
+        const canDelete = [[${auth.canDelete}]];
+    </script>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:inline="javascript" th:src="@{/js/buildingmanagement/demolitionDetail.js}"></script>
+    <script th:inline="javascript">
+        const isAdmin = [[${#authentication.principal.isAdmin}]];
+        const demolitionCompensationList = [[${demolitionCompensationList}]];
+        const demolitionTenantList = [[${demolitionTenantList}]];
+        const demolitionOwnerChangeList = [[${demolitionOwnerChangeList}]];
+    </script>
+</th:block>
+<meta charset="UTF-8">
+<!--/* meta 호출 */-->
+<th:block th:replace="config/meta :: meta"></th:block>
+<!--/* library 호출 */-->
+<th:block th:replace="config/library :: library"></th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+
+    <div class="content container-fluid" id="demolitionModifyContainer">
+        <div class="title_wrap">
+            <h3 class="tit">철거신고상세</h3>
+            <div class="loc">
+                <a th:href="@{/}"><i class="bi bi-house-fill"></i></a>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/ledger}"><span>기존무허가 건축물관리</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/demolition}"><span>철거신고관리</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a th:href="@{/unlcebldmng/demolition}"><span>철거신고현황</span></a>
+                </label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm">
+                    <a><span>철거신고상세</span></a>
+                </label>
+            </div>
+        </div>
+        <!--
+        <div class="row nav nav-pills mb-3 mt-2" id="pills-tab" role="tablist">
+            <div class="col-auto nav-item" role="presentation">
+                <button class="nav-link active" id="pills-report-tab" data-bs-toggle="pill" data-bs-target="#pills-report" type="button" role="tab" aria-controls="pills-report" aria-selected="true">신고사항</button>
+            </div>
+            <div class="col-auto nav-item" role="presentation">
+                <button class="nav-link" id="pills-compensation-tab" data-bs-toggle="pill" data-bs-target="#pills-compensation" type="button" role="tab" aria-controls="pills-compensation" aria-selected="false">건물주보상현황</button>
+            </div>
+            <div class="col-auto nav-item" role="presentation">
+                <button class="nav-link" id="pills-tenant-tab" data-bs-toggle="pill" data-bs-target="#pills-tenant" type="button" role="tab" aria-controls="pills-tenant" aria-selected="false">세입자현황</button>
+            </div>
+            <div class="col-auto nav-item" role="presentation">
+                <button class="nav-link" id="pills-changeOwner-tab" data-bs-toggle="pill" data-bs-target="#pills-changeOwner" type="button" role="tab" aria-controls="pills-changeOwner" aria-selected="false">소유자변경이력</button>
+            </div>
+        </div>
+        -->
+        <div class="contentDiv mt-5">
+            <p class="font-weight-bold mt-3">기본현황</p>
+            <div class="basicCsDiv">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대장번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="daejangBunho" th:text="${demolitionNoperInfo.get(0).getDaejangBunho()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dhbh" th:text="${demolitionNoperInfo.get(0).getDhbh()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도엽건물번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dhgbh" th:text="${demolitionNoperInfo.get(0).getDhgbh()}"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">동번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="dongbh" th:text="${demolitionNoperInfo.get(0).getDongbh()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">동일련번호</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="donggbh" th:text="${demolitionNoperInfo.get(0).getDonggbh() ?: '-'}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대장등재</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="daejang" th:text="${demolitionNoperInfo.get(0).getDaejang()}"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물주소</label>
+                    </div>
+                    <div class="col-1 p-0">
+                        <div class="row row-tr p-0 h-50 border-end-0">
+                            <div class="col-th border-bottom border-start-0">
+                                <label class="col-form-label col-form-label-sm">도로명주소</label>
+                            </div>
+                        </div>
+                        <div class="row row-tr p-0 h-50 border-0">
+                            <div class="col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">지번주소</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 p-0">
+                        <div class="row row-tr align_items_center h-50 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="buildingNewAddr1Span" th:text="${demolitionNoperInfo.get(0).getBuildingNewAddr1()}"></span>
+                            </label>
+                        </div>
+                        <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="buildingNewAddr2Span" th:text="${demolitionNoperInfo.get(0).getBuildingNewAddr2()}"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">관리행정동</label>
+                    </div>
+                    <div class="col-3" style="display:none">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmhjdcd" th:text="${demolitionNoperInfo.get(0).getGmhjdcd()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmhjdnm" th:text="${demolitionNoperInfo.get(0).getGmhjdnm()}"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-3">대장내역</p>
+            <div class="ledgerDiv">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">구조</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmgzcd" th:text="${demolitionNoperInfo.get(0).getGmgzcd()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">용도</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmyd" th:text="${demolitionNoperInfo.get(0).getGmyd()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">부속건물동수</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmbsdong" th:text="${demolitionNoperInfo.get(0).getGmbsdong()}"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물면적(당초)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmmjuk" th:text="|${demolitionNoperInfo.get(0).getGmmjuk() != null ? demolitionNoperInfo.get(0).getGmmjuk() : 0}㎡/ |"></span>
+                        </label>
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmgunp" th:text="|${demolitionNoperInfo.get(0).getGmgunp() != null ? demolitionNoperInfo.get(0).getGmgunp() : 0}평|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물면적(현재)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="currentGmbmjuk" th:text="|${demolitionNoperInfo.get(0).getCurrentGmbmjuk() != null ? demolitionNoperInfo.get(0).getCurrentGmbmjuk() : 0}㎡/ |"></span>
+                        </label>
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="currentGmbgunp" th:text="|${demolitionNoperInfo.get(0).getCurrentGmbgunp() != null ? demolitionNoperInfo.get(0).getCurrentGmbgunp() : 0}평|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건축일자</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmgunil" th:text="${demolitionNoperInfo.get(0).getGmgunilV()}"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">토지면적(당초)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojimjuk" th:text="|${demolitionNoperInfo.get(0).getTojimjuk() != null ? demolitionNoperInfo.get(0).getTojimjuk() : 0}㎡/ |"></span>
+                        </label>
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojimj" th:text="|${demolitionNoperInfo.get(0).getTojimj() != null ? demolitionNoperInfo.get(0).getTojimj() : 0}평|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">토지면적(현재)</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="currentTojimjuk"  th:text="|${demolitionNoperInfo.get(0).getCurrentGmbtojimjuk() != null ? demolitionNoperInfo.get(0).getCurrentGmbtojimjuk() : 0}㎡/ |"></span>
+                        </label>
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="currentGmbtojimj"  th:text="|${demolitionNoperInfo.get(0).getCurrentGmbtojimj() != null ? demolitionNoperInfo.get(0).getCurrentGmbtojimj() : 0}평|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지목</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojijmgnm" th:text="|${demolitionNoperInfo.get(0).getTojijmgnm() != null ? demolitionNoperInfo.get(0).getTojijmgnm() : ''}|"></span>
+                        </label>
+                    </div>
+                    <div style="display:none">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojijmg" th:text="|${demolitionNoperInfo.get(0).getTojijmg() != null ? demolitionNoperInfo.get(0).getTojijmg() : ''}|"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도시계획</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojidp" th:text="|${demolitionNoperInfo.get(0).getTojidp() != null ? demolitionNoperInfo.get(0).getTojidp() : ''}|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">재개발지구<br />여부</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="jigujdg" th:text="|${demolitionNoperInfo.get(0).getJigujdg() != null ? demolitionNoperInfo.get(0).getJigujdg() : ''}|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지구구분</label>
+                    </div>
+                    <div class="col-3 align_items_center">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="jigugb" th:text="|${demolitionNoperInfo.get(0).getJigugb() != null ? demolitionNoperInfo.get(0).getJigugb() : ''}|"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">지구여건</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="jiguug" th:text="|${demolitionNoperInfo.get(0).getJiguug() != null ? demolitionNoperInfo.get(0).getJiguug() : ''}|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">도로저촉</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="jigudz" th:text="|${demolitionNoperInfo.get(0).getJigudz() != null ? demolitionNoperInfo.get(0).getJigudz() : ''}|"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물층수</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmfoors" th:text="|${demolitionNoperInfo.get(0).getGmfoors() != null ? demolitionNoperInfo.get(0).getGmfoors() : ''}|"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">소유권</label>
+                    </div>
+                    <div class="col-11">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="tojisg" th:text="|${demolitionNoperInfo.get(0).getTojisg() != null ? demolitionNoperInfo.get(0).getTojisg() : ''}|"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-3">건물 소유자현황</p>
+            <div class="buildingOwnerDiv">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">소유자</label>
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmjname" th:text="${demolitionNoperInfo.get(0).getGmjname()}"></span>
+                        </label>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">주민등록번호</label>
+                    </div>
+                    <div class="col-7">
+                        <label class="col-form-label col-form-label-sm">
+                            <span id="gmjjumin" th:text="${demolitionNoperInfo.get(0).getGmjjumin()}"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">소유자주소</label>
+                    </div>
+                    <div class="col-1 p-0">
+                        <div class="row row-tr p-0 h-50 border-end-0">
+                            <div class="col-th border-bottom border-start-0">
+                                <label class="col-form-label col-form-label-sm">도로명주소</label>
+                            </div>
+                        </div>
+                        <div class="row row-tr p-0 h-50 border-0">
+                            <div class="col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">지번주소</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-10 p-0">
+                        <div class="row row-tr align_items_center h-50 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="gmjNewAddr1Sp" th:text="${demolitionNoperInfo.get(0).getGmjNewAddr1()}"></span>
+                            </label>
+                        </div>
+                        <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                            <label class="col-form-label col-form-label-sm">
+                                <span id="gmjNewAddr2Sp" th:text="${demolitionNoperInfo.get(0).getGmjNewAddr2()}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion mt-5" id="accordionPanelsStayOpenExample">
+                <div class="accordion-item">
+                    <form id="demolitionReportForm" name="demolitionReportForm" th:method="post" class="needs-validation" novalidate>
+                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                            신고사항
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                        <div class="accordion-body">
+                            <div class="reportDiv">
+                                <div class="row row-tr btccc">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거일자<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="date" onkeydown="return false" name="deilja" id="deiljaRpt" max="9999-12-31" class="form-control form-control-sm w150" th:value="${demolitionNoperInfo.get(0).getDeiljaV()}" required/>
+                                        <div class="invalid-feedback">철거일자를 입력해주세요.</div>
+                                    </div>
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">발급기관<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-5">
+                                        <select name="issueorgkey" id="issueorgkeyRpt" class="form-select form-select-sm" required>
+                                            <option th:each="list : ${demolitionIssuerKey}" th:value="${list.key}" th:selected="${list.key}==${demolitionNoperInfo.get(0).getIssueorgkey()}"
+                                                    th:text="${list.prntnm}">발급기관
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거유형<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-11">
+                                        <select name="deuh" id="deuhRpt" class="form-select form-select-sm w150" required>
+                                            <option th:each="deuhList : ${demolitionDeuh}" th:value="${deuhList.cdkey}" th:selected="${deuhList.cdkey}==${demolitionNoperInfo.get(0).getDeuh()}"
+                                                    th:text="${deuhList.cdvalue}">철거유형
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback">철거유형을 선택해주세요.</div>
+                                    </div>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">철거사유<span style="color:red">*</span></label>
+                                    </div>
+                                    <div class="col-11">
+                                        <textarea name="desau" id="desauRpt" class="form-control form-control-sm lh-sm my-1" aria-label="철거사유" th:text="${demolitionNoperInfo.get(0).getDesau()}" required></textarea>
+                                        <div class="invalid-feedback">철거사유를 입력해주세요.</div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 justify-content-end">
+                                        <div class="float-end mt-3">
+                                            <button type="button" id="dmRptFormResetBtn" class="btn btn-sm btn-secondary" th:if="${auth.canInsert}" alt="신고사항 초기화"><i class="bi bi-arrow-repeat"></i></button>
+                                            <button type="button" id="dmRptModifyBtn" class="btn btn-sm btn-primary me-2" th:if="${auth.canInsert}" alt="신고사항 수정">수정</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex mt-3"></div>
+                            </div>
+                            <input type="hidden" name="gmskk" id="gmskk" th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                            <input type="hidden" name="gmdjgb" id="gmdjgb" th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                            <input type="hidden" name="gmseqco" id="gmseqco" th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                            <input type="hidden" id="userName" th:value="${#authentication.principal.userName}"/>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                            건물주보상현황
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                        <div class="accordion-body">
+                            <th:block th:if="${auth.canInsert}">
+                                <form id="demolitionCompensationForm" name="demolitionCompensationForm" th:method="post" class="needs-validation" novalidate>
+                                    <p class="font-weight-bold mt-3">건물주보상현황 입력</p>
+                                    <div class="compensationDiv">
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">소유자명<span style="color:red">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="text" name="gmjname" id="gmjnameCps" class="form-control form-control-sm" data-input-type="noNumberString" placeholder="소유자명 입력" required>
+                                                <div class="invalid-feedback">소유자명을 입력해주세요.</div>
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">주민등록번호<span style="color:red">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-5">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <select name="gmjjgn" id="gmjjgnCps" class="form-select form-select-sm w120">
+                                                            <option th:each="gmjjgnList : ${gmjjgnList}" th:value="${gmjjgnList.cdkey}"
+                                                                    th:text="${gmjjgnList.cdvalue}">신청인
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-8 row">
+                                                        <input type="text" minlength="6" maxlength="6" data-input-type="number" data-next-input="gmjjumin2Cps" class="form-control form-control-sm w120" name="gmjjumin1" id="gmjjumin1Cps" required/>
+                                                        &nbsp-&nbsp
+                                                        <input type="text" minlength="7" maxlength="7" data-input-type="number" class="form-control form-control-sm w120" name="gmjjumin2" id="gmjjumin2Cps" required/>
+                                                        <div class="invalid-feedback">주민등록번호를 입력해주세요.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">건물주 주소<span style="color:red">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-5 align-items-center">
+                                                <input type="text" name="newAddr1" id="gmjNewAddr1" class="form-control form-control-sm w490 disabled" placeholder="도로명주소" readonly required/>
+                                                <input type="text" name="newAddr2" id="gmjNewAddr2" class="form-control form-control-sm w490 disabled" placeholder="지번주소" readonly required/>
+                                                <div class="invalid-feedback">주소를 입력해주세요.</div>
+                                            </div>
+                                            <div class="col-1 align_items_center">
+                                                <button type="button" id="jusoBtn" class="btn btn-sm btn-secondary" alt="주소"><i class="fa-solid fa-magnifying-glass"></i> 주소</button>
+                                            </div>
+                                            <input type="hidden" name="gmskkcd" aria-label="시군구코드">
+                                            <input type="hidden" name="gmbjdcd" aria-label="위치법정동코드">
+                                            <input type="hidden" name="gmjsna" aria-label="건물주주소앞부분">
+                                            <input type="hidden" name="gmcsah" aria-label="위치대지구분">
+                                            <input type="hidden" name="gmcbuh" aria-label="위치본번">
+                                            <input type="hidden" name="gmcji" aria-label="위치부번">
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm text-nowrap">보상금지급일자</label>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <input type="date" onkeydown="return false" name="gmjbsilja" id="gmjbsiljaCps" max="9999-12-31" class="form-control form-control-sm w150"/>
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">보상금지급액</label>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <input type="text" class="form-control form-control-sm" name="gmjbsgum" id="gmjbsgumCps" maxlength="9" data-input-type="number" data-amount-value="true" placeholder="보상금지급액 입력"/>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">아파트입주권<br/>지급일자</label>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <input type="date" onkeydown="return false" name="gmjjbilja" id="gmjjbiljaCps" max="9999-12-31" class="form-control form-control-sm w150"/>
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">아파트지구</label>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <input type="text" class="form-control form-control-sm" name="gmjigu" id="gmjiguCps" placeholder="아파트 지구 입력"/>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">평형</label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="text" class="form-control form-control-sm" name="gmjjbph" id="gmjjbphCps" placeholder="평형 입력"/>
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">비고</label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="text" class="form-control form-control-sm" name="bidak" id="bidakCps" placeholder="비고 입력"/>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 justify-content-end">
+                                                <div class="float-end mt-3">
+                                                    <button type="button" id="compensationFormResetBtn" class="btn btn-sm btn-secondary" th:if="${auth.canInsert}" alt="건물주보상현황 입력 초기화"><i class="bi bi-arrow-repeat"></i></button>
+                                                    <button type="button" id="compensationAddBtn" class="btn btn-sm btn-primary me-2" th:if="${auth.canInsert}" alt="건물주보상현황 추가">추가</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="gmskk" th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                                    <input type="hidden" name="gmdjgb" th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                                    <input type="hidden" name="gmseqco" th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                                    <input type="hidden" name="gmjzip1" th:value="${demolitionCompensationList != null ? demolitionCompensationList.get(0).getGmjzip1() : ''}"/>
+                                    <input type="hidden" name="gmjzip2" th:value="${demolitionCompensationList != null ? demolitionCompensationList.get(0).getGmjzip2() : ''}"/>
+                                    <input type="hidden" name="gmjjname" th:value="${demolitionCompensationList != null ? demolitionCompensationList.get(0).getGmjjname() : ''}"/>
+                                    <input type="hidden" name="naBjdongNo" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaBjdongNoOwner() : ''}"/>
+                                    <!--
+                                                            <input type="hidden" name="naRoadCd" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaRoadCd() : ''}"/>
+                                    -->
+                                    <input type="hidden" name="naRoadNm" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaRoadNmOwner() : ''}"/>
+                                    <input type="hidden" name="naMainBun" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaMainBunOwner() : ''}"/>
+                                    <input type="hidden" name="naSubBun" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaSubBunOwner() : ''}"/>
+                                    <input type="hidden" name="naEtc" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaEtcOwner() : ''}"/>
+                                    <input type="hidden" name="naSigunguCdOwner" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNaSigunguCdOwner() : ''}"/>
+                                    <!--<input type="hidden" name="newAddr1" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNewAddr1() : ''}"/>
+                                    <input type="hidden" name="newAddr2" th:value="${demolitionNoperInfo != null ? demolitionNoperInfo.get(0).getNewAddr2() : ''}"/>-->
+                                    <input type="hidden" name="gmjjumin" id="gmjjuminCps"/>
+                                </form>
+                            </th:block>
+                            <p class="font-weight-bold border-bottom-0 mt-3">건물주보상현황</p>
+                            <div id="compensationGridDiv" style="width: 100%;" class="ag-theme-alpine"></div>
+                            <form id="demolitionCompensationDeleteForm" name="demolitionCompensationDeleteForm" th:method="post" class="needs-validation" novalidate>
+                                <input type="hidden" name="gmskk" id="gmskkCpsDelIp" th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                                <input type="hidden" name="gmdjgb" id="gmdjgbCpsDelIp" th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                                <input type="hidden" name="gmseqco" id="gmseqcoCpsDelIp" th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                                <input type="hidden" name="gmjilno" id="gmjilnoCpsDelIp"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                            세입자현황
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                        <div class="accordion-body">
+                            <th:block th:if="${auth.canInsert}">
+                                <form id="demolitionTenantForm" name="demolitionTenantForm" th:method="post" class="needs-validation" novalidate>
+                                    <p class="font-weight-bold mt-3">세입자현황 입력</p>
+                                    <div class="tenantDiv">
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">
+                                                    세입자명<span style="color:red">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="text" name="sename" id="senameTnt" class="form-control form-control-sm" data-input-type="noNumberString" placeholder="세입자명 입력" required/>
+                                                <div class="invalid-feedback">세입자명을 입력해주세요.</div>
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">주민등록번호<span style="color:red">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-5">
+                                                <div class="row">
+                                                    <div class="col-auto">
+                                                        <select name="sejjgn" id="sejjgnTnt" class="form-select form-select-sm w120 me-2" required>
+                                                            <option th:each="gmjjgnList : ${gmjjgnList}" th:value="${gmjjgnList.cdkey}"
+                                                                    th:text="${gmjjgnList.cdvalue}">신청인
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-8 row">
+                                                        <input type="text" name="sejjumin1" id="sejjumin1Tnt" minlength="6" maxlength="6" data-input-type="number" data-next-input="sejjumin2Tnt" class="form-control form-control-sm w120" required/>
+                                                        &nbsp-&nbsp
+                                                        <input type="text" name="sejjumin2" id="sejjumin2Tnt" minlength="7" maxlength="7" data-input-type="number" class="form-control form-control-sm w120" required/>
+                                                        <div class="invalid-feedback">주민등록번호를 입력해주세요.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">보상금</label>
+                                            </div>
+                                            <div class="col-1 p-0">
+                                                <div class="row row-tr p-0 h-50 border-end-0">
+                                                    <div class="col-th border-bottom border-start-0">
+                                                        <label class="col-form-label col-form-label-sm">지급일자</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr p-0 h-50 border-0">
+                                                    <div class="col-th border-start-0">
+                                                        <label class="col-form-label col-form-label-sm">이사비</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4 p-0">
+                                                <div class="row row-tr align_items_center h-50 border-end-0">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="date" onkeydown="return false" name="sebsilja" id="sebsiljaTnt" max="9999-12-31" class="form-control form-control-sm w150">
+                                                    </label>
+                                                </div>
+                                                <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="text" name="seisgum" id="seisgumTnt" class="form-control form-control-sm" maxlength="9" data-input-type="number" data-amount-value="true" placeholder="이사비용 입력">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-1 p-0">
+                                                <div class="row row-tr h-50">
+                                                    <div class="col-th border-end-0">
+                                                        <label class="col-form-label col-form-label-sm">주거대책비</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row h-50">
+                                                    <div class="align_items_center">
+                                                        <label class="col-form-label col-form-label-sm"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-5 p-0">
+                                                <div class="row row-tr align_items_center border-end-0 h-50">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="text" name="sebsgum" id="sebsgumTnt" class="form-control form-control-sm" maxlength="9" data-input-type="number" data-amount-value="true" placeholder="주거대책비 입력"/>
+                                                    </label>
+                                                </div>
+                                                <div class="row row-tr h-50  border-bottom-0 border-end-0">
+                                                    <div class="align_items_center border-bottom-0">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">임대 아파트 입주권</label>
+                                            </div>
+                                            <div class="col-1 p-0">
+                                                <div class="row row-tr p-0 h-50 border-end-0">
+                                                    <div class="col-th border-bottom border-start-0">
+                                                        <label class="col-form-label col-form-label-sm">지급일자</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr p-0 h-50 border-0">
+                                                    <div class="col-th border-start-0">
+                                                        <label class="col-form-label col-form-label-sm">아파트명</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4 p-0">
+                                                <div class="row row-tr align_items_center h-50 border-end-0">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="date" onkeydown="return false" name="sejaptilja" id="sejaptiljaTnt" max="9999-12-31" class="form-control form-control-sm w150">
+                                                    </label>
+                                                </div>
+                                                <div class="row row-tr align_items_center h-50 border-bottom-0 border-end-0">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="text" class="form-control form-control-sm" placeholder="아파트명 입력" name="sejaptname" id="sejaptnameTnt">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-1 p-0">
+                                                <div class="row row-tr h-50">
+                                                    <div class="col-th border-end-0">
+                                                        <label class="col-form-label col-form-label-sm">아파트지구</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr h-50 border-bottom-0">
+                                                    <div class="col-th border-end-0">
+                                                        <label class="col-form-label col-form-label-sm">동호수</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-5 p-0">
+                                                <div class="row row-tr h-50 border-end-0 align_items_center">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="text" class="form-control form-control-sm" placeholder="아파트지구 입력" name="sejigu" id="sejiguTnt">
+                                                    </label>
+                                                </div>
+                                                <div class="row row-tr h-50 border-end-0 border-bottom-0 align_items_center">
+                                                    <label class="col-form-label col-form-label-sm">
+                                                        <input type="text" class="form-control form-control-sm" placeholder="동호수 입력" name="sejdongho" id="sejdonghoTnt">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">비고</label>
+                                            </div>
+                                            <div class="col-11 align_items_center">
+                                                <label class="col-form-label col-form-label-sm w-100">
+                                                    <input type="text" class="form-control form-control-sm" placeholder="비고 입력" name="sebidak" id="sebidakTnt">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 justify-content-end">
+                                                <div class="float-end mt-3">
+                                                    <button type="button" id="tenantFormResetBtn" class="btn btn-sm btn-secondary" th:if="${auth.canInsert}" alt="세입자현황 초기화"><i class="bi bi-arrow-repeat"></i></button>
+                                                    <button type="button" id="tenantAddBtn" class="btn btn-sm btn-primary me-2" th:if="${auth.canInsert}" alt="세입자현황 추가">추가</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="gmskk" th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                                    <input type="hidden" name="gmdjgb" th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                                    <input type="hidden" name="gmseqco" th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                                    <input type="hidden" name="seipilno" th:value="${demolitionTenantList != null ? demolitionTenantList.get(0).getSeipilno() : ''}"/>
+                                    <input type="hidden" name="sejjumin" id="sejjuminTnt"/>
+                                </form>
+                            </th:block>
+                            <p class="font-weight-bold border-bottom-0 mt-3">세입자현황</p>
+                            <div id="tenantGridDiv" style="width: 100%;" class="ag-theme-alpine"></div>
+                            <form id="demolitionTenantDeleteForm" th:action="@{/unlcebldmng/demolition/delete}" th:method="post">
+                                <input type='hidden' name='gmskk' id='gmskkTntDelIp' th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                                <input type='hidden' name='gmdjgb' id='gmdjgbTntDelIp' th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                                <input type='hidden' name='gmseqco' id='gmseqcoTntDelIp' th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                                <input type='hidden' name='seipilno' id='seipilnoTntDelIp'/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false" aria-controls="panelsStayOpen-collapseFour">
+                            소유자현황
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingFour">
+                        <div class="accordion-body">
+                            <p class="font-weight-bold mt-3">소유자현황</p>
+                            <div class="changeOwnerDiv">
+                                <div class="row row-tr p-0">
+                                    <div class="col-1 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">No.</label>
+                                    </div>
+                                    <div class="col-1 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">접수일자</label>
+                                    </div>
+                                    <div class="col-3 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">변경사유</label>
+                                    </div>
+                                    <div class="col-1 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">처리일자</label>
+                                    </div>
+                                    <div class="col-2 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">현소유자</label>
+                                    </div>
+                                    <div class="col-3 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">현소유자 주민번호</label>
+                                    </div>
+                                    <div class="col-1 col-th border-end-0">
+                                        <label class="col-form-label col-form-label-sm w-100 text-center">보고일자</label>
+                                    </div>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 border-start text-center" id="ownerDivRn">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getRn() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-1 border-start text-center" id="ownerDivSujilja">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getSujiljaV() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-3 border-start text-center" id="ownerDivBksu">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getBksu() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-1 border-start text-center" id="ownerDivCrilja">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getCriljaV() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-2 border-start text-center" id="ownerDivGmjname">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getGmjname() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-3 border-start text-center" id="ownerDivGmjjumin">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getGmjjumin() : ''}"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-1 border-start text-center" id="ownerDivGubogoilja">
+                                        <label class="col-form-label col-form-label-sm">
+                                            <span th:text="${demolitionOwnerChangeInfo != null ? demolitionOwnerChangeInfo.get(0).getGubogoiljaV() : ''}"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="font-weight-bold border-bottom-0 mt-3">소유자변경현황</p>
+                            <div id="ownerChangeGridDiv" style="width: 100%;" class="ag-theme-alpine"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade active show" id="pills-report" role="tabpanel" aria-labelledby="pills-report-tab">
+
+                </div>
+                <div class="tab-pane fade" id="pills-compensation" role="tabpanel" aria-labelledby="pills-compensation-tab">
+
+                </div>
+                <div class="tab-pane fade" id="pills-tenant" role="tabpanel" aria-labelledby="pills-tenant-tab">
+
+                </div>
+                <div class="tab-pane fade" id="pills-changeOwner" role="tabpanel" aria-labelledby="pills-changeOwner-tab">
+
+                </div>
+                <div class="row mt-3">
+                    <div class="col-2">
+                        <button type="button" class="btn btn-light btn-sm bdaaa" id="listBtn" th:onclick="|location.href='@{/unlcebldmng/demolition}'|">목록</button>
+                    </div>
+                    <div class="col-7">
+                        <form id="demolitionDeleteForm" th:action="@{/unlcebldmng/demolition/delete}" th:method="post">
+                            <input type="hidden" name="gmskk" id='gmskkDelIp' th:value="${demolitionNoperInfo.get(0).getGmskk()}"/>
+                            <input type="hidden" name="gmdjgb" id='gmdjgbDelIp' th:value="${demolitionNoperInfo.get(0).getGmdjgb()}"/>
+                            <input type="hidden" name="gmseqco" id='gmseqcoDelIp' th:value="${demolitionNoperInfo.get(0).getGmseqco()}"/>
+                        </form>
+                    </div>
+                    <div class="col-3">
+                        <button type="button" class="btn btn-sm btn-primary" id="reportCallBtn" style="float:right;">철거필증</button>
+                        <th:block th:if="${auth.canInsert}">
+                            <button type="button" class="btn btn-sm btn-secondary me-2" id="cancelBtn" style="float:right;" alt="취소">취소</button>
+                        </th:block>
+                        <button th:if="${auth.canDelete}" type="button" class="btn btn-sm btn-danger me-2" id="demolitionCancelBtn" style="float:right;">철거철회</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

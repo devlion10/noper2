@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.DailyHistoryRepository">
+
+    <select id="findHistoryList" resultType="HistoryMain">
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY TO_DATE(CRDATE, 'YYYY.MM.DD HH24:MI:SS') ASC) AS "historySeq",
+            WORKNAME AS "workName",
+            WORKID,
+            CRGB AS "crgb",
+            ETC AS "etc",
+            RTRIM(BSCD) || ' ' || RTRIM(USERNAME) AS "bscdUsername",
+            GMSKK,
+            TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI:SS') AS "crdate"
+        FROM(
+        -- 무허가대장(HIS_NOPER_MASTER)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                F_BJDNAME(B.GMSKKCD,B.GMBJDCD,B.GMHJDCD)||' '||F_CDNAME(87,B.GMCSAH)||' '||B.GMCBUH||DECODE(B.GMCJI,'','','-'||B.GMCJI)||', '||
+                B.GMGZCD||', '||B.GMFOORS||'층, '||'건물 '||B.GMMUNJUK||'m², '||'토지 '||B.TOJIMUNJUK||'m², '||B.GMYD ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_NOPER_MASTER B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        -- 확인원발급(HIS_NOPER_CONFIRM_DOC)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '접수 '||B.JSILJA||', '||B.SINNAME||', '||
+                (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+                    CASE
+                        WHEN LENGTH(B.SINJUMIN) = 13 AND INSTR(B.SINJUMIN, '-') = 0
+                        THEN SUBSTR(B.SINJUMIN, 0, 6) || '-' || SUBSTR(B.SINJUMIN, 7, 7)
+                        ELSE B.SINJUMIN
+                    END))) FROM dual WHERE B.SINJUMIN IS NOT NULL)
+                ||', '||B.BGSU||'통' ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_NOPER_CONFIRM_DOC B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --건물주현황(HIS_NOPER_OWNER)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                B.GMJSNA||' '||B.GMJJNAME||', '||B.GMJNAME||', '||
+                (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+                    CASE
+                        WHEN LENGTH(B.GMJJUMIN) = 13 AND INSTR(B.GMJJUMIN, '-') = 0
+                        THEN SUBSTR(B.GMJJUMIN, 0, 6) || '-' || SUBSTR(B.GMJJUMIN, 7, 7)
+                        ELSE B.GMJJUMIN
+                    END))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+                ||', '||B.BKSU ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_NOPER_OWNER B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --소유자변경신고현황(HIS_NOPER_OWNER_CHANGE)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                B.GMJSNA||' '||B.GMJJNAME||', 현:'||B.GMJNAME||', '||
+                (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+                    CASE
+                        WHEN LENGTH(B.GMJJUMIN) = 13 AND INSTR(B.GMJJUMIN, '-') = 0
+                        THEN SUBSTR(B.GMJJUMIN, 0, 6) || '-' || SUBSTR(B.GMJJUMIN, 7, 7)
+                        ELSE B.GMJJUMIN
+                    END))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+                ||', 전:'||B.JGMJNAME||', '||
+                (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+                    CASE
+                        WHEN LENGTH(B.JGMJJUMIN) = 13 AND INSTR(B.JGMJJUMIN, '-') = 0
+                        THEN SUBSTR(B.JGMJJUMIN, 0, 6) || '-' || SUBSTR(B.JGMJJUMIN, 7, 7)
+                        ELSE B.JGMJJUMIN
+                    END))) FROM dual WHERE B.JGMJJUMIN IS NOT NULL)
+                ||', 접수일 '||B.SUJILJA ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_NOPER_OWNER_CHANGE B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --개보수신고현황(HIS_NOPER_FIX)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '신고일 '||B.GBSGOIL||', 신고 '||B.GBSCOTENT||', 조치 '||B.CHCONTENT||', 현장확인자 '||B.HHNAME ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_NOPER_FIX B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --철거신고현황(HIS_REMOVE_MASTER)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                F_BJDNAME(B.GMSKKCD,B.GMBJDCD,B.GMHJDCD)||' '||F_CDNAME(87,B.GMCSAH)||' '||B.GMCBUH||DECODE(B.GMCJI,'','','-'||B.GMCJI)||', '||
+                B.GMGZCD||', '||B.GMFOORS||'층, '||'건물 '||B.GMMJUK||'m², '||'토지 '||B.TOJIMJUK||'m², '||B.GMYD ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_REMOVE_MASTER B
+            WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --철거건물주보상현황(HIS_REMOVE_OWNER_RECOM)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '보상금지급일 '||B.GMJBSILJA||', 지급액 '||B.GMJBSGUM||', 입주권지급일 '||B.GMJJBILJA||', 지급평형 '||B.GMJJBPH||', '||B.GMJNAME ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_REMOVE_OWNER_RECOM B
+            WHERE B.GMBDEGB IS NULL AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --철거세입자현황(HIS_REMOVE_RENT_INFO)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '주거비지급일 '||B.SEBSILJA||', 지급액 '||B.SEBSGUM||', 이사금액 '||B.SEISGUM||', 입주권지급일 '||B.SEJAPTILJA||', '||B.SENAME ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_REMOVE_RENT_INFO B
+            WHERE B.SEBDEGB IS NULL AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --부분철거건물주보상현황(HIS_REMOVE_OWNER_RECOM)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '부분철거일 '||B.GMBILJA||', 부분철거건물 '||B.GMBMJUK||', 부분철거층수 '||B.GMBFOORS||', 부분철거토지 '||B.GMBTOJIMJUK||', '||B.GMBSAU ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_REMOVE_OWNER_RECOM B
+            WHERE B.GMBDEGB='C' AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+            UNION ALL
+        --부분철거세입자현황(HIS_REMOVE_RENT_INFO)
+            SELECT
+                F_CDNAME('N08',A.WORKID) AS WORKNAME,
+                A.WORKID,
+                DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+                '세입자부분철거일 '||B.SEBILJA||', 주거비지급일 '||B.SEBSILJA||', 지급액 '||B.SEBSGUM||', 이사금액 '||B.SEISGUM||', 입주권지급일 '||B.SEJAPTILJA||', '||B.SENAME ETC,
+                A.CRDATE,
+                A.BSCD,
+                A.USERNAME,
+                A.GMSKK
+            FROM HISTORY_MAIN A, HIS_REMOVE_RENT_INFO B
+            WHERE B.SEBDEGB='C' AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        ) WHERE 1=1
+        <if test="gmskkSearch != null and gmskkSearch != '' and gmskkSearch != '선택하세요.'">
+            AND GMSKK IN (
+            <foreach item="gmskk" collection="gmskkSearch.split(',')" separator=",">
+                #{gmskk}
+            </foreach>
+            )
+        </if>
+        <if test="workidSearch != null and workidSearch != '' and workidSearch != '선택하세요.'">
+            AND WORKID IN (
+            <foreach item="workid" collection="workidSearch.split(',')" separator=",">
+                #{workid}
+            </foreach>
+            )
+        </if>
+        <if test='searchTxt != null and !searchTxt.equals("")'>
+            AND (UPPER(BSCD) LIKE '%' || UPPER(#{searchTxt}) || '%' OR UPPER(USERNAME) LIKE '%' || UPPER(#{searchTxt}) || '%')
+        </if>
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') >= #{stDate}]]>
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        ORDER BY "crdate" DESC, "historySeq" DESC
+    </select>
+
+    <!-- 일일처리내역 엑셀 다운로드 -->
+    <select id="findHistoryDataExcel" parameterType="kr.go.seoul.noper2.dto.HistoryMainDTO" resultType="kr.go.seoul.noper2.dto.HistoryMainDTO">
+        SELECT
+        ROW_NUMBER() OVER(ORDER BY TO_DATE(CRDATE, 'YYYY.MM.DD HH24:MI:SS') ASC) AS "historySeq",
+        WORKNAME AS "workName",
+        WORKID,
+        CRGB AS "crgb",
+        ETC AS "etc",
+        RTRIM(BSCD) || ' ' || RTRIM(USERNAME) AS "bscdUsername",
+        GMSKK,
+        TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY.MM.DD HH24:MI:SS') AS "crdate"
+        FROM(
+        -- 무허가대장(HIS_NOPER_MASTER)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        F_BJDNAME(B.GMSKKCD,B.GMBJDCD,B.GMHJDCD)||' '||F_CDNAME(87,B.GMCSAH)||' '||B.GMCBUH||DECODE(B.GMCJI,'','','-'||B.GMCJI)||', '||
+        B.GMGZCD||', '||B.GMFOORS||'층, '||'건물 '||B.GMMUNJUK||'m², '||'토지 '||B.TOJIMUNJUK||'m², '||B.GMYD ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_NOPER_MASTER B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        -- 확인원발급(HIS_NOPER_CONFIRM_DOC)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '접수 '||B.JSILJA||', '||B.SINNAME||', '||
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+            CASE
+                WHEN LENGTH(B.SINJUMIN) = 13 AND INSTR(B.SINJUMIN, '-') = 0
+                THEN SUBSTR(B.SINJUMIN, 0, 6) || '-' || SUBSTR(B.SINJUMIN, 7, 7)
+                ELSE B.SINJUMIN
+            END))) FROM dual WHERE B.SINJUMIN IS NOT NULL)
+        ||', '||B.BGSU||'통' ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_NOPER_CONFIRM_DOC B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --건물주현황(HIS_NOPER_OWNER)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        B.GMJSNA||' '||B.GMJJNAME||', '||B.GMJNAME||', '||
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+            CASE
+                WHEN LENGTH(B.GMJJUMIN) = 13 AND INSTR(B.GMJJUMIN, '-') = 0
+                THEN SUBSTR(B.GMJJUMIN, 0, 6) || '-' || SUBSTR(B.GMJJUMIN, 7, 7)
+                ELSE B.GMJJUMIN
+            END))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        ||', '||B.BKSU ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_NOPER_OWNER B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --소유자변경신고현황(HIS_NOPER_OWNER_CHANGE)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        B.GMJSNA||' '||B.GMJJNAME||', 현:'||B.GMJNAME||', '||
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+            CASE
+                WHEN LENGTH(B.GMJJUMIN) = 13 AND INSTR(B.GMJJUMIN, '-') = 0
+                THEN SUBSTR(B.GMJJUMIN, 0, 6) || '-' || SUBSTR(B.GMJJUMIN, 7, 7)
+                ELSE B.GMJJUMIN
+            END))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        ||', 전:'||B.JGMJNAME||', '||
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(
+            CASE
+                WHEN LENGTH(B.JGMJJUMIN) = 13 AND INSTR(B.JGMJJUMIN, '-') = 0
+                THEN SUBSTR(B.JGMJJUMIN, 0, 6) || '-' || SUBSTR(B.JGMJJUMIN, 7, 7)
+                ELSE B.JGMJJUMIN
+            END))) FROM dual WHERE B.JGMJJUMIN IS NOT NULL)
+        ||', 접수일 '||B.SUJILJA ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_NOPER_OWNER_CHANGE B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --개보수신고현황(HIS_NOPER_FIX)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '신고일 '||B.GBSGOIL||', 신고 '||B.GBSCOTENT||', 조치 '||B.CHCONTENT||', 현장확인자 '||B.HHNAME ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_NOPER_FIX B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --철거신고현황(HIS_REMOVE_MASTER)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        F_BJDNAME(B.GMSKKCD,B.GMBJDCD,B.GMHJDCD)||' '||F_CDNAME(87,B.GMCSAH)||' '||B.GMCBUH||DECODE(B.GMCJI,'','','-'||B.GMCJI)||', '||
+        B.GMGZCD||', '||B.GMFOORS||'층, '||'건물 '||B.GMMJUK||'m², '||'토지 '||B.TOJIMJUK||'m², '||B.GMYD ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_REMOVE_MASTER B
+        WHERE A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --철거건물주보상현황(HIS_REMOVE_OWNER_RECOM)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '보상금지급일 '||B.GMJBSILJA||', 지급액 '||B.GMJBSGUM||', 입주권지급일 '||B.GMJJBILJA||', 지급평형 '||B.GMJJBPH||', '||B.GMJNAME ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_REMOVE_OWNER_RECOM B
+        WHERE B.GMBDEGB IS NULL AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --철거세입자현황(HIS_REMOVE_RENT_INFO)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '주거비지급일 '||B.SEBSILJA||', 지급액 '||B.SEBSGUM||', 이사금액 '||B.SEISGUM||', 입주권지급일 '||B.SEJAPTILJA||', '||B.SENAME ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_REMOVE_RENT_INFO B
+        WHERE B.SEBDEGB IS NULL AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --부분철거건물주보상현황(HIS_REMOVE_OWNER_RECOM)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '부분철거일 '||B.GMBILJA||', 부분철거건물 '||B.GMBMJUK||', 부분철거층수 '||B.GMBFOORS||', 부분철거토지 '||B.GMBTOJIMJUK||', '||B.GMBSAU ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_REMOVE_OWNER_RECOM B
+        WHERE B.GMBDEGB='C' AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        UNION ALL
+        --부분철거세입자현황(HIS_REMOVE_RENT_INFO)
+        SELECT
+        F_CDNAME('N08',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        B.GMSKK||'-'||F_CDNAME('N01',B.GMDJGB)||'-'||B.GMSEQCO||', '||
+        '세입자부분철거일 '||B.SEBILJA||', 주거비지급일 '||B.SEBSILJA||', 지급액 '||B.SEBSGUM||', 이사금액 '||B.SEISGUM||', 입주권지급일 '||B.SEJAPTILJA||', '||B.SENAME ETC,
+        A.CRDATE,
+        A.BSCD,
+        A.USERNAME,
+        A.GMSKK
+        FROM HISTORY_MAIN A, HIS_REMOVE_RENT_INFO B
+        WHERE B.SEBDEGB='C' AND A.CRDATE = B.CRDATE AND A.WORKID IS NOT NULL
+        ) WHERE 1=1
+        <if test="gmskkSearch != null and gmskkSearch != '' and gmskkSearch != '선택하세요.'">
+            AND GMSKK IN (
+            <foreach item="gmskk" collection="gmskkSearch.split(',')" separator=",">
+                #{gmskk}
+            </foreach>
+            )
+        </if>
+        <if test="workidSearch != null and workidSearch != '' and workidSearch != '선택하세요.'">
+            AND WORKID IN (
+            <foreach item="workid" collection="workidSearch.split(',')" separator=",">
+                #{workid}
+            </foreach>
+            )
+        </if>
+        <if test='searchTxt != null and !searchTxt.equals("")'>
+            AND (UPPER(BSCD) LIKE '%' || UPPER(#{searchTxt}) || '%' OR UPPER(USERNAME) LIKE '%' || UPPER(#{searchTxt}) || '%')
+        </if>
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') >= #{stDate}]]>
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        ORDER BY "crdate" DESC, "historySeq" DESC
+    </select>
+</mapper>

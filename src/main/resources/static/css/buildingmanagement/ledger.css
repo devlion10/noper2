@@ -1,0 +1,13 @@
+.ag-header-cell-label, .ag-header-group-cell {
+    justify-content: center !important;
+    text-align:center important;
+  }
+
+.th_txt {color: #000; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; background-color:#f8f8f8 !important; height:50px !important; border-left: 1px solid #babfc7; border-right: 1px solid #babfc7;}
+.bt-abfc7 {border-top: 1px solid #babfc7 !important;}
+.bb-abfc7 {border-bottom: 1px solid #babfc7 !important;}
+select:required:invalid {color: #666;}
+option[value=""][disabled] {display: none;}
+.action-button { border: none; color: white; padding: 3px 12px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; opacity: 0.7;}
+.action-button:hover {opacity: 1;}
+.action-button.delete {background-color: #f44336; /* Red */}

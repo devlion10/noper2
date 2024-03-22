@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Auth</title>
+</head>
+<body>
+    <th:block th:if="${auth.canInsert}">
+        1
+    </th:block>
+    <th:block th:if="${auth.canSelect}">
+        2
+    </th:block>
+    <th:block th:if="${auth.canUpdate}">
+        3
+    </th:block>
+    <th:block th:if="${auth.canDelete}">
+        4
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.InterceptorRepository">
+    <select id="findByPermission" resultType="InterceptorDTO">
+        SELECT
+            #{menuId} MENU_ID,
+            COUNT(CASE CRUD WHEN 'IN' THEN '1' ELSE NULL END) "canInsert",
+            COUNT(CASE CRUD WHEN 'UD' THEN '1' ELSE NULL END) "canUpdate",
+            COUNT(CASE CRUD WHEN 'DL' THEN '1' ELSE NULL END) "canDelete",
+            COUNT(CASE CRUD WHEN 'SL' THEN '1' ELSE NULL END) "canSelect"
+        FROM (
+                 SELECT
+                     M.MENU_ID,
+                     M.MENU_TOP,
+                     SUBSTR(M.MENU_ID, -2) CRUD
+                 FROM
+                     NOPER_USER_PER_MENU M,
+                     NOPER_USER_PER_LIST P,
+                     NOPER_USER U
+                 WHERE
+                     M.MENU_ID = P.MENU_ID
+                   AND U.PER_ID  = P.PER_ID
+                   AND MENU_TOP = #{menuId}
+                   AND U.USER_ID  = #{userId}
+             ) P
+    </select>
+</mapper>

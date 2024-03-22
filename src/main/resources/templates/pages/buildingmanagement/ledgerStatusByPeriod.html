@@ -1,0 +1,269 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko">
+<th:block layout:fragment="LNB" th:with="ledgerStatus = 'on', ${lnb != 'period' ? 'ledgerStatusBold' : 'periodBold'} = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">기존무허가건축물 통계</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>기존무허가 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>통계/관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>기간별 통계</span>
+            </div>
+        </div>
+        <div>
+            <form id="searchForm">
+                <div class="row row-tr align-items-center">
+                    <div class="col-1 col-th">
+                        <label for="calendarSelect1" class="col-form-label col-form-label-sm">적발일자</label>
+                    </div>
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-3">
+                                <select id="calendarSelect1" class="form-select form-select-sm w180">
+                                    <option value="all">전체기간</option>
+                                    <option value="simple">기간선택</option>
+                                    <option value="set">기간설정</option>
+                                </select>
+                                <input type="hidden" name="startDate" id="startDate1">
+                                <input type="hidden" name="endDate" id="endDate1">
+                            </div>
+                            <div id="calendarRemote1" class="col-9 row align-items-center justify-content-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label for="skkCd" class="col-form-label col-form-label-sm">자치구</label>
+                    </div>
+                    <th:block th:if="${#authentication.principal.isAdmin}">
+                        <div class="col-2">
+                            <select id="skkCd" class="form-select form-select-sm w180" name="skkCd">
+                                <option value="" selected>전체</option>
+                                <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                            </select>
+                        </div>
+                    </th:block>
+                    <th:block th:if="!${#authentication.principal.isAdmin}">
+                        <div class="col-2">
+                            <span id="skkCdTitle"></span>
+                            <input type="hidden" name="skkCd" th:value="${#authentication.principal.skkCd}"/>
+                        </div>
+                    </th:block>
+                </div>
+                <div class="row justify-content-center mt-3 mb-5">
+                    <div class="col-12 justify-content-end">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 기존무허가건축물통계를 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="reset" id="btnReload" class="btn btn-secondary me-2 btn-sm">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <button id="btnSearch" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i> 조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row justify-content-center align-items-center mb-2">
+                <div class="col-5">
+                    <p>
+                        <span id="skk">전체</span>
+                    </p>
+                </div>
+                <div class="col-7">
+                    <div class="row align-items-center justify-content-end">
+                        <button type="button" class="col-2 btn btn-success me-3 w150 btn-sm" name="excelDownload">
+                            <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myGrid" class="ag-theme-alpine"></div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const skkList =  [[${skk}]];
+        const perloid = [[${#authentication.principal.skkCd}]];
+
+        if(![[${#authentication.principal.isAdmin}]]){
+           skkList.forEach(e => {
+                if(e.cdkey === perloid){
+                    document.getElementById("skkCdTitle").textContent = e.cdvalue
+                }
+            });
+        }
+
+
+
+        class LedgerStatus {
+            constructor() {
+                this.columnDefs = [
+                    {
+                        headerName: "년",
+                        field: "year",
+                        colSpan: params => params.data.year === '계' ? 2 : 1,
+                        rowSpan: function (params) {
+                            return params.data?.countRow;
+                        },
+                        cellClassRules: {
+                            'bg-white border-light border-1': 'value !== undefined',
+                            'fw-bold text-danger': 'value === "계"'
+                        },
+                        width: 115,
+                        cellStyle: {
+                            textAlign: 'center',
+                            alignItem: 'center',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }
+                    },
+                    {headerName: "월", field: 'month', width: 95, cellStyle: {textAlign: "center"}, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}},
+                    {headerName: "철거내역", width: 380, cellStyle: {textAlign: "center"},
+                        children: [
+                            { headerName: "자진철거", field: "type1", type: "addrColumn", cellStyle: {textAlign: "center"}, width:95, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}},
+                            { headerName: "재개발", field: "type2", type: "addrColumn", cellStyle: {textAlign: "center"}, width:95, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}},
+                            { headerName: "보상", field: "type3", type: "addrColumn", cellStyle: {textAlign: "center"}, width:95, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}},
+                            { headerName: "기타", field: "type4", type: "addrColumn", cellStyle: {textAlign: "center"}, width:95, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}},
+                        ]
+                    },
+                    {headerName: "철거 월 계", field: 'sum', width: 130, cellStyle: {textAlign: "center"}, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}, valueFormatter: (params) => {if(params.value != '-') {return Number(params.value).toLocaleString()} else return '-'}}},
+                    {headerName: "기존무허가 관리대장 등재(판독) 내역", field: 'inc', width: 305, cellStyle: {textAlign: "center"}, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}, valueFormatter: (params) => {if(params.value != '-') {return Number(params.value).toLocaleString()} else return '-'}},
+                    {headerName: "기존무허가 건축물 총 계", field: 'total', width: 220, cellStyle: {textAlign: "center"}, cellClassRules: {'fw-bold': (params) => { return params.data.year === '계'}}, valueFormatter: (params) => {if(params.value != '-') {return Number(params.value).toLocaleString()} else return '-'}},
+                ];
+                this.defaultColDef = {
+                    headerClass: ["center", "justCenter"],
+                    cellClass: ["center", "justCenter"],
+                    sortable: true,
+                    editable: false,
+                    floatingFilter: false,
+                    resizable: true,
+                    cellDataType: false,
+                    enableRowGroup: false,
+                    enablePivot: false,
+                    enableValue: false,
+                    minWidth: 50,
+                };
+                this.gridOptions = {
+                    columnDefs: this.columnDefs,
+                    defaultColDef: this.defaultColDef,
+                    pagination: false,
+                    domLayout: 'autoHeight',
+                    animateRows: true,
+                    rowData: [],
+                    onCellClicked: function (params) { if(params.colDef.field === 'aa') goViolatedList(params.data.gmtype1, params.data.gmsub) },
+                    onGridReady(params) {
+                        let header = $('.ag-header')
+                        let headerPos = $('#myGrid').position().top + $('.header_inner').height()
+                        $(window).on("scroll", function () {
+                            if ($(window).scrollTop() > headerPos) {
+                                $('.ag-body-viewport').css("margin-top", header.height() + "px !important");
+                                header.css("position", "fixed").css("top", $('.header_inner').height()).css("z-index", "99");
+                            }
+                            else {
+                                $('.ag-body-viewport').css("margin-top", "0px !important ");
+                                header.css("position", "static");
+                            }
+                        });
+                    },
+                    overlayNoRowsTemplate: `
+                <div>
+                    <p style="color: #6c757d">조회된 데이터가 없습니다.</p>
+                </div>
+            `,
+                    suppressRowTransform: true,
+                };
+            }
+
+            name(name) {
+                const input = document.querySelector(`input[name=${name}]`);
+                if (input) return input;
+                else console.error(`Element name:'${name}' not found.`);
+            }
+
+            gridStyle(gridDiv) {
+                if (gridDiv && gridDiv.style) {
+                    Object.assign(gridDiv.style, {
+                        width: `${this.gridStyleValue.width}%`,
+                        height: `${this.gridStyleValue.height}px`,
+                    });
+                } else {
+                    console.error("Invalid GridStyle Element.");
+                }
+            }
+
+            excelAjax(url, fileName) {
+                snExcelDownload.excelDownload($.ajax({
+                    url: url,
+                    type: 'POST',
+                    cache: false,
+                    data: $('#searchForm').serialize(),
+                    xhrFields: {
+                        responseType: "blob",
+                    },
+                }), fileName)
+            }
+        }
+
+        const ledger = new LedgerStatus();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridDiv = document.querySelector('#myGrid')
+            const grid = new agGrid.Grid(gridDiv, ledger.gridOptions);
+            document.querySelector('button[name=excelDownload]').addEventListener('click', () => {
+                ledger.excelAjax('/unlcebldmng/download/leaderStatus/period', '기존무허가건축물 통계');
+            });
+
+            const myCalendar = new customCalendar('calendarSelect1', 'calendarRemote1', 'startDate1', 'endDate1');
+            myCalendar.setButtonValue('first', {text: '3개월', date: '3m'})
+            myCalendar.setButtonValue('second', {text: '6개월', date: '6m'})
+            myCalendar.setButtonValue('third', {text: '12개월', date: '1y'})
+
+            $('#searchForm').submit(function () {
+                $.post('/api/unlicensedBuilingManagement/ledgerStatus/period', $('#searchForm').serialize(), function (data) {
+                    $('#skk').text($('#skkCd').val() === '' ? '전체' : $('#skkCd option:selected').text())
+                    let rows = [];
+                    let count = 1;
+                    grid.gridOptions.api.setRowData([]);
+                    for(let i = 0; i < data.length; i++) {
+                        rows.push({...data[i], countRow: 0});
+                        if(i > 0) {
+                            if(data[i].year === data[i-1].year) {
+                                rows[i].year = null;
+                                count++;
+                            } else {
+                                rows[i - count].countRow = count;
+                                count = 1;
+                            }
+                        }
+                    }
+                    grid.gridOptions.api.setRowData(rows);
+                })
+                return false;
+            });
+
+        });
+    </script>
+</th:block>
+</html>

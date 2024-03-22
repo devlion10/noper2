@@ -1,0 +1,127 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="container-fluid content">
+        <div class="title_wrap mb-4">
+            <!--  추가된 타이틀 -->
+            <h3 class="tit">비밀번호 찾기</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>비밀번호 찾기</span>
+            </div>
+        </div>
+        <th:block th:if="${result} == 0">
+            <form id="formId" th:action="@{/find-pw}" method="post" class="needs-validation" novalidate>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-2">
+                                <p class="fw-bold tx-left">사용자정보입력</p>
+                            </div>
+                            <div class="col-10">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr border-top-gray">
+                            <div class="col-1 col-th">
+                                <label for="id" class="col-form-label col-form-label-sm">아이디<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <input id="id" class="form-control form-control-sm" name="id" placeholder="아이디 입력" required/>
+                                <small class="invalid-feedback">※ 아이디를 입력해주세요.</small>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="name" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <input id="name" class="form-control form-control-sm" name="name" placeholder="이름입력" required/>
+                                <small class="invalid-feedback">※ 사용자명을 입력해주세요.</small>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label for="telno" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <input id="telno" class="form-control form-control-sm" name="telno" placeholder="전화번호 입력" pattern="^\d+$" required/>
+                                <small class="invalid-feedback">※ 전화번호를 숫자만 입력해주세요.</small>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label for="email" class="col-form-label col-form-label-sm">이메일<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-5">
+                                <div class="d-flex align-items-center flex-wrap">
+                                    <input id="email" class="form-control form-control-sm side-input" name="emailName" placeholder="이메일 입력" required/>
+                                    <span class="text-center side-input-center">@</span>
+                                    <input class="form-control form-control-sm side-input" name="emailDomain" placeholder="mail" value="seoul.go.kr" required/>
+                                    <small class="invalid-feedback">※ 이메일 주소를 입력해주세요.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3 align-items-center">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-sm float-end">비밀번호 찾기</button>
+                    </div>
+                </div>
+            </form>
+        </th:block>
+        <th:block th:unless="${result} == 0">
+            <form id="formId" th:action="@{/reset-pw}" method="post" class="needs-validation" novalidate>
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-4">
+                                <p class="fw-bold tx-left">새로운 비밀번호를 입력해주세요.</p>
+                            </div>
+                            <div class="col-8">
+                                <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-tr border-top-gray">
+                            <div class="col-2 col-th">
+                                <label for="pw" class="col-form-label col-form-label-sm">새 비밀번호 입력</label>
+                            </div>
+                            <div class="col-10">
+                                <input id="pw" class="form-control form-control-sm" name="password" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@#$%^&+=!])(?!.*\s).{8,16}$" placeholder="새 비밀번호 입력" required/>
+                                <small class="invalid-feedback tx-left">※ 영문/숫자/특수문자를 조합하여 8~16자 이내로 입력해주세요.</small>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="repw" class="col-form-label col-form-label-sm">새 비밀번호 재입력</label>
+                            </div>
+                            <div class="col-10">
+                                <input id="repw" class="form-control form-control-sm" name="" placeholder="새 비밀번호 재입력" disableCommon="true" required/>
+                                <small class="invalid-feedback tx-left">※ 비밀번호를 다시 입력해주세요.</small>
+                            </div>
+                            <input type="hidden" name="id" th:value="${id}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3 align-items-center">
+                    <div class="col-12">
+                        <button type="submit" id="submit" class="btn btn-primary btn-sm float-end">재설정하기</button>
+                        <button type="button" id="cancel" class="btn btn-secondary btn-sm me-2 float-end">취소</button>
+                    </div>
+                </div>
+            </form>
+        </th:block>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/auth/find-pw.js}"></script>
+</th:block>
+</html>

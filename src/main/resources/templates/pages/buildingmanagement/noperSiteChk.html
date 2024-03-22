@@ -1,0 +1,134 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<meta charset="UTF-8">
+<!--/* meta 호출 */-->
+<th:block th:replace="config/meta :: meta"></th:block>
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="noperSiteChkBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<!--/* library 호출 */-->
+<th:block th:replace="config/library :: library"></th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <!--/* modal 호출 */-->
+    <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">현장점검 대장현황</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>기존무허가 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>현장점검 대장현황</span>
+            </div>
+        </div>
+        <form id="noperSiteChkForm" th:action="@{/api/unlicensedBuilingManagement/noperSiteChk/search}" th:method="post">
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div th:class="${#authentication.principal.isAdmin ? 'col-2' : 'col-1'}">
+                    <select id="gmskk" class="form-select form-select-sm" name="gmskk" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                    </select>
+                    <input type="text" id="gmskk" class="form-control form-control-sm w90 disabled" name="gmskk" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" readonly aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                </div>
+                <div class="col-2">
+                    <select id="gmdjgb" name="gmdjgb" class="form-select form-select-sm w190" title="대장구분">
+                        <option value="">전체</option>
+                        <option th:each="ledger : ${codeLedger}" th:value="${ledger.cdkey}"
+                                th:text="${ledger.cdvalue}">대장구분</option>
+                    </select>
+                </div>
+                <div class="col-1">
+                    <input type="text" name="gmseqco" id="gmseqco" class="gmseqco form-control form-control-sm" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                </div>
+                <div class="col-2">
+                    <button type="button" id="btnNoperNumModalCall" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#noperNumSearchDiv"><i class="fa-solid fa-search"></i> 번호찾기</button>
+                </div>
+                <div th:class="${#authentication.principal.isAdmin} ? 'col-1' : 'col-2'"></div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">승인여부</label>
+                </div>
+                <div class="col-2">
+                    <select name="confirm1" id="confirm1" class="form-select form-select-sm" title="승인여부">
+                        <option value="" selected="selected">전체</option>
+                        <option value="Y">승인</option>
+                        <option value="N">미승인</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주</label>
+                </div>
+                <div class="col-8">
+                    <input type="text" name="gmjname" id="gmjname" class="form-control form-control-sm w190" placeholder="건물주명 입력">
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">점검년도</label>
+                </div>
+                <div class="col-2">
+                    <!--                    <label for="startYear"> Start Year: </label>-->
+                    <!--                    <input name="chkDate" id="chkDate" class="date-picker-year" />-->
+                    <select name="chkDate" id="chkDate" class="form-select form-select-sm" title="점검년도">
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-12 mt-3 mb-5">
+                <div class="float-start">
+                    <h5 style="color:#808080">※ 검색조건을 통해 현장점검 대장현황을 검색할 수 있습니다.</h5>
+                </div>
+                <div class="float-end">
+                    <button type="button" id="btnReload" class="btn btn-sm btn-secondary me-2"><i class="bi bi-arrow-repeat"></i></button>
+                    <button type="button" id="btnSearch" class="btn btn-sm btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-2 mt-2" id="totCnt">
+                <h3></h3>
+            </div>
+            <div class="col-10">
+                <div class="row align-items-center float-end mb-3">
+                    <button type="button" id="excelDownBtn" class="col-2 btn btn-success btn-sm me-2 w120">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                    <!--<button type="button" id="csvBtn" class="col-2 btn btn-success btn-sm me-2 w120">-->
+                    <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                        <option value="10">10개씩</option>
+                        <option value="30">30개씩</option>
+                        <option value="50">50개씩</option>
+                        <option value="70">70개씩</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="myGrid" style="width: 100%;height: 500px" class="ag-theme-alpine"></div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 tx-right">
+                <button type="button" id="reportCallBtn" class="btn btn-primary btn-sm" name="SPT_CHCK_STTUS">현장점검대장현황</button>
+            </div>
+        </div>
+        <input type="hidden" id="userName" th:value="${#authentication.principal.userName}"/>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        var isAdmin = [[${#authentication.principal.isAdmin}]]
+    </script>
+    <script th:src="@{/js/buildingmanagement/noperSiteChk.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+</th:block>
+</html>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.BoardNoticeRepository">
+
+    <insert id="saveNoticeWrite" parameterType="NoticeDTO">
+        INSERT INTO NOTICE_BBS
+        (
+            NOTICE_SEQ
+            , NOTICE_SUBJECT
+            , NOTICE_CONTENTS
+            , REGIST_ID
+            , REGIST_TS
+            , FIX_FLAG
+            , PIN_YN
+        )
+        VALUES
+            (
+                (SELECT nvl(MAX(NOTICE_SEQ), 1) +1 FROM NOTICE_BBS)
+                , #{noticeSubject, jdbcType=VARCHAR}
+                , #{noticeContents, jdbcType=CLOB}
+                , #{userId, jdbcType=VARCHAR}
+                , SYSDATE
+                , #{fixFlag, jdbcType=CHAR}
+                , #{pinYn}
+            )
+    </insert>
+    <update id="modifyNoticeWrite" parameterType="NoticeDTO">
+        UPDATE NOTICE_BBS
+        SET NOTICE_SUBJECT  = #{noticeSubject, jdbcType=VARCHAR}
+          , NOTICE_CONTENTS  = #{noticeContents, jdbcType=CLOB}
+          , UPDATE_ID = #{userId, jdbcType=VARCHAR}
+          , UPDATE_TS = SYSDATE
+          , FIX_FLAG = #{fixFlag, jdbcType=CHAR}
+        , PIN_YN = #{pinYn}
+        WHERE NOTICE_SEQ  = #{noticeSeq}
+    </update>
+    <update id="increaseNoticeViews">
+        UPDATE NOTICE_BBS
+        SET READ_CNT = READ_CNT + 1
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </update>
+
+    <select id="findNoticeSeq" resultType="long">
+        SELECT nvl(MAX(NOTICE_SEQ), 1) FROM NOTICE_BBS
+    </select>
+
+    <select id="findNoticeList" resultType="NoticeDTO">
+        SELECT
+        NB.NOTICE_SEQ
+        , NB.NOTICE_SUBJECT
+        , NB.NOTICE_CONTENTS
+        , NB.REGIST_ID
+        , TO_CHAR(NB.REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+        , NB.READ_CNT
+        , NB.FIX_FLAG
+        , ROW_NUMBER() OVER (ORDER BY NB.REGIST_TS ASC) AS cnt
+        , NB.PIN_YN
+        , NU.USER_NAME AS userNm
+        FROM NOTICE_BBS NB
+        JOIN NOPER_USER NU
+            ON NB.REGIST_ID = NU.USER_ID
+        WHERE 1=1
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            AND TO_CHAR(NB.REGIST_TS, 'YYYY-MM-DD') >= #{stDate}
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(NB.REGIST_TS, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <choose>
+            <when test="searchTxt != null">
+                <if test="searchState == 'all'">
+                    AND (NB.NOTICE_SUBJECT LIKE '%'||#{searchTxt}||'%' OR NB.NOTICE_CONTENTS LIKE '%'||#{searchTxt}||'%' OR NB.REGIST_ID LIKE '%'||#{searchTxt}||'%')
+                </if>
+                <if test="searchState == 'subject'">
+                    AND NB.NOTICE_SUBJECT LIKE '%'||#{searchTxt}||'%'
+                </if>
+                <if test="searchState == 'contents'">
+                    AND NB.NOTICE_CONTENTS LIKE '%'||#{searchTxt}||'%'
+                </if>
+                <if test="searchState == 'name'">
+                    AND NU.USER_NAME LIKE '%'||#{searchTxt}||'%'
+                </if>
+            </when>
+        </choose>
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="getPinnedTopRows" resultType="NoticeDTO">
+        SELECT
+            NOTICE_SEQ
+             , NOTICE_SUBJECT
+             , NOTICE_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+             , READ_CNT
+             , FIX_FLAG
+             , ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS cnt
+        , PIN_YN
+        FROM NOTICE_BBS
+        WHERE PIN_YN = 'Y'
+        ORDER BY cnt DESC
+    </select>
+
+    <select id="findNoticeListCount" resultType="int">
+        select NOTICE_SEQ
+             , NOTICE_SUBJECT
+             , NOTICE_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+             , READ_CNT
+             , FIX_FLAG
+             , ROW_NUMBER() OVER (ORDER BY REGIST_TS DESC) AS cnt
+        , PIN_YN
+        from NOTICE_BBS
+    </select>
+
+    <select id="findNoticeDetail" parameterType="integer" resultType="NoticeDTO">
+        select
+            NOTICE_SEQ
+             , NOTICE_SUBJECT
+             , NOTICE_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+             , READ_CNT
+             , FIX_FLAG
+             , ROW_NUMBER() OVER (ORDER BY REGIST_TS DESC) AS cnt
+        , PIN_YN
+        from NOTICE_BBS
+        where NOTICE_SEQ = #{noticeSeq}
+    </select>
+
+    <select id="findNoticeDetailBynoticeSeq" parameterType="integer" resultType="NoticeDTO">
+        SELECT NOTICE_SEQ
+             , NOTICE_SUBJECT
+             , NOTICE_CONTENTS
+             , REGIST_ID
+             , TO_CHAR(REGIST_TS, 'YYYY-MM-DD') AS REGIST_TS
+             , UPDATE_ID
+             , TO_CHAR(UPDATE_TS, 'YYYY-MM-DD') AS UPDATE_TS
+             , FIX_FLAG
+             , ROW_NUMBER() OVER (ORDER BY REGIST_TS DESC) AS cnt
+        , PIN_YN
+        FROM NOTICE_BBS
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </select>
+
+    <select id="findBeforeByNoticeSeq" resultType="java.lang.Integer">
+        SELECT
+        max(NOTICE_SEQ) PREV_NOTICE_SEQ
+        FROM NOTICE_BBS
+        WHERE 1=1
+        AND NOTICE_SEQ &lt; #{noticeSeq}
+    </select>
+
+    <select id="findNextByNoticeSeq" resultType="java.lang.Integer">
+        SELECT
+            min(NOTICE_SEQ) NEXT_NOTICE_SEQ
+        FROM NOTICE_BBS
+        WHERE 1=1
+          AND NOTICE_SEQ &gt; #{noticeSeq}
+    </select>
+
+    <delete id="deleteNotice" parameterType="kr.go.seoul.noper2.dto.NoticeDTO">
+        DELETE FROM NOTICE_BBS
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </delete>
+
+    <delete id="deleteNoticeList">
+        DELETE FROM NOTICE_BBS
+        WHERE NOTICE_SEQ IN
+        <foreach collection="noticeSeqList" item="noticeSeq" open="(" separator="," close=")">
+            #{noticeSeq}
+        </foreach>
+    </delete>
+
+</mapper>

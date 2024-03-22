@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <script>
+        const columnDefs = [
+            { field: "make", pinned:'left'  },
+            { field: "model", pinned:'left'  },
+            { field: "price" },
+            { field: "model" },
+            { field: "model" },
+            { field: "model" },
+            { field: "model" },
+            { field: "model" }
+        ];
+
+        // specify the data
+        const rowData = [
+            { make: "Toyota", model: "Celica", price: 35000, },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Porsche", model: "Boxster", price: 72000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 },
+            { make: "Ford", model: "Mondeo", price: 32000 }
+        ];
+
+        // let the grid know which columns and what data to use
+        const gridOptions = {
+            columnDefs: columnDefs,
+            defaultColDef: {
+                sortable:true,
+                filter:'agTextColumnFilter',
+                floatingFilter: true
+            },
+            rowData: rowData
+        };
+
+        // setup the grid after the page has finished loading
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridDiv = document.querySelector('#myGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+        });
+    </script>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+<button type="button" id="btn" class="col-2 btn btn-success me-2 w150"><i class="fa-solid fa-file-excel"></i>액셀 다운로드</button>
+<div id="myGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+<script th:inline="javascript">
+    document.getElementById('btn').addEventListener('click', () => {
+        snGrid.exportExcel()
+    });
+</script>
+</body>
+</html>

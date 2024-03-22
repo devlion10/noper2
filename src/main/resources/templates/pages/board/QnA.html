@@ -1,0 +1,169 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<th:block layout:fragment="LNB" th:with="questionAndAnswerBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">Q&A</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>Q&A</span>
+            </div>
+        </div>
+        <form id="qnaFindForm" method="GET">
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">문의유형</label>
+                </div>
+                <div class="col-3">
+                    <select name="qaType" id="sbQaType" class="form-select form-select-sm">
+                    </select>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">답변상태</label>
+                </div>
+                <div class="col-3">
+                    <select id="sbAnswerState" name="answerState" class="form-select form-select-sm">
+                        <option value="all" selected>전체</option>
+                        <option value="1">답변대기</option>
+                        <option value="2">답변완료</option>
+                    </select>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">구분</label>
+                </div>
+                <div class="col-3">
+                    <label for="btnAllQna" class="col-form-label col-form-label-sm">
+                        <input type="radio" id="btnAllQna" class="radioBtn" name="allMyChk" value="all" checked="checked"/>&nbsp;전체 Q&A보기
+                    </label>
+                    <th:block sec:authorize="isAuthenticated()">
+                        <label for="btnMyQna" class="col-form-label col-form-label-sm ml10">
+                            <input type="radio" id="btnMyQna" class="radioBtn" name="allMyChk" value="my"/>&nbsp;나의 Q&A보기
+                        </label>
+                    </th:block>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">작성일자</label>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-3">
+                            <select id="calendarSelect1" class="form-select form-select-sm w180">
+                                <option value="all">전체기간</option>
+                                <option value="simple">기간선택</option>
+                                <option value="set">기간설정</option>
+                            </select>
+                            <input type="hidden" name="stDate" id="startDate1">
+                            <input type="hidden" name="endDate" id="endDate1">
+                        </div>
+                        <div id="calendarRemote1" class="col-9 row align-items-center justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label for="sbSearchState" class="col-form-label col-form-label-sm">검색조건</label>
+                </div>
+                <div class="col-2">
+                    <select id="sbSearchState" name="searchState" class="form-select form-select-sm w180">
+                        <option value="all" selected>전체</option>
+                        <option value="name">작성자이름</option>
+                        <option value="subject">글제목</option>
+                        <option value="contents">글내용</option>
+                    </select>
+                </div>
+                <div class="col-9">
+                    <input type="text" id="searchTxt" name="searchTxt" class="form-control form-control-sm" placeholder="검색어를 입력해주세요."/>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12 justify-content-end mt-3 mb-5">
+                    <div class="float-start">
+                        <h5 style="color: #808080">※검색조건 및 작성자 이름, Q&A 제목으로 직접 검색할 수 있습니다.</h5>
+                    </div>
+                    <div class="float-end">
+<!--                        <button type="button" class="btn btn-sm btn-secondary me-2"><i class="bi bi-arrow-repeat"></i></button>-->
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row justify-content-center align-items-center mb-3">
+            <div id="totCnt" class="col-2">
+                <h3></h3>
+            </div>
+            <!--<div class="col-2 mt-2">
+                <h3>Total <span id="totCnt"></span></h3>
+            </div>-->
+            <div class="col-10">
+                <div class="d-flex align-items-center justify-content-end">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" onchange="flexSwitchCheckChecked()" role="switch" name="pinCnt" id="flexSwitchCheckChecked" checked="">
+                        <label class="form-check-label" for="flexSwitchCheckChecked">고정글</label>
+                    </div>
+                    <div class="ml20">
+                        <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block w100" title="리스트 갯수">
+                            <option value="10">10개씩</option>
+                            <option value="30">30개씩</option>
+                            <option value="50">50개씩</option>
+                            <option value="70">70개씩</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="myGrid" class="ag-theme-alpine"></div>
+        </div>
+        <div class="float-end mt-3">
+            <th:block sec:authorize="isAuthenticated()">
+                <button th:if="${#authentication.principal.isAdmin}" type="button" id="deleteBtn" class="btn btn-sm btn-danger me-2">
+                    <i class="fa-regular fa-trash-can"></i> 삭제
+                </button>
+                <button type="button" id="registBtn" class="btn btn-sm btn-primary" th:onclick="|location.href='/board/questionAndAnswer/add'|">
+                    <i class="fa-regular fa-floppy-disk"></i> 등록
+                </button>
+            </th:block>
+        </div>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/common/calendar.js}"></script>
+    <script th:src="@{/js/board/QnA.js}"></script>
+    <script>
+        $('#qnaFindForm').submit(function () {
+            search(function (result) {
+                let qaType;
+                let str = "<option value='all'>전체</option>";
+
+                for (let i = 0; i < result.qaTypeList.length; i++) {
+                    qaType = result.qaTypeList[i].qaType;
+                    str += "<option value='" + qaType + "'>" + qaType + "</option>";
+                    $("#sbQaType").html(str);
+                }
+                flexSwitchCheckChecked()
+            })
+            return false;
+        })
+        $('#qnaFindForm').submit()
+    </script>
+</th:block>
+</html>

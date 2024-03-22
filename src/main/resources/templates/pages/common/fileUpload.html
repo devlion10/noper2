@@ -1,0 +1,134 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content container-fluid my-3 content mt-5">
+        <!--/* 테이블 생성 Division */-->
+        <div id="myId">
+        </div>
+        <div id="myId2">
+        </div>
+        <!--/* 업로드 버튼 */-->
+        <div>
+            <div class="row justify-content-center align-content-center mt-2">
+                <div class="col-1 text-center">파일</div>
+                <div class="col-9">
+                    <ul id="user-files" class="list-inline">
+                    </ul>
+                </div>
+                <div class="col-2">
+                    <button id="allDownload" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                </div>
+            </div>
+            <button id="upload" class="btn btn-warning btn-sm">업로드</button>
+        </div>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        // 해당 화면의 seq를 호출
+        const seq = 13
+        // flag(QA) 임시 예제 값
+        const flag = 1;
+        /*type : 파일 업무 구분
+        fileName : 파일명 가로길이 설정
+        size : 파일크기 가로길이 설정
+        readOnly : 조회페이지 구분(업로드 버튼들이 삭제됨)*/
+        const type = {
+            type:'notice',
+            fileName: 950,
+            size: 300,
+            modalId: 'modal-1',
+            readOnly: 'N',
+            visible: false
+        }
+        const type2 = {
+            type:'notice',
+            fileName: 950,
+            size: 300,
+            modalId: 'modal-2',
+            readOnly: 'Y',
+            visible: true
+        }
+        const uploader = new snFileUpload.Uploader("myId", type);
+        const uploader2 = new snFileUpload.Uploader("myId2", type2);
+
+        document.getElementById('upload').addEventListener('click', () => {
+            uploader.uploadFiles(false);
+            uploader.clearFiles()
+        })
+
+        /*
+        수정모드
+        addFile 이라는 인터페이스가 있긴하지만
+        공통 파일 컴포넌트에서 ParentKey만 알면 렌더링 가능하기 때문에 아래와같이
+        개발단위에서 직접 조회/추가하는 로직은 없어도 될 것 같네요.
+        이상정인 인터페이스는
+        uploader.setParentKey = [게시물번호]
+        uploader.loadFiles() 이런 인터페이스로 대체가 가능할 듯 싶네요.
+        */
+        /*
+        loadFiles() 함수가 Promise로 되어있어서 비동기처리를 한번 해주셔야합니다.
+        type안에 readOnly로 조회페이지일 경우에 "Y", 아닐경우에는 없애거나 "N"으로 해주시면 됩니다.
+        getFiles()를 하시면 Grid 가져오실 수 있습니다.
+        이를 활용하여 for문으로 '파일정보 로딩' 라고 주석한 부분과 같이 활용하실 수 있습니다.
+        */
+        document.addEventListener('DOMContentLoaded', async () => {
+            // SEQ 지정
+            uploader.parentKey = 11
+            uploader.flag = '1'
+            uploader2.parentKey = 12
+            uploader2.flag = '2'
+            // 파일정보 로딩
+            await uploader.loadFiles();
+            await uploader2.loadFiles();
+            uploader.getFiles().forEach(file=>{
+                console.log(file)
+                    let $link = $("<a>")
+                        .text(`${file.name} (${file.vsize})`)
+                        .attr("title", file.name)
+                        .attr("href", `${file.name}`)
+                        .data("fseq", file.fseq)
+                        .data("seq", file.seq)
+                        .on("click", (e)=>{
+                            e.preventDefault();
+                            let seq = $(e.target).data("seq");
+                            let fseq =$(e.target).data("fseq");
+
+                            // console.log(seq)
+                            // console.log(fseq)
+                            console.log(file.type.match(/jpg|jpeg|png|gif/ig))
+                            if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                        .on("click", uploader.imgPreview(file))[0];
+                            } else {
+                                uploader.downloadFile(file);
+                            }
+                        });
+                    let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                    $deleteLink.on("click", (e) => {
+                        $(e.target).closest("li").remove()
+                        console.log(file)
+                        uploader.deleteFiles(file)
+                    });
+
+                    $("<li class='list-inline-item'>")
+                        .append($link)
+                        .append($deleteLink)
+                        .appendTo($("#user-files"));
+            });
+            // 정보만 불러오고 없애고 싶다면
+            uploader.clearFiles()
+        })
+        document.getElementById('allDownload').addEventListener('click', async () => {
+            uploader.downloadAllFile()
+        })
+    </script>
+</th:block>
+</html>

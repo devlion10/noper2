@@ -1,0 +1,134 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <th:block th:replace="pages/common/modal :: resetPassword"></th:block>
+    <div class="container-fluid content">
+        <div class="title_wrap" style="border-bottom: none">
+            <!--  추가된 타이틀 -->
+            <h3 class="tit" style="border-bottom: none">사용자 정보</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>사용자 정보</span>
+            </div>
+        </div>
+        <form id="formId" class="needs-validation" novalidate>
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-2">
+                            <p class="fw-bold tx-left">사용자 정보 수정</p>
+                        </div>
+                        <div class="col-10">
+                            <h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row row-tr"></div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label for="userId" class="col-form-label col-form-label-sm">아이디</label>
+                        </div>
+                        <div class="col-5 tx-left" th:with="id = ${#authentication.principal.userId}">
+                            <!--<span id="userId" class="h6" th:text="${id}" th:data-userid="${id}"></span>-->
+                            <input type="text" class="form-control form-control-sm disabled" id="userId" name="userId" th:value="${id}" th:data-userid="${id}" disabled>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label for="userName" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-5">
+                            <input type="text" class="form-control form-control-sm" id="userName" name="userName" minlength="1" maxlength="10" data-input-type="noNumberString" th:value="${#authentication.principal.userName}" placeholder="이름입력" required>
+                            <p class="invalid-feedback tx-left">※ 사용자명을 입력해주세요.</p>
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label for="userPw" class="col-form-label col-form-label-sm">비밀번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-5 d-flex align-items-center">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#findPasswordModal" class="btn btn-warning btn-sm" id="userPw" name="userPw">비밀번호 변경</button>
+                        </div>
+                        <div class="col-1 col-th pr4">
+                            <label for="personalId1" class="col-form-label col-form-label-sm text-nowrap">주민등록번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-5 d-flex align-items-center flex-wrap">
+                            <input type="text" class="form-control form-control-sm side-input" id="personalId1" minlength="6" maxlength="6" data-input-type="number" data-next-input="personalId2" th:value="${#strings.substring(user?.personalId, 0, 6)} ?: ''" placeholder="주민번호 앞 6자리" required />
+                            <span class="side-input-center">-</span>
+                            <input type="text" class="form-control form-control-sm side-input" id="personalId2" minlength="7" maxlength="7" data-input-type="number" th:value="${#strings.substring(user?.personalId, 6)} ?: ''" placeholder="주민번호 뒤 7자리" required />
+                            <p class="invalid-feedback tx-left">※ 주민번호 형식에 맞춰 입력해주세요.</p>
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label for="telNo" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-5">
+                            <input type="text" class="form-control form-control-sm" id="telNo" name="telNo" minlength="10" maxlength="11" data-input-type="number" th:value="${user?.telNo} ?: ''" placeholder="숫자만 입력해주세요" required />
+                            <p class="invalid-feedback tx-left">※ 전화번호를 입력하세요.</p>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label for="skkCd" class="col-form-label col-form-label-sm">자치구</label>
+                        </div>
+                        <div class="col-5 tx-left">
+                            <!--<span id="skkCd" class="h6" th:text="${user?.skkCd ?: ''} + ' ' + ${user?.dongInfo ?: ''}"></span>-->
+                            <input type="text" class="form-control form-control-sm disabled" id="skkCd" name="skkCd" th:value="${user?.skkCd ?: ''} + ' ' + ${user?.dongInfo ?: ''}" disabled>
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label for="eMail1" class="col-form-label col-form-label-sm">이메일<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-5 d-flex align-items-center flex-wrap">
+                            <input type="text" class="form-control form-select-sm side-input" id="eMail1" name="eMail1" data-input-type="email" pattern="[0-9a-zA-Z가-힇]([-_.]?[0-9a-zA-Z가-힇])" th:value="${user?.eMail == '' or user?.eMail == null} ? '' : ${#strings.arraySplit(user?.eMail, '@')[0]}" placeholder="이메일 입력" required />
+                            <span class="side-input-center">@</span>
+                            <input type="text" class="form-control form-select-sm side-input" id="eMail2" name="eMail2" data-input-type="email" pattern="[0-9a-zA-Z가-힇]([-_.]?[0-9a-zA-Z가-힇])*.[a-zA-Z가-힇]{2,3}" th:value="${user?.eMail == '' or user?.eMail == null} ? 'seoul.go.kr' : ${#strings.arraySplit(user?.eMail, '@')[1]}" required />
+                            <p class="invalid-feedback tx-left">※ 이메일 주소를 입력하세요.</p>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label for="deptCd" class="col-form-label col-form-label-sm">부서</label>
+                        </div>
+                        <div class="col-5 tx-left">
+                            <!--<span id="deptCd" class="h6" th:text="${user?.deptCd} ?: ''"></span>-->
+                            <input type="text" class="form-control form-control-sm disabled" id="deptCd" name="deptCd" th:value="${user?.deptCd} ?: ''" disabled>
+                        </div>
+                    </div>
+                    <div class="row row-tr align-items-center">
+                        <div class="col-1 col-th tx-left">
+                            <label for="perId" class="col-form-label col-form-label-sm">권한</label>
+                        </div>
+                        <div class="col-5 tx-left">
+                            <!--<span id="perId" class="h6" th:text="${user?.perId} ?: ''"></span>-->
+                            <input type="text" class="form-control form-control-sm disabled" id="perId" name="perId" th:value="${user?.perId} ?: ''" disabled>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label for="workCharge" class="col-form-label col-form-label-sm">담당업무</label>
+                        </div>
+                        <div class="col-5 tx-left">
+                            <!--<span id="workCharge" class="h6" th:text="${user?.workCharge} ?: ''"></span>-->
+                            <input type="text" class="form-control form-control-sm disabled" id="workCharge" name="workCharge" th:value="${user?.workCharge} ?: ''" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-10">
+                </div>
+                <div class="col-2 tx-right">
+                    <button id="cancelBtn" type="button" class="btn btn-secondary btn-sm">취소</button>
+                    <button id="saveBtn" type="submit" class="btn btn-primary btn-sm">수정</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/auth/myPage.js}"></script>
+</th:block>
+</html>

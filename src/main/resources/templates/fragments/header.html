@@ -1,0 +1,127 @@
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--/* headerFragment 선언 */-->
+<header th:fragment="header" id="header">
+    <script>
+        // 인증여부 체크
+        const isAuthenticated = [[${#authentication.principal != 'anonymousUser'}]];
+    </script>
+    <div class="header_inner">
+        <h1 class="logo"><a th:href="@{/}"><span class="hide">1서울시 기존무허가건물관리시스템</span></a></h1>
+        <ul class="gnb">
+            <li><a th:href="@{/unlcebldmng/ledger}">기존무허가건축물관리</a></li>
+            <li><a th:href="@{/bldmngingb/ledger}">개발제한구역내 건축물관리</a></li>
+            <li><a th:href="@{/viobldmng/list}">위반건축물관리</a></li>
+            <li><a th:href="@{/board/user/list}">게시판</a></li>
+            <!-- 로그인시 표출 됨 -->
+            <li sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/admin/user/list}">관리자 메뉴</a></li>
+            <!-- // 로그인시 표출 됨 -->
+        </ul>
+        <div class="mega_menu_wrap">
+            <ul class="mega_menu">
+                <li>
+                    <a th:href="@{/unlcebldmng/ledger}">기존무허가건축물관리</a>
+                    <ul class="depth2">
+                        <li>
+                            <a th:href="@{/unlcebldmng/ledger}">대장관리</a>
+                            <ul class="depth3">
+                                <li><a th:href="@{/unlcebldmng/ledger}">대장현황</a></li>
+                                <li><a th:href="@{/unlcebldmng/newLedger}">신규대장현황</a></li>
+                            </ul>
+                        </li>
+                        <li><a th:href="@{/unlcebldmng/confirmation}">확인원관리</a></li>
+                        <li><a th:href="@{/unlcebldmng/ownerChange}">소유자변경관리</a></li>
+                        <li>
+                            <a th:href="@{/unlcebldmng/demolition}">철거신고관리</a>
+                            <ul class="depth3">
+                                <li><a th:href="@{/unlcebldmng/demolition}">철거신고현황</a></li>
+                                <li><a th:href="@{/unlcebldmng/partDemolition}">부분철거신고현황</a></li>
+                            </ul>
+                        </li>
+                        <li><a th:href="@{/unlcebldmng/renovation/list}">개보수신고관리</a></li>
+                        <li><a th:href="@{/unlcebldmng/DailyHistory/list}">일일처리내역</a></li>
+                        <li><a th:href="@{/unlcebldmng/noperSiteChk/list}">현장점검대장현황</a></li>
+                        <li>
+                            <a th:href="@{/}">통계&#47;관리</a>
+                            <ul class="depth3">
+                                <li><a th:href="@{/unlcebldmng/ledgerStatus}">관리현황</a></li>
+                                <li><a th:href="@{/unlcebldmng/ledgerStatus/period}">기간별통계</a></li>
+                            </ul>
+                        </li>
+                        <li onclick="menuIdCheck(isAuthenticated, this)"><a href="#">항공사진측량 현황도</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a th:href="@{/bldmngingb/ledger}">개발제한구역내 건축물관리</a>
+                    <ul class="depth2">
+                        <li><a th:href="@{/bldmngingb/ledger}">대장관리</a></li>
+                        <li><a th:href="@{/bldmngingb/dailyHistory}">일일처리내역</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a th:href="@{/viobldmng/list}">위반건축물관리</a>
+                    <ul class="depth2">
+                        <li><a th:href="@{/viobldmng/list}">위반건축물현황</a></li>
+                        <li><a th:href="@{/viobldmng/status}">위반건축물통계</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a th:href="@{/board/user/list}">게시판</a>
+                    <ul class="depth2">
+                        <li><a th:href="@{/board/user/list}">가입신청</a></li>
+                        <li><a th:href="@{/board/notice/list}">공지사항</a></li>
+                        <li><a th:href="@{/board/questionAndAnswer/list}">Q&A</a></li>
+                        <li><a th:href="@{/board/GPKI}" class="text-nowrap">GPKI 인증서 사용 안내</a></li>
+                    </ul>
+                </li>
+
+                <!-- 로그인시 표출 됨 -->
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a th:href="@{/admin/user/list}">관리자 메뉴</a>
+                    <ul class="depth2">
+                        <li><a th:href="@{/admin/user/list}">사용자관리</a></li>
+                        <li>
+                            <a href="#" onclick="return false;">운영관리</a>
+                            <ul class="depth3">
+                                <li>
+                                    <a th:href="@{/admin/session-management}">로그인 관리</a>
+                                    <ul class="depth4">
+                                        <li><a th:href="@{/admin/session-management}">로그인 세션 만료시간 설정</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/permit/list}">권한 관리</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <!--/* // 로그인시 표출 됨 */-->
+            </ul>
+        </div>
+        <div class="util_wrap">
+            <!--/* /로그인시 사라짐 */-->
+            <button type="button" class="btn_join" sec:authorize="isAnonymous()" onclick="location.href = '/board/user/add'">가입신청</button>
+
+            <!--/*  로그인시 표출 됨 */-->
+            <button sec:authorize="isAuthenticated()" type="button" id="timerBtn" class="btn_ btn_time btn-default">
+                <i class="bi bi-hourglass-split"></i>
+                <span class="hide">로그인연장하기</span>
+            </button>
+            <span sec:authorize="isAuthenticated()" id="time" class="time">00:00</span>
+            <span sec:authorize="isAuthenticated()" class="user_name">
+                <a th:href="@{/{userId}(userId=${'@' + #authentication.principal.userId})}">
+                    <em th:text="${#authentication.principal.userName}" class="underLine"></em>
+                </a>님
+            </span>
+            <div sec:authorize="isAuthenticated()" class="btn-group" role="group">
+                <button type="button" id="logout" class="btn_ btn-default"><i class="bi bi-box-arrow-right">&nbsp;</i>로그아웃</button>
+            </div>
+            <!--/* // 로그인시 표출 됨 */-->
+        </div>
+    </div>
+    <!-- 딤 -->
+    <div id="dimm"></div>
+</header>
+</html>

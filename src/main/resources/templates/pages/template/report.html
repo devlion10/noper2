@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+    <div class="container d-flex flex-column align-items-start">
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="REGSTR_STTUS">기존 무허가 건물 관리 대장 (건물주 주소미포함)</button>
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="SPT_CHCK_STTUS">현장점검대장현황</button>
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="DEVLOP_LMTT_ZONE">개발제한구역건축물관리대장</button>
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="CNFIRM_PRINT">무허가건물확인원</button><!-- 확인원관리 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="OWNER_NM_CHANGE_DCLRT">소유자명의변경신고</button><!-- 소유자변경관리 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="RPAIR_STTUS">대장출력_개보수신고</button><!-- 개보수신고관리 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="REGSTR_STTUS_RBLDNR">기존 무허가 건물 관리 대장 (건물주 주소 포함)</button>
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="CNFIRM_STTUS">신규확인원 발급 대장출력 [보고서 내 헤더 ->제증명발급대장]</button><!-- 확인원관리 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="RPAIR_DCLRT">개보수신고서필증</button><!-- 개보수신고관리 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="REMVL_STTUS">대장출력_철거신고</button><!-- 철거신고현황  -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="REMVL_DCLRT">신고서_철거신고</button><!-- 철거신고현황  -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="PART_REMVL_STTUS">대장출력_부분철거신고</button><!-- 부분철거신고현황 -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="PART_REMVL_DCLRT">신고서_부분철거신고</button><!-- 부분철거신고현황  -->
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="DAIL_PROCESS_DTSTMN">기존무허가건물관리시스템 일일처리내역서</button>
+        <button type="button" class="btn btn-primary btn-sm mb-2" name="OWNER_NM_CHANGE_STTUS">소유자명의변경 처리대장</button><!-- 소유자변경관리 -->
+    </div>
+<script th:inline="javascript">
+    const data = {
+        REGSTR_STTUS: {GMSKK: "10000", GMDJGB: "0", GMSEQCO: "2", DAEJANG: "", GMJNAME: "", TOJISG: "", GMYD: "", GMGUNIL1: "", GMGUNIL2: "", GMSEQCO2: "2", GMHJDCD: "", GMBJDCD: "", GMCSAH: "", GMCBUH: "", GMCJI: "", user: "관리자"},
+        SPT_CHCK_STTUS: {},
+        DEVLOP_LMTT_ZONE: {admSeq: '1100000001', user: '관리자'},
+        CNFIRM_PRINT: {gmskk: "11230", gmdjgb: "0", gmseqco: "11", conilno: "202319", jumincheck: "1", user: "일반사용자"},
+        OWNER_NM_CHANGE_DCLRT: {gmskk: "11230", gmdjgb: "0", gmseqco: "9775", suilno: "1", gmjilno: "1", user: "관리자"},
+        RPAIR_STTUS: {gmskk: "", gmdjgb: "", gmseqco: "", gmjname: "", gmskkcd: "", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", gmgunil1: "", gmgunil2: "", gbsgoil1: "", gbsgoil2: "", jgong1: "", jgong2: "", gmseqco2: "", user: "관리자"},
+        REGSTR_STTUS_RBLDNR: {gmskk: "10000", gmdjgb: "0", gmseqco: "5", daejang: "", gmjname: "", tojisg: "", gmyd: "", gmgunil1: "", gmgunil2: "", gmseqco2: "5", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", user: "관리자"},
+        PART_REMVL_STTUS: {gmskk: "", gmdjgb: "", gmseqco: "", daejang: "", gmjname: "", gmskkcd: "", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", gmbilja1: "", gmbilja2: "", gmseqco2: "", user: "관리자"},
+        CNFIRM_STTUS: {gmskk: "10000", gmdjgb: "0", gmseqco: "1", daejang: "", gmseqco: "", gmskkcd: "", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", jsilja1: "", jsilja2: "", trilja1: "", trilja2: "", gmseqco2: "3", user: "관리자"},
+        RPAIR_DCLRT: {gmskk: "11380", gmdjgb: "1", gmseqco: "1", gmilno: "2", user: "관리자"},
+        REMVL_STTUS: {gmskk: "11110", gmdjgb: "0", gmseqco: "37", daejang: "", gmjname: "", gmskkcd: "", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", deilja1: "", deilja2: "", gmseqco2: "140", user: "관리자"},
+        REMVL_DCLRT: {gmskk: "11110", gmdjgb: "0", gmseqco: "125", user: "관리자"},
+        PART_REMVL_DCLRT: {gmskk: "11110", gmdjgb: "0", gmseqco: "5241", gmjilno: "1", user: "관리자"},
+        DAIL_PROCESS_DTSTMN: {gmskk: "11000", crdate1: "", crdate2: "", username: "", workid: "", user: "관리자"},
+        OWNER_NM_CHANGE_STTUS: {gmskk: "11230", gmdjgb: "", gmseqco: "", daejang: "", gmhjdcd: "", gmbjdcd: "", gmcsah: "", gmcbuh: "", gmcji: "", sujilja1: "", sujilja2: "", crilja1: "", crilja2: "", gmseqco2: "", gmjname: "", user: "신규대장관리자"}
+    }
+    $('button').click((e) => snReport.open(e.target.getAttribute('name'), data[e.target.getAttribute('name')]));
+</script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.UserRepository">
+    <insert id="saveHistory" parameterType="HisNoperUserLogin">
+        <selectKey keyProperty="loginSeq" resultType="long" order="BEFORE">
+            select COALESCE(max(LOGIN_SEQ), 0) + 1
+            from HIS_NOPER_USER_LOGIN
+        </selectKey>
+        insert into HIS_NOPER_USER_LOGIN (
+                LOGIN_SEQ,
+                USER_ID,
+                LOGIN_IP,
+                LOGIN_TS
+        )
+        VALUES (
+                #{loginSeq},
+                #{userId},
+                #{loginIp},
+                SYSDATE
+        )
+    </insert>
+    <update id="updateSessionTime" parameterType="string">
+        update COM_ENV
+        set VALUE = #{minute}
+        where KEY = 'SESSION_TIMEOUT'
+    </update>
+    <select id="findByUsername" parameterType="string" resultType="NoperUserSession">
+        select USER_ID, USER_PW, USER_NAME, SKK_CD, DEPT_CD, f_cdname(TO_CHAR('R'||SKK_CD), DEPT_CD) as deptName, REGIST_ID, PER_ID
+        from NOPER_USER
+        where USER_ID = #{userName}
+    </select>
+    <select id="findSession" resultType="string">
+        select VALUE
+        from COM_ENV
+        where KEY = 'SESSION_TIMEOUT'
+    </select>
+    <insert id="createJoinUser" parameterType="User">
+        insert into NOPER_USER_JOIN (USER_ID, SKK_CD, DEPT_CD, USER_NAME, PERSONAL_ID, E_MAIL, TEL_NO, PER_ID, REGIST_ID, REGIST_TS, DONG_INFO, JOIN_FLAG, COMP_FLAG, WORK_CHARGE)
+        values (#{userId}, #{skkCd}, #{deptCd}, #{userName}, #{personalId}, #{eMail}, #{telNo}, #{perId}, #{registId, jdbcType=VARCHAR}, SYSDATE, #{dongInfo}, 'N', 'N', #{workCharge})
+    </insert>
+    <insert id="createRegisterUser" parameterType="User">
+        insert into NOPER_USER (USER_ID, USER_PW, SKK_CD, DEPT_CD, USER_NAME, PERSONAL_ID, PER_ID, E_MAIL, TEL_NO, REGIST_ID, REGIST_TS, DONG_INFO, WORK_CHARGE)
+        values (#{userId}, #{userPw, jdbcType=VARCHAR}, #{skkCd}, #{deptCd}, #{userName}, #{personalId}, #{perId, jdbcType=VARCHAR}, #{eMail}, #{telNo}, #{registId, jdbcType=VARCHAR}, SYSDATE, #{dongInfo},  #{workCharge})
+    </insert>
+    <insert id="createPermission" parameterType="Permission">
+        INSERT INTO NOPER_USER_PER (PER_ID, PER_NAME, PER_COMMENT, REGIST_ID, REGIST_TS, INIT_FLAG)
+        VALUES (#{perId}, #{perName}, #{perComment, jdbcType = VARCHAR}, #{registId}, SYSDATE, 'N')
+    </insert>
+    <insert id="createPermissionList" parameterType="PermissionList">
+        INSERT INTO NOPER_USER_PER_LIST (PER_ID, MENU_ID)
+        VALUES (#{perId}, #{menuId})
+    </insert>
+    <update id="updateJoinUser" parameterType="User">
+        update NOPER_USER_JOIN
+        set UPDATE_ID = #{updateId, jdbcType=VARCHAR}, UPDATE_TS = SYSDATE, JOIN_FLAG = 'N', COMP_FLAG = 'N', COMP_AT = ''
+            <if test="personalId != null and !personalId.equals('')">, PERSONAL_ID = #{personalId}</if>
+            <if test="userName != null and !userName.equals('')">, USER_NAME = #{userName}</if>
+            <if test="skkCd != null and !skkCd.equals('')">, SKK_CD = #{skkCd}</if>
+            <if test="deptCd != null and !deptCd.equals('')">, DEPT_CD = #{deptCd}</if>
+            <if test="telNo != null and !telNo.equals('')">, TEL_NO = #{telNo}</if>
+            <if test="perId != null and !perId.equals('')">, PER_ID = #{perId}</if>
+            <if test="eMail != null and !eMail.equals('')">, E_MAIL = #{eMail}</if>
+            <if test="dongInfo != null and !dongInfo.equals('')">, DONG_INFO = #{dongInfo}</if>
+            <if test="workCharge != null and !workCharge.equals('')">, WORK_CHARGE = #{workCharge}</if>
+        where USER_ID = #{userId}
+    </update>
+    <update id="updateRegisterUser" parameterType="User">
+        update NOPER_USER
+        set UPDATE_ID = #{updateId, jdbcType=VARCHAR}, UPDATE_TS = SYSDATE
+        <if test="personalId != null and !personalId.equals('')">, PERSONAL_ID = #{personalId}</if>
+        <if test="userName != null and !userName.equals('')">, USER_NAME = #{userName}</if>
+        <if test="skkCd != null and !skkCd.equals('')">, SKK_CD = #{skkCd}</if>
+        <if test="deptCd != null and !deptCd.equals('')">, DEPT_CD = #{deptCd}</if>
+        <if test="telNo != null and !telNo.equals('')">, TEL_NO = #{telNo}</if>
+        <if test="eMail != null and !eMail.equals('')">, E_MAIL = #{eMail}</if>
+        <if test="perId != null and !perId.equals('')">, PER_ID = #{perId}</if>
+        <if test="dongInfo != null and !dongInfo.equals('')">, DONG_INFO = #{dongInfo}</if>
+        <if test="workCharge != null and !workCharge.equals('')">, WORK_CHARGE = #{workCharge}</if>
+        where USER_ID = #{userId}
+    </update>
+    <update id="updateUserPassword" parameterType="User">
+        update NOPER_USER
+        set USER_PW = #{userPw}
+        where USER_ID = #{userId}
+    </update>
+    <update id="updateUserPermission" parameterType="User">
+        update NOPER_USER set PER_ID = #{perId} where USER_ID = #{userId}
+    </update>
+    <update id="updatePermission" parameterType="Permission">
+        update NOPER_USER_PER
+        set PER_NAME = #{perName}, PER_COMMENT = #{perComment}, UPDATE_ID = #{updateId}, UPDATE_TS = SYSDATE
+        where PER_ID = #{perId}
+    </update>
+    <update id="allowJoinUser" parameterType="User">
+        update NOPER_USER_JOIN
+        set JOIN_FLAG = 'Y', COMP_FLAG = 'N', REGIST_ID = #{registId}, REGIST_TS = SYSDATE
+        where USER_ID = #{userId}
+    </update>
+    <update id="denyJoinUser" parameterType="User">
+        update NOPER_USER_JOIN
+        set JOIN_FLAG = 'N', COMP_FLAG = 'Y', COMP_AT = #{compAt}
+        where USER_ID = #{userId}
+    </update>
+    <update id="removeUserPermission" parameterType="string">
+        update NOPER_USER
+        set PER_ID = 'NB0001'
+        where USER_ID = #{value}
+    </update>
+    <update id="removeUserPermissionByPerId" parameterType="string">
+        update NOPER_USER
+        set PER_ID = 'NB0001'
+        where PER_ID = #{value}
+    </update>
+    <update id="updateUserByDn">
+        update NOPER_USER
+        set DN = #{dn}
+        where USER_ID = #{id}
+    </update>
+    <update id="updatePassword" parameterType="kr.go.seoul.noper2.dto.LoginDTO$ResetUserPwRequestDTO">
+        update NOPER_USER
+        set USER_PW = #{password}
+        where USER_ID = #{id}
+    </update>
+    <delete id="deleteJoinUser" parameterType="string">
+        delete from NOPER_USER_JOIN
+        where USER_ID = #{value}
+    </delete>
+    <delete id="deleteRegisterUser" parameterType="string">
+        delete from NOPER_USER
+        where USER_ID = #{value}
+    </delete>
+    <delete id="deleteUser" parameterType="string">
+        delete from NOPER_USER
+        where USER_ID = #{value}
+    </delete>
+    <delete id="deletePermission" parameterType="string">
+        delete from NOPER_USER_PER where PER_ID = #{value}
+    </delete>
+    <delete id="deletePermissionListAll" parameterType="string">
+        delete from NOPER_USER_PER_LIST where PER_ID = #{value}
+    </delete>
+    <select id="selectJoinUserList" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD HH24:MI') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER_JOIN
+        where <![CDATA[ TO_DATE(TO_CHAR(REGIST_TS, 'YYYY-MM-DD'), 'YYYY-MM-DD') >= TO_DATE(#{startDate}, 'YYYY-MM-DD') and TO_DATE(TO_CHAR(REGIST_TS, 'YYYY-MM-DD'), 'YYYY-MM-DD') <= TO_DATE(#{endDate}, 'YYYY-MM-DD') and
+            SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and JOIN_FLAG like '%'||COALESCE(#{joinType}, '')||'%' and COMP_FLAG like '%'||COALESCE(#{compType}, '')||'%']]>
+            <if test='bjdCd != null and !bjdCd.equals("")'>and DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%'</if>
+            <if test='searchType.equals("")'> and (USER_NAME like '%'||COALESCE(#{searchText}, '')||'%' or f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) like '%'||COALESCE(#{searchText}, '')||'%' or TEL_NO like '%'||COALESCE(#{searchText}, '')||'%')</if>
+            <if test='searchType.equals("userName")'> and USER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("deptName")'> and f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("telNo")'> and TEL_NO like '%'||COALESCE(#{searchText}, '')||'%'</if>
+        ORDER BY REGIST_TS DESC
+    </select>
+    <select id="selectJoinUserListFromGuest" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER_JOIN
+        where USER_NAME = #{userName} and TEL_NO = #{userTelNo}
+        ORDER BY REGIST_TS
+    </select>
+    <select id="selectRegisterUserList" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD, F_PER_NAME(PER_ID) AS PER_ID,
+               USER_NAME, E_MAIL, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS
+        from NOPER_USER
+        where <![CDATA[ TO_DATE(TO_CHAR(REGIST_TS, 'YYYY-MM-DD'), 'YYYY-MM-DD') >= TO_DATE(#{startDate}, 'YYYY-MM-DD') and TO_DATE(TO_CHAR(REGIST_TS, 'YYYY-MM-DD'), 'YYYY-MM-DD') <= TO_DATE(#{endDate}, 'YYYY-MM-DD') and
+            SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and DEPT_CD like '%'||COALESCE(#{deptCd}, '')||'%' ]]>
+            <if test='bjdCd != null and !bjdCd.equals("")'>and DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%'</if>
+            <if test='searchType.equals("")'> and (USER_NAME like '%'||COALESCE(#{searchText}, '')||'%' or TEL_NO like '%'||COALESCE(#{searchText}, '')||'%' or E_MAIL like '%'||COALESCE(#{searchText}, '')||'%')</if>
+            <if test='searchType.equals("userName")'> and USER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("telNo")'> and TEL_NO like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("eMail")'> and E_MAIL like '%'||COALESCE(#{searchText}, '')||'%'</if>
+        ORDER BY REGIST_TS DESC
+    </select>
+    <select id="selectPermissionOfUserList" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD, USER_NAME, TEL_NO, PER_ID
+        from NOPER_USER
+        where <![CDATA[ JOIN_FLAG = 'Y' and SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and
+            DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%']]>
+            <if test='searchType.equals("")'> and (USER_NAME like '%'||COALESCE(#{searchText}, '')||'%' or TEL_NO like '%'||COALESCE(#{searchText}, '')||'%')</if>
+            <if test='searchType.equals("userName")'> and USER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("telNo")'> and TEL_NO like '%'||COALESCE(#{searchText}, '')||'%'</if>
+    </select>
+    <select id="selectPermissionList" parameterType="SearchParam" resultType="Permission">
+        select p.PER_ID, p.PER_NAME, p.PER_COMMENT, ur.USER_NAME as REGIST_ID, to_char(p.REGIST_TS, 'YYYY.MM.DD') as REGIST_TS, uu.USER_NAME as UPDATE_ID, to_char(p.UPDATE_TS, 'YYYY.MM.DD') as UPDATE_TS, p.INIT_FLAG
+        from NOPER_USER_PER p, NOPER_USER ur, NOPER_USER uu
+        where p.PER_ID <choose>
+                        <when test='joinType.equals("AD")'>like 'AD%'</when>
+                        <when test='joinType.equals("UN")'>not like 'AD%'</when>
+                        <otherwise>is not null</otherwise>
+                    </choose> and
+            <![CDATA[ p.REGIST_ID = ur.USER_ID(+) and p.UPDATE_ID = uu.USER_ID(+) and p.REGIST_TS > TO_DATE(#{startDate}, 'YYYY-MM-DD') and p.REGIST_TS < TO_DATE(#{endDate}, 'YYYY-MM-DD')]]>
+            <if test='searchType.equals("")'> and (p.PER_NAME like '%'||COALESCE(#{searchText}, '')||'%' or ur.USER_NAME like '%'||COALESCE(#{searchText}, '')||'%' or uu.USER_NAME like '%'||COALESCE(#{searchText}, '')||'%')</if>
+            <if test='searchType.equals("perName")'> and p.PER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("registId")'> and ur.USER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+            <if test='searchType.equals("updateId")'> and uu.USER_NAME like '%'||COALESCE(#{searchText}, '')||'%'</if>
+    </select>
+    <select id="selectUserListByPermissionId" resultType="User">
+        SELECT USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, F_CDNAME(to_char('R'||SKK_CD),DEPT_CD) AS DEPT_CD, USER_NAME, TEL_NO
+        FROM NOPER_USER where PER_ID = #{value}
+    </select>
+    <select id="selectPermissionSelectedMenuList" resultType="PermissionMenu">
+        SELECT * FROM NOPER_USER_PER_LIST where PER_ID = #{value}
+    </select>
+    <select id="selectPermissionMenuList" resultType="PermissionMenu">
+        SELECT M.* FROM NOPER_USER_PER_MENU M
+        START WITH MENU_TOP = 'TOP'
+        CONNECT BY PRIOR MENU_ID = MENU_TOP
+        ORDER SIBLINGS BY MENU_ORD ASC
+    </select>
+    <select id="selectJoinUser" parameterType="string" resultType="User">
+        select USER_ID, REGIST_TS, JOIN_FLAG, COMP_FLAG, SKK_CD, DONG_INFO, DEPT_CD, USER_NAME,F_CDNAME(to_char('R'||SKK_CD),DEPT_CD) AS DEPT_NAME,
+               TO_CHAR(PERSONAL_ID, 'FM0000000000000') as PERSONAL_ID, E_MAIL, TEL_NO, PER_ID, COMP_FLAG, COMP_AT, UPDATE_TS, UPDATE_ID, WORK_CHARGE
+        from NOPER_USER_JOIN
+        where USER_ID = #{value}
+    </select>
+    <select id="selectRegisterUser" parameterType="string" resultType="User">
+        select USER_ID, REGIST_TS, COMP_FLAG, SKK_CD, DONG_INFO, DEPT_CD, USER_NAME,F_CDNAME(to_char('R'||SKK_CD),DEPT_CD) AS DEPT_NAME,
+               TO_CHAR(PERSONAL_ID, 'FM0000000000000') as PERSONAL_ID, E_MAIL, TEL_NO, PER_ID, LOGIN_FLAG, UPDATE_TS, UPDATE_ID, WORK_CHARGE
+        from NOPER_USER
+        where USER_ID = #{value}
+    </select>
+    <select id="selectJoinUserView" parameterType="string" resultType="User">
+        select USER_ID, TO_CHAR(REGIST_TS, 'YYYY-MM-DD') as REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) as JOIN_FLAG,
+               F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD, f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD, USER_NAME, COALESCE(WORK_CHARGE, '') as WORK_CHARGE,
+               TO_CHAR(PERSONAL_ID, 'FM0000000000000') as PERSONAL_ID, E_MAIL, TEL_NO, F_PER_NAME(PER_ID) as PER_ID, COMP_FLAG, COMP_AT
+        from NOPER_USER_JOIN
+        where USER_ID = #{value}
+    </select>
+    <select id="selectRegisterUserView" parameterType="string" resultType="User">
+        select USER_ID, TO_CHAR(REGIST_TS, 'YYYY-MM-DD') as REGIST_TS, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(to_char(SKK_CD),to_char(DONG_INFO))) AS SKK_CD,
+               f_cdname(TO_CHAR('R'||SKK_CD),DEPT_CD) AS DEPT_CD, USER_NAME, TO_CHAR(PERSONAL_ID, 'FM0000000000000') as PERSONAL_ID, F_PER_NAME(PER_ID) as PER_ID, E_MAIL, TEL_NO, COALESCE(WORK_CHARGE, '') as WORK_CHARGE
+        from NOPER_USER
+        where USER_ID = #{value}
+    </select>
+    <select id="selectPermission" parameterType="string" resultType="Permission">
+        select PER_ID, PER_NAME, PER_COMMENT, INIT_FLAG
+        from NOPER_USER_PER
+        where PER_ID = #{value}
+    </select>
+    <select id="checkPermissionName" parameterType="string" resultType="boolean">
+        select count(*) from NOPER_USER_PER where PER_NAME = #{value}
+    </select>
+    <select id="selectMaxJoinUserId" parameterType="string" resultType="string">
+        select #{value}||NVL(to_char((select max(to_number(substr(USER_ID, 3, 4))) + 1 FROM NOPER_USER_JOIN WHERE USER_ID LIKE #{value}||'%'),'FM0000'), '0001') from dual
+    </select>
+    <select id="selectMaxRegisterUserId" parameterType="string" resultType="string">
+        select #{value}||NVL(to_char((select max(to_number(substr(USER_ID, 3, 4))) + 1 FROM NOPER_USER WHERE USER_ID LIKE #{value}||'%'),'FM0000'), '0001') from dual
+    </select>
+    <select id="selectMaxPermissionId" parameterType="string" resultType="string">
+        select #{value}||NVL(to_char((select max(to_number(substr(PER_ID, 3, 4))) + 1 FROM NOPER_USER_PER WHERE PER_ID LIKE #{value}||'%'),'FM0000'), '0001') from dual
+    </select>
+    <select id="findUserByGpkiDn" parameterType="string" resultType="string">
+        select COALESCE(USER_ID, '')
+        from NOPER_USER
+        where DN = #{dn}
+    </select>
+    <select id="findUserIdByUserInfo" parameterType="kr.go.seoul.noper2.dto.LoginDTO$FindUserIdRequestDTO" resultType="NoperUserDamo">
+        select USER_ID, TO_CHAR(REGIST_TS, 'YYYY-MM-DD HH24:MI:SS') as registTs
+        from NOPER_USER
+        where USER_NAME = #{name}
+        and TEL_NO = #{telno}
+        and E_MAIL = #{email}
+        <!--and DEPT_CD = #{departmentName}-->
+    </select>
+    <select id="findUserPwByUserInfo" parameterType="kr.go.seoul.noper2.dto.LoginDTO$FindUserPwRequestDTO" resultType="string">
+        select USER_ID
+        from NOPER_USER
+        where USER_NAME = #{name}
+        and TEL_NO = #{telno}
+        and E_MAIL = #{email}
+        and USER_ID = #{id}
+    </select>
+    <select id="findUserById" parameterType="string" resultType="NoperUserDamo">
+        select *
+        from NOPER_USER
+        where USER_ID = #{id}
+    </select>
+    <select id="checkBjdCdExists" parameterType="UserDTO" resultType="string">
+        SELECT COALESCE(
+                       (
+                           SELECT KEY AS KEY
+                           FROM K00SIGUD
+                           WHERE SKKCD = #{skkCd}
+                           AND DPNAME = TRIM(REPLACE(#{bjdCdDirect}, ' ', ''))
+                       ), '0'
+               ) AS CDKEY
+        FROM dual
+    </select>
+    <select id="checkDeptCdExists" parameterType="UserDTO" resultType="string">
+        SELECT COALESCE(
+                (
+                    SELECT CDKEY AS CDKEY
+                    FROM COM_CODE
+                    WHERE cdid = 'R'||#{skkCd} <!--LJM 수정 240306 -->
+                    AND CDVALUE = TRIM(REPLACE(#{deptCdDirect}, ' ', ''))
+                ), '0'
+               ) AS CDKEY
+        FROM dual
+    </select>
+    <insert id="saveBjdCd" parameterType="UserDTO">
+        <selectKey keyProperty="key" resultType="string" order="BEFORE">
+            SELECT (COALESCE(max(KEY), '0') + 1) AS KEY
+            FROM K00SIGUD
+            WHERE SKKCD = #{skkCd}
+        </selectKey>
+        INSERT INTO K00SIGUD (KEY, SKKCD, DPNAME, PRNTNM, PRNTNM2)
+        VALUES (#{key}, #{skkCd}, #{bjdCdDirect}, #{userPrntNm}, #{userPrntNm2})
+    </insert>
+    <select id="findBjdCd" parameterType="UserDTO" resultType="string">
+        SELECT KEY
+        FROM K00SIGUD
+        WHERE SKKCD = #{skkCd}
+        AND DPNAME = #{bjdCdDirect}
+    </select>
+    <insert id="saveDeptCd" parameterType="UserDTO">
+        <selectKey keyProperty="cdKey" resultType="string" order="BEFORE">
+            SELECT (COALESCE(max(CDKEY), '0') + 1) AS CD_KEY
+            FROM COM_CODE
+            WHERE cdid = 'R'||#{skkCd} <!--LJM 수정 20240306-->
+        </selectKey>
+        INSERT INTO COM_CODE (CDID, CDKEY, CDVALUE, CDDESC)
+        VALUES ('R'||#{skkCd}, #{cdKey}, #{deptCdDirect}, '통계보고-부서코드') <!--LJM 수정 20240306-->
+    </insert>
+    <select id="findDeptCd" parameterType="UserDTO" resultType="string">
+        SELECT CDKEY AS CDKEY
+        FROM COM_CODE
+        WHERE cdid = 'R'||#{skkCd}<!--LJM 수정 20240306-->
+          AND CDVALUE = #{deptCdDirect}
+    </select>
+</mapper>

@@ -1,0 +1,316 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="confirmationBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/buildingmanagement/confirmationDetail.js}"></script>
+    <script th:src="@{/moment-js/moment.min.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">기존무허가 확인원관리 상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>확인원관리</span></label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>확인원관리 상세</span></label>
+            </div>
+        </div>
+        <form id="confirmationForm" name="confirmationForm" method="post">
+            <input type="hidden" name="confirmationFlag" value="" aria-label="확인원구분">
+            <div class="row row-tr mt-3 bdnn">
+                <p class="font-weight-bold">신청현황</p>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">접수일자</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <th:block th:if="${not #strings.isEmpty(confirmation.jsilja) && #strings.length(confirmation.jsilja) > 7}">
+                        <span class="detailFom" th:utext="${#strings.substring(confirmation.jsilja, 0, 4) + '-' + #strings.substring(confirmation.jsilja, 4, 6) + '-' + #strings.substring(confirmation.jsilja, 6, 8)}"></span>
+                    </th:block>
+                    <th:block th:if="${not #strings.isEmpty(confirmation.jsilja) && #strings.length(confirmation.jsilja) < 7}">
+                        <span class="detailFom" th:utext="${confirmation.jsilja}"></span>
+                    </th:block>
+                    <th:block th:if="${#strings.isEmpty(confirmation.jsilja)}">
+                        <span class="detailFom" th:utext="-"></span>
+                    </th:block>
+                    <input type="date" onkeydown="return false" max="9999-12-31" th:value="${confirmation.jsilja}" name="jsiljaTemp" aria-label="접수일자" class="form-control form-control-sm modyFom" />
+                    <input type="hidden" name="jsilja" aria-label="접수일자" class="form-control form-control-sm modyFom" />
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">처리일자</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <th:block th:if="${not #strings.isEmpty(confirmation.trilja) && #strings.length(confirmation.trilja) > 7}">
+                        <span class="detailFom" th:utext="${#strings.substring(confirmation.trilja, 0, 4) + '-' + #strings.substring(confirmation.trilja, 4, 6) + '-' + #strings.substring(confirmation.trilja, 6, 8)}"></span>
+                    </th:block>
+                    <th:block th:if="${not #strings.isEmpty(confirmation.trilja) && #strings.length(confirmation.trilja) < 7}">
+                        <span class="detailFom" th:utext="${confirmation.trilja}"></span>
+                    </th:block>
+                    <th:block th:if="${#strings.isEmpty(confirmation.trilja)}">
+                        <span class="detailFom" th:utext="-"></span>
+                    </th:block>
+                    <input type="date" onkeydown="return false" max="9999-12-31" name="triljaTemp" aria-label="처리일자" class="form-control form-control-sm modyFom" />
+                    <input type="hidden" name="trilja" aria-label="처리일자" class="form-control form-control-sm modyFom" />
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신청인</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${confirmation.sinname}"></span>
+                    <div class="row modyFom">
+                        <div class="col-7">
+                            <input type="text" th:value="${confirmation.sinname}" name="sinname" aria-label="신청인" class="form-control form-control-sm modyFom" />
+                        </div>
+                        <div class="col-4">
+                            <select name="sinjugb" required th:field="*{confirmation.sinjugb}" class="form-select form-select-sm required modyFom" title="신청인구분">
+                                <option value="" disabled selected>신청인구분</option>
+                                <option th:each="codeGmjjgnTemp : ${codeGmjjgnTemp}" th:value="${codeGmjjgnTemp.cdkey}"
+                                        th:utext="${codeGmjjgnTemp.cdvalue}">신청인</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">주민번호</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${(confirmation.sinjumin1 ?: '') + '-' + (confirmation.sinjumin2 ?: '')}"></span>
+                    <div class="row modyFom">
+                        <div class="col-5">
+                            <input type="text" name="sinjumin1" maxlength='6' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="주민번호" class="form-control form-control-sm" />
+                        </div>
+                        -
+                        <div class="col-5">
+                            <input type="password" name="sinjumin2" maxlength='7' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="주민번호" class="form-control form-control-sm" />
+                        </div>
+                        <input type="hidden" name="sinjumin" aria-label="주민번호" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급통수</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${confirmation.bgsu}"></span>
+                    <input type="text" th:value="${confirmation.bgsu}" name="bgsu" maxlength='2' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="발급통수" class="form-control form-control-sm modyFom" />
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">담당전화번호</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${confirmation.chargetel}"></span>
+                    <input type="text" th:value="${confirmation.chargetel}" name="chargetel" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="담당전화번호" class="form-control form-control-sm modyFom" />
+                </div>
+            </div>
+            <div class="row row-tr border-end-0">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">주소</label>
+                </div>
+                <div class="col-11 p-0">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">도로명주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="detailFom" th:utext="${confirmation?.newAddr1}"></span>
+                            <input type="text" name="roadaddr" class="form-control form-control-sm modyFom" aria-label="도로명주소" placeholder="도로명주소"/>
+                        </div>
+                    </div>
+                    <!-- bdnn -->
+                    <div class="row row-tr border-bottom-0">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">지번주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="detailFom" th:utext="${confirmation?.newAddr2}"></span>
+                            <input type="text" name="jibunaddr" class="form-control form-control-sm modyFom" aria-label="지번주소" placeholder="지번주소"/>
+                        </div>
+                    </div>
+                    <div class="invalid-feedback">주소를 입력해주세요.</div>
+                </div>
+                <div class="col-2 d-none">
+                    <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm modyFom">
+                        <i class="fa-solid fa-search"></i> 주소
+                    </button>
+                    <input type="hidden" class="mt-1 modyFom" disabled value="" name="gmcsahTemp" aria-label="대지/산" />
+                    <input type="hidden" value="" name="gmcsah" aria-label="대지/산" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급용도</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom" th:utext="${confirmation.bigo}"></span>
+                    <input type="text" th:value="${confirmation.bigo}" name="bigo" aria-label="발급용도" class="form-control form-control-sm modyFom" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급기관</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom" th:utext="${confirmation.issueorgnm}"></span>
+                    <select disabled name="issueorgkey" required th:field="*{confirmation.issueorgkey}" class="form-select required modyFom" title="발급기관">
+                        <option value="" disabled selected>발급기관</option>
+                        <option th:each="confirmationIssuerKey : ${confirmationIssuerKey}" th:value="${confirmationIssuerKey.key}"
+                                th:utext="${confirmationIssuerKey.prntnm}">발급기관</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row row-tr delRow">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">삭제사유</label>
+                    <span style="color: red">&nbsp;*</span>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom delText" th:utext="${confirmation.delc}"></span>
+                    <input type="text" th:value="${confirmation.delc}" name="delc" class="form-control form-control-sm" aria-label="삭제사유" required/>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-5">기본현황</p>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.gmskk} + ' - ' + (${ledger.gmdjgb} eq '0' ? '등재' : (${ledger.gmdjgb} eq '1' ? '미등재' : '항측판독')) + ' - ' + ${ledger.gmseqco}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">구조</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.gmgzcd}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">소유권</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.tojisg}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물면적</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.gmmunjuk}"></span>&nbsp;㎡
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">토지면적</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledger.tojimunjuk}"></span>&nbsp;㎡
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm"></label>
+                </div>
+                <div class="col-3 align_items_center">
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물위치</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span th:utext="${(ledger.gmskkname == null) ? ledger?.newaddr2 : ledger?.gmskkname} ?: '-'"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">도로명주소</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span th:utext="${(ledger.naRoadNm == null) ? ledger.newaddr1 : ledger?.naRoadNm + ledger?.naMainBun + #strings.defaultString(ledger.naSubBun, '')} ?: '-'"></span>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-5">건물주현황</p>
+            <div class="modyFom custom-control custom-checkbox col-2">
+                <input type="checkbox" name="all" class="custom-control-input" onclick="singleSerach()" id="oneSelChk">
+                <label class="custom-control-label" for="oneSelChk">주민번호 전체 출력</label>
+            </div>
+            <div class="row row-tr row-th" style="border-left: 1px solid #ccc;">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">성명</label>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">주민번호</label>
+                </div>
+                <div class="col-4 col-th">
+                    <label class="col-form-label col-form-label-sm">도로명주소</label>
+                </div>
+                <div class="col-5 col-th bdnn">
+                    <label class="col-form-label col-form-label-sm">지번주소</label>
+                </div>
+            </div>
+            <div th:each="idx : ${owner}" class="row row-tr">
+                <div class="col-1 border-start">
+                    <span th:utext="${idx.gmjname}"></span>
+                </div>
+                <div class="col-2 border-start">
+                    <span th:utext="${idx?.gmjjumin}"></span>
+                </div>
+                <div class="col-4 border-start">
+                    <!-- <span th:utext="${idx.gmjsna}"></span><span th:utext="${idx.gmjjname}"></span> -->
+                    <span th:utext="${(idx.newAddr1 != null) ? idx.newAddr1 : '-'}"></span>
+                </div>
+                <div class="col-5 border-start border-end bdnn">
+                    <!-- <span th:utext="${idx.naEtc}"></span>-->
+                    <span th:utext="${(idx.gmjsna != null) ? idx.gmjsna + ' ' + (idx.gmjjname ?: '') : #strings.defaultString(idx.newAddr2, '-')}"></span>
+                </div>
+            </div>
+            <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+            <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+            <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+            <input type="hidden" th:value="${conilno}" name="conilno" aria-label="무허가확인원채번" />
+            <input type="hidden" name="naBjdongNoDoc">
+            <input type="hidden" name="naRoadCdDoc">
+            <input type="hidden" name="naSigunguCdDoc">
+            <input type="hidden" name="naRoadNmDoc">
+            <input type="hidden" name="naMainBunDoc">
+            <input type="hidden" name="naSubBunDoc">
+            <input type="hidden" name="naEtcDoc">
+            <input type="hidden" name="newAddr1">
+            <input type="hidden" name="newAddr2">
+            <input type="hidden" name="jumincheck">
+        </form>
+        <div class="row mt-3">
+            <div class="col-2">
+                <button type="button" id="confirmationListBtn" class="btn btn-light btn-sm float-start">목록</button>
+            </div>
+            <div class="col-10 tx-right">
+                <button th:if="${auth.canDelete}" type="button" id="deleteBtn" class="btn btn-danger btn-sm">삭제</button>
+                <!--
+                <button type="button" id="modyBtn" class="btn btn-primary btn-sm" form="confirmationForm" >수정</button>
+                -->
+                <button th:if="${auth.canUpdate}" type="button" id="saveBtn" class="btn btn-primary btn-sm" form="confirmationForm" >저장</button>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        var isAdmin = [[${#authentication.principal.isAdmin}]]
+        var skkCd = [[${#authentication.principal.skkCd}]]
+        var formatJsilja = moment([[${confirmation.jsilja}]]).format('YYYY-MM-DD');
+        var formatTrilja = moment([[${confirmation.trilja}]]).format('YYYY-MM-DD');
+        $('input[name=jsiljaTemp]').val(formatJsilja);
+        $('input[name=triljaTemp]').val(formatTrilja);
+    </script>
+</th:block>
+
+<th:block layout:fragment="script">
+    <!--
+        <script th:src="@{/js/common/calendar.js}"></script>
+    -->
+</th:block>
+</html>

@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.CommonRepository">
+    <select id="findUserChargeWorkById" parameterType="String" resultType="String">
+        /* CommonRepository.findUserChargeWorkById */
+        select CHARGE_WORK
+        from NOPER_USER
+        where USER_ID = #{id}
+    </select>
+
+    <select id="findBjdJusoList" resultType="kr.go.seoul.noper2.dto.LedgerDTO">
+        /* CommonRepository.findBjdJusoList */
+        SELECT
+            <if test="role">
+                /*
+                SIGUNGU_CD||','||BJDONG_CD AS gmbjdcd,
+                */
+                SIGUNGU_CD AS GMSKK,
+                BJDONG_CD AS gmbjdcd,
+            </if>
+            <if test="!role">
+                BJDONG_CD as gmbjdcd,
+            </if>
+            DECODE(BJDONG_CD, '00000', SIDO_NM||' '||SIGUNGU_NM,SIDO_NM||' '||SIGUNGU_NM||' '||BJDONG_NM) bnam
+        FROM CMP_BJDONG_MGM
+         <![CDATA[
+        WHERE SIGUNGU_CD LIKE '11%' AND SIGUNGU_CD <> '11000'
+          AND HJDONG_CD ='000'
+          AND APPLY_EXP_DAY > TO_CHAR(SYSDATE, 'YYYYMMDD')
+            ]]>
+        <if test="gmskk != null and !gmskk.equals('')">
+            AND SIGUNGU_CD = #{gmskk}
+        </if>
+        ORDER BY bnam
+    </select>
+
+    <!-- 대장번호찾기 -->
+    <select id="findNoperNumListByGmskk" parameterType="ledgerDTO" resultType="kr.go.seoul.noper2.dto.LedgerDTO">
+        /* CommonRepository.findNoperNumListByGmskk */
+        SELECT *
+        FROM (SELECT ROW_NUMBER() OVER (ORDER BY B.GMSKK ASC,A.GMSEQCO ASC) RN,
+                     A.GMSKK || '-' || F_CDNAME('N01', A.GMDJGB) || '-' || A.GMSEQCO AS NUM,
+                     A.GMSKK,
+                     A.GMDJGB,
+                     A.GMSEQCO,
+                     REPLACE(A.DEGB, ' ') DEGB,
+                     TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+                     (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+                     A.GMBJDCD,
+                     A.GMSKKCD,
+                     A.GMHJDCD,
+                     A.GMCSAH,
+                     A.GMCBUH,
+                     A.GMCJI,
+                     F_BJDNAME(A.GMSKKCD, A.GMBJDCD, A.GMHJDCD) || ' ' || F_CDNAME(87, A.GMCSAH) || ' ' || A.GMCBUH ||
+                     DECODE(A.GMCJI, '', '', '-' || A.GMCJI) GMSKKNAME,
+                     A.GMGZCD,
+                     A.GMYD,
+                     A.GMGUNP,
+                     A.TOJIMJ,
+                     DECODE(A.GMFOORS, '', '', A.GMFOORS || '층') GMFOORS,
+                     F_CDNAME('N01', A.GMDJGB) AS GMDJGB_NAME,
+                     TOJISG,
+                     DONGBH,
+                     GMJSNA,
+                     GMJJNAME,
+                     GMMUNJUK,
+                     TOJIMUNJUK,
+                     DECODE(GMWEBAN, NULL, 'N', 'Y') GMWEBANYN,
+                     DECODE(GMWEBANNO, NULL, 'N', '0', 'N', 'Y') GMWEBANNOYN,
+                     DECODE(BGSTOP, NULL, 'N', 'Y') BGSTOPYN,
+                     COALESCE(A.NEW_ADDR1, '-') AS NEW_ADDR1,
+                     NVL2(A.NEW_ADDR2, A.NEW_ADDR2, DECODE(A.GMHJDCD,'',
+                     F_BJD_NAME(A.GMSKKCD,A.GMBJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI),
+                     F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI))) AS NEWADDR2
+              FROM NOPER_MASTER A,
+                   NOPER_OWNER B
+              WHERE B.DELETE_AT(+) = 'N'
+                AND A.GMSKK = B.GMSKK(+)
+                AND A.GMDJGB = B.GMDJGB(+)
+                AND A.GMSEQCO = B.GMSEQCO(+)
+                AND A.NEWYN = 'Y'
+        <if test='degb != null and degb.equals("N") and !degb.equals("R")'>
+                AND (REPLACE(A.DEGB, ' ', '') IS NULL OR REPLACE(A.DEGB, ' ', '') = 'N' OR REPLACE(A.DEGB, ' ', '') = 'C')
+        </if>
+        <if test='degb != null and !degb.equals("N") and  !degb.equals("R")'>
+                AND REPLACE(A.DEGB, ' ', '') = #{degb}
+        </if>
+        <if test="gmskk != null and !gmskk.equals('')">
+                AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb != null and !gmdjgb.equals('all')">
+                AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco != null and !gmseqco.equals('')">
+                AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmjname != null and !gmjname.equals('')">
+                AND REGEXP_REPLACE(B.GMJNAME, '\s', '') LIKE '%' || REGEXP_REPLACE(#{gmjname}, '\s', '') || '%'
+        </if>
+        <if test="gmjjumin != null and !gmjjumin.equals('')">
+                AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd != null and !gmskkcd.equals('')">
+                AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd != null and !gmhjdcd.equals('')">
+                AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd != null and !gmbjdcd.equals('all')">
+                AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah != null and !gmcsah.equals('all')">
+                AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh != null and !gmcbuh.equals('')">
+                AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji != null and !gmcji.equals('')">
+                AND A.GMCJI = #{gmcji}
+        </if>
+        <if test="gmbunho != null and !gmbunho.equals('')">
+                AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        )
+    </select>
+
+    <!-- 신규대장관리 팝업리스트 -->
+    <select id="findNewNoperNumList" parameterType="ledgerDTO" resultType="kr.go.seoul.noper2.dto.LedgerDTO">
+        SELECT * FROM
+        (SELECT
+        ROW_NUMBER() OVER(ORDER BY B.GMJNAME ASC) RN,
+        A.GMSKK||'-'||A.GMSEQCO NUM, A.GMSKK, A.GMDJGB, A.GMSEQCO,
+        DECODE(RTRIM(A.DEGB),'Y','철거','C','부분철거') DEGB,
+        TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+        F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI) GMSKKNAME,
+        A.GMGZCD, A.GMYD, A.GMGUNP, A.TOJIMJ,
+        DECODE(A.GMFOORS,'','',A.GMFOORS||'층') GMFOORS
+        FROM
+        NOPER_MASTER A,
+        NOPER_OWNER B
+        WHERE B.DELETE_AT(+)='N'
+        AND A.GMSKK = B.GMSKK(+)
+        AND A.GMDJGB = B.GMDJGB(+)
+        AND A.GMSEQCO = B.GMSEQCO(+)
+        AND B.GMJILNO(+) = '1'
+        AND A.NEWYN='N'
+        AND (REPLACE(A.DEGB, ' ', '') IS NULL OR REPLACE(A.DEGB, ' ', '') = 'N' OR REPLACE(A.DEGB, ' ', '') = 'C')
+        <if test="gmskk!=null and !gmskk.equals('')">
+            AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb!=null and !gmdjgb.equals('') and !gmdjgb.equals('all')">
+            AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco!=null and !gmseqco.equals('')">
+            AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmbunho!=null and gmbunho.equals('')">
+            AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        <if test="gmjname!=null and !gmjname.equals('')">
+            AND REPLACE(TRIM(BOTH ' ' FROM B.GMJNAME), ' ', '') LIKE '%' || REPLACE(TRIM(BOTH ' ' FROM #{gmjname}), ' ', '') || '%'
+        </if>
+        <if test="gmjjumin!=null and !gmjjumin.equals('')">
+            AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd!=null and !gmskkcd.equals('')">
+            AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd!=null and !gmhjdcd.equals('')">
+            AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd!=null and !gmbjdcd.equals('') and !gmbjdcd.equals('all')">
+            AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah!=null and !gmcsah.equals('') and !gmcsah.equals('all')">
+            AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh!=null and !gmcbuh.equals('')">
+            AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji!=null and !gmcji.equals('')">
+            AND A.GMCJI = #{gmcji}
+        </if>
+        )
+    </select>
+    <!-- 기존무허가 확인원 팝업조회 -->
+    <select id="findconfirmationPopup" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT ROW_NUMBER() OVER(ORDER BY A.REGIST_TS ASC, B.GMSKK ASC,A.GMSEQCO ASC) RN,
+        A.GMSKK||'-'||F_CDNAME('N01',A.GMDJGB)||'-'||A.GMSEQCO AS NUM,
+        A.GMSKK, A.GMDJGB,
+        A.GMSEQCO, DECODE(RTRIM(A.DEGB),'Y','철거','C','부분철거') DEGB,
+        TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+        DECODE(A.GMHJDCD,'',
+            F_BJD_NAME(A.GMSKKCD,A.GMBJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI),
+            F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI)) GMSKKNAME,
+        NVL(A.NEW_ADDR1, '-') GMROAD, A.GMGZCD, A.GMYD,
+        (A.GMGUNP-nvl((select SUM(NVL(RECOM.GMBGUNP,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMGUNP,
+        (A.TOJIMJ-nvl((select SUM(NVL(RECOM.GMBTOJIMJ,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMJ,
+        DECODE(A.GMFOORS,'','',A.GMFOORS||'층') GMFOORS,
+        F_CDNAME('N01',A.GMDJGB) AS GMDJGB_NAME,
+        A.TOJISG, A.DONGBH, B.GMJSNA, B.GMJJNAME,
+        (decode(nvl(A.GMMUNJUK,0),0,nvl(A.GMGUNP,0)*3.3058,A.GMMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBMJUK,0),0,nvl(RECOM.GMBGUNP,0)*3.3058,RECOM.GMBMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMMUNJUK,
+        (decode(nvl(A.TOJIMUNJUK,0),0,nvl(A.TOJIMJ,0)*3.3058,A.TOJIMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBTOJIMJUK,0),0,nvl(RECOM.GMBTOJIMJ,0)*3.3058,RECOM.GMBTOJIMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMUNJUK,
+        DECODE(A.GMWEBAN, NULL,'N','Y') GMWEBANYN,
+        DECODE(A.GMWEBANNO, NULL,'N','0','N','Y') GMWEBANNOYN,
+        A.NA_BJDONG_NO, A.NA_ROAD_NM, A.NA_MAIN_BUN, A.NA_SUB_BUN,
+        A.NA_ETC, B.NA_BJDONG_NO naBjdongNoOwner,
+        B.NA_ROAD_NM   naRoadNmOwner,
+        B.NA_MAIN_BUN  naMainBunOwner,
+        B.NA_SUB_BUN   naSubBunOwner,
+        B.NA_ETC       naEtcOwner,
+        B.NA_SIGUNGU_CD naSigunguCdOwner,
+        DECODE(A.GMHJDCD,'',
+            F_BJD_NAME(A.GMSKKCD,A.GMBJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI),
+            F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI)) newAddr2,
+        NVL(A.NEW_ADDR1, '-') newAddr1, NVL(B.NEW_ADDR1, '-') ROADGMJSNA, NVL(B.NEW_ADDR2, '-') GMJSNA2,
+        DECODE(A.BGSTOP, NULL,'N','Y') BGSTOPYN
+        FROM
+        NOPER_MASTER A,
+        NOPER_OWNER B
+        WHERE B.DELETE_AT(+)='N'
+        AND A.GMSKK = B.GMSKK(+)
+        AND A.GMDJGB = B.GMDJGB(+)
+        AND A.GMSEQCO = B.GMSEQCO(+)
+        AND A.NEWYN='Y'
+        <if test="gmskk!=null and !gmskk.equals('')">
+            AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb!=null and !gmdjgb.equals('') and !gmdjgb.equals('all')">
+            AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco!=null and !gmseqco.equals('')">
+            AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmbunho!=null and !gmbunho.equals('')">
+            AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        <if test="gmjname!=null and !gmjname.equals('')">
+            AND REPLACE(TRIM(BOTH ' ' FROM B.GMJNAME), ' ', '') LIKE '%' || REPLACE(TRIM(BOTH ' ' FROM #{gmjname}), ' ', '') || '%'
+        </if>
+        <if test="gmjjumin!=null and !gmjjumin.equals('')">
+            AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd!=null and !gmskkcd.equals('')">
+            AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd!=null and !gmhjdcd.equals('')">
+            AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd!=null and !gmbjdcd.equals('') and !gmbjdcd.equals('all')">
+            AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah!=null and !gmcsah.equals('') and !gmcsah.equals('all')">
+            AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh!=null and !gmcbuh.equals('')">
+            AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji!=null and !gmcji.equals('')">
+            AND A.GMCJI = #{gmcji}
+        </if>
+        ORDER BY ROW_NUMBER() OVER(ORDER BY A.REGIST_TS ASC, B.GMSKK ASC,A.GMSEQCO ASC)
+    </select>
+
+    <!-- 소유자병합 팝업조회 -->
+    <select id="findAbsorptionPopup" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT * FROM
+        (SELECT
+        ROW_NUMBER() OVER(ORDER BY B.GMSKK ASC,A.GMSEQCO ASC) RN,
+        A.GMSKK||'-'||F_CDNAME('N01',A.GMDJGB)||'-'||A.GMSEQCO AS NUM,
+        A.GMSKK,
+        A.GMDJGB,
+        A.GMSEQCO,
+        DECODE(RTRIM(A.DEGB),'Y','철거','C','부분철거') DEGB,
+        TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+        F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI) GMSKKNAME,
+        A.GMGZCD,
+        A.GMYD,
+        (A.GMGUNP-nvl((select SUM(NVL(RECOM.GMBGUNP,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMGUNP,
+        (A.TOJIMJ-nvl((select SUM(NVL(RECOM.GMBTOJIMJ,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMJ,
+        DECODE(A.GMFOORS,'','',A.GMFOORS||'층') GMFOORS,
+        F_CDNAME('N01',A.GMDJGB) AS GMDJGB_NAME,
+        A.TOJISG,
+        A.DONGBH,
+        B.GMJSNA,
+        B.GMJJNAME,
+        (decode(nvl(A.GMMUNJUK,0),0,nvl(A.GMGUNP,0)*3.3058,A.GMMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBMJUK,0),0,nvl(RECOM.GMBGUNP,0)*3.3058,RECOM.GMBMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMMUNJUK,
+        (decode(nvl(A.TOJIMUNJUK,0),0,nvl(A.TOJIMJ,0)*3.3058,A.TOJIMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBTOJIMJUK,0),0,nvl(RECOM.GMBTOJIMJ,0)*3.3058,RECOM.GMBTOJIMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMUNJUK,
+        DECODE(A.GMWEBAN, NULL,'N','Y') GMWEBANYN,
+        DECODE(A.GMWEBANNO, NULL,'N','0','N','Y') GMWEBANNOYN,
+        A.NA_BJDONG_NO,
+        A.NA_ROAD_NM,
+        A.NA_MAIN_BUN,
+        A.NA_SUB_BUN,
+        A.NA_ETC,
+        B.NA_BJDONG_NO naBjdongNoOwner,
+        B.NA_ROAD_NM   naRoadNmOwner,
+        B.NA_MAIN_BUN  naMainBunOwner,
+        B.NA_SUB_BUN   naSubBunOwner,
+        B.NA_ETC       naEtcOwner,
+        B.NA_SIGUNGU_CD naSigunguCdOwner,
+        COALESCE(A.NEW_ADDR1, '-') newAddr1,
+        COALESCE(CASE
+                    WHEN A.NEW_ADDR2 != '' OR A.NEW_ADDR2 IS NOT NULL OR A.NEW_ADDR2 != '-' THEN A.NEW_ADDR2
+                    ELSE F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.gmhjdcd)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI)
+                  END , '-') newAddr2,
+        DECODE(A.BGSTOP, NULL,'N','Y') BGSTOPYN
+        FROM
+        NOPER_MASTER A,
+        NOPER_OWNER B
+        WHERE B.DELETE_AT(+)='N'
+        AND A.GMSKK = B.GMSKK(+)
+        AND A.GMDJGB = B.GMDJGB(+)
+        AND A.GMSEQCO = B.GMSEQCO(+)
+        AND A.NEWYN='Y'
+        AND (REPLACE(A.DEGB, ' ', '') IS NULL OR REPLACE(A.DEGB, ' ', '') = 'N' OR REPLACE(A.DEGB, ' ', '') = 'C')
+        <if test="gmskk!=null and !gmskk.equals('')">
+            AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb!=null and !gmdjgb.equals('all')">
+            AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco!=null and !gmseqco.equals('')">
+            AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmbunho!=null and !gmbunho.equals('')">
+            AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        <if test="gmjname!=null and !gmjname.equals('')">
+            AND REPLACE(TRIM(BOTH ' ' FROM B.GMJNAME), ' ', '') LIKE '%' || REPLACE(TRIM(BOTH ' ' FROM #{gmjname}), ' ', '') || '%'
+        </if>
+        <if test="gmjjumin!=null and !gmjjumin.equals('')">
+            AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd!=null and !gmskkcd.equals('')">
+            AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd!=null and !gmhjdcd.equals('')">
+            AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd!=null and !gmbjdcd.equals('all')">
+            AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah!=null and !gmcsah.equals('all')">
+            AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh!=null and !gmcbuh.equals('')">
+            AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji!=null and !gmcji.equals('')">
+            AND A.GMCJI = #{gmcji}
+        </if>
+            AND (SELECT COUNT(*) FROM NOPER_OWNER O WHERE O.DELETE_AT='N' AND O.GMSKK=A.GMSKK AND O.GMDJGB=A.GMDJGB AND O.GMSEQCO=A.GMSEQCO)>1
+        )
+    </select>
+    <!-- 소유자변경 팝업조회 -->
+    <select id="findChangePopup" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT * FROM
+        (SELECT
+        ROW_NUMBER() OVER(ORDER BY B.GMSKK ASC,A.GMSEQCO ASC) RN,
+        A.GMSKK||'-'||F_CDNAME('N01',A.GMDJGB)||'-'||A.GMSEQCO AS NUM,
+        A.GMSKK,
+        A.GMDJGB,
+        A.GMSEQCO,
+        DECODE(RTRIM(A.DEGB),'Y','???','C','?κ????') DEGB,
+        TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+        F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI) GMSKKNAME,
+        A.GMGZCD,
+        A.GMYD,
+        (A.GMGUNP-nvl((select SUM(NVL(RECOM.GMBGUNP,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMGUNP,
+        (A.TOJIMJ-nvl((select SUM(NVL(RECOM.GMBTOJIMJ,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMJ,
+        DECODE(A.GMFOORS,'','',A.GMFOORS||'??') GMFOORS,
+        F_CDNAME('N01',A.GMDJGB) AS GMDJGB_NAME,
+        TOJISG,
+        DONGBH,
+        GMJSNA,
+        GMJJNAME,
+        (decode(nvl(A.GMMUNJUK,0),0,nvl(A.GMGUNP,0)*3.3058,A.GMMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBMJUK,0),0,nvl(RECOM.GMBGUNP,0)*3.3058,RECOM.GMBMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMMUNJUK,
+        (decode(nvl(A.TOJIMUNJUK,0),0,nvl(A.TOJIMJ,0)*3.3058,A.TOJIMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBTOJIMJUK,0),0,nvl(RECOM.GMBTOJIMJ,0)*3.3058,RECOM.GMBTOJIMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMUNJUK,
+        DECODE(GMWEBAN, NULL,'N','Y') GMWEBANYN,
+        DECODE(GMWEBANNO, NULL,'N','0','N','Y') GMWEBANNOYN,
+        A.NA_BJDONG_NO,
+        A.NA_ROAD_NM,
+        A.NA_MAIN_BUN,
+        A.NA_SUB_BUN,
+        A.NA_ETC,
+        B.NA_BJDONG_NO naBjdongNoOwner,
+        B.NA_ROAD_NM   naRoadNmOwner,
+        B.NA_MAIN_BUN  naMainBunOwner,
+        B.NA_SUB_BUN   naSubBunOwner,
+        B.NA_ETC       naEtcOwner,
+        B.NA_SIGUNGU_CD naSigunguCdOwner,
+        COALESCE(A.NEW_ADDR1, '-') newAddr1,
+        COALESCE(CASE
+                    WHEN A.NEW_ADDR2 != '' OR A.NEW_ADDR2 IS NOT NULL OR A.NEW_ADDR2 != '-' THEN A.NEW_ADDR2
+                    ELSE F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.gmhjdcd)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI)
+                  END , '-') newAddr2,
+        DECODE(BGSTOP, NULL,'N','Y') BGSTOPYN
+        FROM
+        NOPER_MASTER A,
+        NOPER_OWNER B
+        WHERE B.DELETE_AT(+)='N'
+        AND A.GMSKK = B.GMSKK(+)
+        AND A.GMDJGB = B.GMDJGB(+)
+        AND A.GMSEQCO = B.GMSEQCO(+)
+        AND A.NEWYN='Y'
+        AND (REPLACE(A.DEGB, ' ', '') IS NULL OR REPLACE(A.DEGB, ' ', '') = 'N' OR REPLACE(A.DEGB, ' ', '') = 'C')
+        <if test="gmskk!=null and !gmskk.equals('')">
+            AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb!=null and !gmdjgb.equals('all')">
+            AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco!=null and !gmseqco.equals('')">
+            AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmbunho!=null and !gmbunho.equals('')">
+            AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        <if test="gmjname!=null and !gmjname.equals('')">
+            AND REPLACE(TRIM(BOTH ' ' FROM B.GMJNAME), ' ', '') LIKE '%' || REPLACE(TRIM(BOTH ' ' FROM #{gmjname}), ' ', '') || '%'
+        </if>
+        <if test="gmjjumin!=null and !gmjjumin.equals('')">
+            AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd!=null and !gmskkcd.equals('')">
+            AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd!=null and !gmhjdcd.equals('')">
+            AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd!=null and !gmbjdcd.equals('all')">
+            AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah!=null and !gmcsah.equals('all')">
+            AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh!=null and !gmcbuh.equals('')">
+            AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji!=null and !gmcji.equals('')">
+            AND A.GMCJI = #{gmcji}
+        </if>
+        )
+    </select>
+
+    <!--  소유자변경관리현황 팝업  -->
+    <select id="findNoperOwnerPopup" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT ROW_NUMBER() OVER(ORDER BY B.GMSKK ASC,A.GMSEQCO ASC) RN,
+        A.GMSKK||'-'||F_CDNAME('N01',A.GMDJGB)||'-'||A.GMSEQCO AS NUM,
+        A.GMSKK,
+        A.GMDJGB,
+        A.GMSEQCO,
+        DECODE(RTRIM(A.DEGB),'Y','???','C','?κ????') DEGB,
+        TRIM(BOTH ' ' FROM REPLACE(B.GMJNAME, ' ', '')) AS GMJNAME,
+        (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_DECODE(UTL_RAW.CAST_TO_RAW(B.GMJJUMIN))) FROM dual WHERE B.GMJJUMIN IS NOT NULL) AS GMJJUMIN,
+        F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.GMHJDCD)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI) GMSKKNAME,
+        A.GMGZCD,
+        A.GMYD,
+        (A.GMGUNP-nvl((select SUM(NVL(RECOM.GMBGUNP,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMGUNP,
+        (A.TOJIMJ-nvl((select SUM(NVL(RECOM.GMBTOJIMJ,0)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMJ,
+        DECODE(A.GMFOORS,'','',A.GMFOORS||'??') GMFOORS,
+        F_CDNAME('N01',A.GMDJGB) AS GMDJGB_NAME,
+        TOJISG,
+        DONGBH,
+        GMJSNA,
+        GMJJNAME,
+        (decode(nvl(A.GMMUNJUK,0),0,nvl(A.GMGUNP,0)*3.3058,A.GMMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBMJUK,0),0,nvl(RECOM.GMBGUNP,0)*3.3058,RECOM.GMBMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS GMMUNJUK,
+        (decode(nvl(A.TOJIMUNJUK,0),0,nvl(A.TOJIMJ,0)*3.3058,A.TOJIMUNJUK)-nvl((select SUM(decode(nvl(RECOM.GMBTOJIMJUK,0),0,nvl(RECOM.GMBTOJIMJ,0)*3.3058,RECOM.GMBTOJIMJUK)) FROM REMOVE_OWNER_RECOM RECOM WHERE RECOM.GMSKK = A.GMSKK AND RECOM.GMDJGB = A.GMDJGB AND RECOM.GMSEQCO = A.GMSEQCO),0)) AS TOJIMUNJUK,
+        DECODE(GMWEBAN, NULL,'N','Y') GMWEBANYN,
+        DECODE(GMWEBANNO, NULL,'N','0','N','Y') GMWEBANNOYN,
+        A.NA_BJDONG_NO,
+        A.NA_ROAD_NM,
+        A.NA_MAIN_BUN,
+        A.NA_SUB_BUN,
+        A.NA_ETC,
+        B.NA_BJDONG_NO naBjdongNoOwner,
+        B.NA_ROAD_NM   naRoadNmOwner,
+        B.NA_MAIN_BUN  naMainBunOwner,
+        B.NA_SUB_BUN   naSubBunOwner,
+        B.NA_ETC       naEtcOwner,
+        B.NA_SIGUNGU_CD naSigunguCdOwner,
+        COALESCE(A.NEW_ADDR1, '-') newAddr1,
+        COALESCE(CASE
+                    WHEN A.NEW_ADDR2 != '' OR A.NEW_ADDR2 IS NOT NULL OR A.NEW_ADDR2 != '-' THEN A.NEW_ADDR2
+                    ELSE F_BJDNAME(A.GMSKKCD,A.GMBJDCD,A.gmhjdcd)||' '||F_CDNAME(87,A.GMCSAH)||' '||A.GMCBUH||DECODE(A.GMCJI,'','','-'||A.GMCJI)
+                  END , '-') newAddr2,
+        DECODE(BGSTOP, NULL,'N','Y') BGSTOPYN
+        FROM
+        NOPER_MASTER A,
+        NOPER_OWNER_CHANGE B,
+        COM_CODE C
+        WHERE A.GMSKK = B.GMSKK
+        AND A.GMDJGB = B.GMDJGB
+        AND A.GMSEQCO = B.GMSEQCO
+        AND A.GMCSAH = C.CDKEY(+)
+        AND '87' = C.CDID(+)
+        AND B.DELGB IS NULL
+        AND A.NEWYN = 'Y'
+        <if test="gmskk!=null and !gmskk.equals('')">
+            AND A.GMSKK = #{gmskk}
+        </if>
+        <if test="gmdjgb!=null and !gmdjgb.equals('all')">
+            AND A.GMDJGB = #{gmdjgb}
+        </if>
+        <if test="gmseqco!=null and !gmseqco.equals('')">
+            AND A.GMSEQCO = #{gmseqco}
+        </if>
+        <if test="gmbunho!=null and !gmbunho.equals('')">
+            AND NVL(A.DAEJANG, '0') = #{gmbunho}
+        </if>
+        <if test="gmjname!=null and !gmjname.equals('')">
+            AND REPLACE(TRIM(BOTH ' ' FROM B.GMJNAME), ' ', '') LIKE '%' || REPLACE(TRIM(BOTH ' ' FROM #{gmjname}), ' ', '') || '%'
+        </if>
+        <if test="gmjjumin!=null and !gmjjumin.equals('')">
+            AND B.GMJJUMIN = (SELECT UTL_RAW.CAST_TO_VARCHAR2(UTL_ENCODE.BASE64_ENCODE(UTL_RAW.CAST_TO_RAW(#{gmjjumin}))) FROM dual WHERE B.GMJJUMIN IS NOT NULL)
+        </if>
+        <if test="gmskkcd!=null and !gmskkcd.equals('')">
+            AND A.GMSKKCD = #{gmskkcd}
+        </if>
+        <if test="gmhjdcd!=null and !gmhjdcd.equals('')">
+            AND A.GMHJDCD = #{gmhjdcd}
+        </if>
+        <if test="gmbjdcd!=null and !gmbjdcd.equals('all')">
+            AND A.GMBJDCD = #{gmbjdcd}
+        </if>
+        <if test="gmcsah!=null and !gmcsah.equals('all')">
+            AND A.GMCSAH = #{gmcsah}
+        </if>
+        <if test="gmcbuh!=null and !gmcbuh.equals('')">
+            AND A.GMCBUH = #{gmcbuh}
+        </if>
+        <if test="gmcji!=null and !gmcji.equals('')">
+            AND A.GMCJI = #{gmcji}
+        </if>
+    </select>
+</mapper>

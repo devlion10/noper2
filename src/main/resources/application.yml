@@ -1,0 +1,47 @@
+server:
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+    session:
+      timeout: -1
+  tomcat:
+    additional-tld-skip-patterns: "*.jar"
+noper:
+  report:
+    url: http://98.33.11.180:8080/AISERVER
+email:
+  api-key: 657a61353fe3fd58df4534e2
+  email: maru1007@seoul.go.kr
+spring:
+  devtools:
+    livereload:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  # static resource versioning
+  web:
+    resources:
+      chain:
+        enabled: true
+        strategy:
+          content:
+            enabled: true
+            paths: /js/**, /css/**
+  # thymeleaf Settings
+  thymeleaf:
+    enabled: true
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  output:
+    ansi:
+      enabled: always
+  # datasource profile
+  profiles:
+    active: dev
+
+

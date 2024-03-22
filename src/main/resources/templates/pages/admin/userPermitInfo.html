@@ -1,0 +1,149 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="permitBold = true, auth = 'on'">
+    <th:block th:replace="fragments/LNB :: admin"></th:block>
+</th:block>
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/admin/permit.js}"></script>
+    </th:block>
+
+    <!--/* 주 화면 컨텐츠 */-->
+    <th:block layout:fragment="content">
+        <div class="content container-fluid">
+            <div class="title_wrap mb-3">
+                <h3 class="tit">권한 상세</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>관리자</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>권한 관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>권한 상세</span>
+                </div>
+            </div>
+            <div class="row">
+
+
+
+                <!--/* 트리 */-->
+                <div class="col-3">
+                    <p class="font-weight-bold bdnn">권한메뉴 선택</p>
+                    <div id="jstree" class="jstree"></div>
+                </div>
+                <!--/* 테이블 */-->
+                <div class="col-9">
+                    <p class="font-weight-bold">권한정보</p>
+                    <form id="addPermissionForm">
+                        <input id="initFlag" type="hidden" readonly th:value="${perInfo.initFlag}">
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="perId" class="col-form-label col-form-label-sm">권한 ID</label>
+                            </div>
+                            <div class="col-10">
+                                <input id="perId" type="text" class="form-control form-control-sm" readonly th:value="${perInfo.getPerId()}">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="1perName" class="col-form-label col-form-label-sm">권한명</label>
+                            </div>
+                            <div class="col-10">
+                                <input id="1perName" type="text" class="form-control form-control-sm" th:value="${perInfo.getPerName()}" readonly>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="perComment" class="col-form-label col-form-label-sm">권한 설명</label>
+                            </div>
+                            <div class="col-10 d-flex flex-column">
+                                <textarea id="perComment" class="form-control form-control-sm" th:text="${perInfo.getPerComment()}" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center align-items-center mt-5 mb-2">
+                            <div class="col-3">
+                                <p class="font-weight-bold bdnn">권한 사용자 list <span id="total" class="ms-2"></span></p>
+                            </div>
+                            <div class="col-9">
+                                <div class="row align-items-center justify-content-end">
+                                    <button id="delUserBtn" class="col-3 btn btn-sm btn-danger me-2 w130" type="button">
+                                        <i class="fa-regular fa-trash-can"></i> 사용자 권한삭제
+                                    </button>
+                                    <select id="listCnt" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                                        <option value="10">10개씩</option>
+                                        <option value="30">30개씩</option>
+                                        <option value="50">50개씩</option>
+                                        <option value="70">70개씩</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="myGrid2" class="ag-theme-alpine"></div>
+                        </div>
+                        <div class="row mt-3 d-flex justify-content-between">
+                            <div class="col-2">
+                                <button id="goLstInInfo" class="btn btn-sm btn-light" type="button">목록</button>
+                            </div>
+                            <div class="col-4 tx-right">
+                                <button id="delBtn" class="btn btn-sm btn-danger me-2" type="button">
+                                    <i class="fa-regular fa-trash-can"></i> 권한삭제
+                                </button>
+                                <button id="modBtn" class="btn btn-sm btn-primary" type="button">
+                                    <i class="fa-regular fa-floppy-disk"></i> 권한수정
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            $.get('/api/user/permit/menu/list', function (data) {
+                let json = [];
+                let selectList = /*[[${perList}]]*/;
+                for(let el of data) {
+                    let selected = false;
+                    for(let select of selectList) {
+                        if(el.menuId === select.menuId) {
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if(!selected) {
+                        json.push({
+                            'id' : el.menuId,
+                            'parent' : el.menuTop === 'TOP' ? '#' : el.menuTop,
+                            'text' : el.menuName
+                        });
+                    } else {
+                        json.push({
+                            'id' : el.menuId,
+                            'parent' : el.menuTop === 'TOP' ? '#' : el.menuTop,
+                            'text' : el.menuName,
+                            'state' : {
+                                selected: true
+                            }
+                        });
+                    }
+                }
+
+                $('#jstree').jstree({
+                    'plugins': ['checkbox'],
+                    'core' : {
+                        'data' : json
+                    }
+                });
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+
+    <!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+    <th:block layout:fragment="script">
+    </th:block>
+</html>

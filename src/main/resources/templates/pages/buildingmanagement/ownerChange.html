@@ -1,0 +1,198 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <th:block layout:fragment="LNB" th:with="ownerChangeBold = true">
+        <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+    </th:block>
+
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+    </th:block>
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/common/calendar.js}"></script>
+    </th:block>
+    <th:block layout:fragment="content">
+        <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+        <div class="content container-fluid">
+            <div class="title_wrap">
+                <h3 class="tit">소유자변경관리</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>기존무허가 건축물관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>소유자변경관리</span>
+                </div>
+            </div>
+            <div>
+                <form id="ownerChangeFindForm" th:object="${LedgerDTO}" th:action="@{/api/unlicensedBuilingManagement/search}" method="post">
+                <input type="hidden" name="ownerChangeFlag" value="list" aria-label="대장구분">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label for="gmskkTmp" class="col-form-label col-form-label-sm">대장번호</label>
+                    </div>
+                    <div th:class="${#authentication.principal.isAdmin ? 'col-2' : 'col-1'}">
+                        <select id="gmskkTmp" class="form-select form-select-sm" name="gmskkTmp" sec:authorize="hasRole('ROLE_ADMIN')">
+                            <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                        </select>
+                        <input type="text" id="gmskkTmp" class="form-control form-control-sm w90 disabled" name="gmskkTmp" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" disabled aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                    </div>
+                    <div class="col-2">
+                        <select id="gmdjgb" name="gmdjgb" class="form-select form-select-sm required" title="대장구분">
+                            <option value="">전체</option>
+                            <option th:each="ledger : ${codeLedget}" th:value="${ledger.cdkey}"
+                                    th:text="${ledger.cdvalue}">대장구분</option>
+                        </select>
+                    </div>
+                    <div class="col-2 align-items-center">
+                        <input type="text" id="gmseqcoInput1" name="gmseqco" class="gmseqco form-control form-control-sm w70" aria-label="gmseqco" aria-describedby="inputGroup-sizing-sm">
+                        &nbsp;~&nbsp;
+                        <input type="text" id="gmseqcoInput2" name="gmseqco2" class="gmseqco form-control form-control-sm w70" aria-label="gmseqco2" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                    <!--
+                    <div class="col-1 small">
+                        <input class="form-check-input" type="checkbox" value="" onclick="singleSerach()" id="oneSelChk">
+                        <label class="form-check-label" for="oneSelChk">한건조회</label>
+                    </div>
+                    -->
+                    <div class="col-1">
+                        <button type="button" id="noperNumSearchDiv" data-bs-toggle="modal" data-bs-target="#noperNumSearchDiv" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-search"></i> 번호찾기
+                        </button>
+                    </div>
+                    <div th:class="${#authentication.principal.isAdmin ? 'col-1' : 'col-2'}"></div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">변경/병합구분</label>
+                    </div>
+                    <div class="col-2">
+                        <select name="changDivision" class="form-select form-select-sm required" title="변경/병합구분">
+                            <option value="">전체</option>
+                            <option value="change">소유자변경</option>
+                            <option value="absorption">소유자병합</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">접수일자</label>
+                    </div>
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-3">
+                                <select id="sujiljaCalendarSelect" name="calendarType2" class="form-select form-select-sm w150" title="접수일자">
+                                    <option value="all">전체기간</option>
+                                    <option value="simple">기간선택</option>
+                                    <option value="set">기간설정</option>
+                                </select>
+                                <input type="hidden" id="sujilja1" name="sujilja1" />
+                                <input type="hidden" id="sujilja2" name="sujilja2" />
+                            </div>
+                            <div id="sujiljaCalendarRemote" class="col-9 row align-items-center justify-content-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label for="gmjname" class="col-form-label col-form-label-sm">건물주</label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" id="gmjname" name="gmjname" class="form-control form-control-sm" aria-label="건물주 입력" placeholder="건물주"/>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">처리일자</label>
+                    </div>
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-3">
+                                <select id="criljaCalendarSelect" name="calendarType1" class="form-select form-select-sm w150" title="처리일자">
+                                    <option value="all">전체기간</option>
+                                    <option value="simple">기간선택</option>
+                                    <option value="set">기간설정</option>
+                                </select>
+                                <input type="hidden" id="crilja1" name="crilja1" />
+                                <input type="hidden" id="crilja2" name="crilja2" />
+                            </div>
+                            <div id="criljaCalendarRemote" class="col-9 row align-items-center justify-content-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-3"></div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">건물주소</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" name="searchJuso" class="form-control form-control-sm" placeholder="건물주소" aria-label="건물주소"/>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대지/산</label>
+                    </div>
+                    <div class="col-2">
+                        <select name="gmcsah" class="form-select form-select-sm required" title="구분">
+                            <option value="">전체</option>
+                            <option th:each="gmcsah : ${findGmcsah}" th:value="${gmcsah.cdkey}"
+                                    th:text="${gmcsah.cdvalue}">구분</option>
+                        </select>
+                    </div>
+                </div>
+                    <input type="hidden" value="" name="gmskk">
+                    <input type="hidden" th:value="${userName}" name="userName">
+                </form>
+                <div class="row align-items-center mt-3">
+                    <div class="col-12 justify-content-end mb-5">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 소유자변경을 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="button" id="resetBtn" class="btn btn-secondary me-2 btn-sm">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                            <button type="button" form="ownerChangeFindForm" id="searchBtn" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i> 조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center align-items-center">
+                    <div id="totCnt" class="col-2 mt-2">
+                        <h3></h3>
+                    </div>
+                    <div class="col-10">
+                        <div class="row align-items-center justify-content-end mb-3">
+                            <button type="button" id="csvBtn" class="col-2 btn btn-success btn-sm me-2 w120">
+                                <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                            </button>
+                            <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                                <option value="10">10개씩</option>
+                                <option value="30">30개씩</option>
+                                <option value="50">50개씩</option>
+                                <option value="70">70개씩</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myGrid" class="ag-theme-alpine"></div>
+            <div class="float-end mt-3">
+                <button type="button" id="reportListBtn" class="btn btn-primary btn-sm">대장출력</button>
+                <button th:if="${auth.canInsert}" type="button" id="absorptionBtn" class="btn btn-primary btn-sm">소유자병합신고</button>
+                <button th:if="${auth.canInsert}" type="button" id="changeBtn" class="btn btn-primary btn-sm">소유자변경신고</button>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            var ownerChangeObj = "";
+            var addNowOwnerGridObj = "false";
+            // eonpf.iptime.org:20003/aireport/report/OWNER_NM_CHANGE_STTUS.jsp?gmskk=&amp;gmdjgb=&amp;gmseqco=&amp;daejang=&amp;gmhjdcd=&amp;gmbjdcd=&amp;gmcsah=&amp;gmcbuh=&amp;gmcji=&amp;sujilja1=&amp;sujilja2=&amp;crilja1=&amp;crilja2=&amp;gmseqco2=&amp;gmjname=&amp;user=관리자
+        </script>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            var isAdmin = [[${#authentication.principal.isAdmin}]]
+            $('input[name=popFlag]').val('owner');
+        </script>
+        <script th:src="@{/js/common/calendar.js}"></script>
+        <script th:src="@{/js/common/modal.js}"></script>
+        <script th:src="@{/js/buildingmanagement/ownerChange.js}"></script>
+    </th:block>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<th:block layout:fragment="LNB" th:with="userBold = true">
+	<th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+	<div class="content container-fluid">
+		<div class="title_wrap">
+			<h3 class="tit">가입신청 현황</h3>
+			<div class="loc">
+				<i class="bi bi-house-fill"></i>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>게시판</span>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>가입신청 현황</span>
+			</div>
+		</div>
+		<form id="searchForm" >
+			<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+				<div class="row row-tr align-items-center">
+					<div class="col-1 col-th">
+						<label for="calendarSelect1" class="col-form-label col-form-label-sm">신청일자</label>
+					</div>
+					<div class="col-7">
+						<div class="row">
+							<div class="col-3">
+								<select id="calendarSelect1" class="form-select form-select-sm w150">
+									<option value="all" th:selected="${searchParam.calendarType} == all">전체기간</option>
+									<option value="simple" th:selected="${searchParam.calendarType} == simple">기간선택</option>
+									<option value="set" th:selected="${searchParam.calendarType} == set">기간설정</option>
+								</select>
+							</div>
+							<div id="calendarRemote1" class="col-9 row align-items-center justify-content-center ml10"></div>
+							<input type="hidden" id="startDate1" name="startDate" th:startDate="${searchParam.startDate}">
+							<input type="hidden" id="endDate1" name="endDate" th:endDate="${searchParam.endDate}">
+						</div>
+					</div>
+					<div class="col-1 col-th">
+						<label class="col-form-label col-form-label-sm">자치구</label>
+					</div>
+					<div class="col-3">
+						<div class="row">
+							<div class="col-6">
+								<select id="skkCd" name="skkCd" class="form-select form-select-sm">
+									<option value="" selected>전체</option>
+									<option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+								</select>
+							</div>
+							<div class="col-6">
+								<select id="bjdCd" name="bjdCd" class="form-select form-select-sm">
+									<option value="" selected>전체</option>
+									<option th:each="val : ${bjd}" th:value="${val?.key}" th:utext="${val?.dpname}" th:selected="${val?.key} == ${searchParam?.bjdCd}"></option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row row-tr align-items-center">
+					<div class="col-1 col-th">
+						<label for="searchType" class="col-form-label col-form-label-sm">검색</label>
+					</div>
+					<div class="col-9">
+						<div class="row align-items-center">
+							<div class="col-2">
+								<select id="searchType" name="searchType" class="form-select form-select-sm w140">
+									<option value="" selected>전체</option>
+									<option value="userName" th:selected="userName == ${searchParam?.searchType}">이름</option>
+									<option value="deptName" th:selected="deptName == ${searchParam?.searchType}">부서명</option>
+									<option value="telNo" th:selected="telNo == ${searchParam?.searchType}">전화번호</option>
+								</select>
+							</div>
+							<div class="col-10">
+								<input type="text" class="form-control form-control-sm" id="searchText" name="searchText" placeholder="검색어를 입력해주세요" th:value="${searchParam.searchText}">
+							</div>
+						</div>
+					</div>
+					<div class="col-1 col-th">
+						<label for="joinType" class="col-form-label col-form-label-sm">승인 여부</label>
+					</div>
+					<div class="col-1">
+						<select id="joinType" name="joinType" class="form-select form-select-sm">
+							<option value="N" selected th:selected="N == ${searchParam?.joinType}">대기</option>
+							<option value="">전체</option>
+							<option value="Y" th:selected="Y == ${searchParam?.joinType}">승인</option>
+							<option value="NN" th:selected="NN == ${searchParam?.joinType}">반려</option>
+						</select>
+					</div>
+				</div>
+			</th:block>
+			<th:block sec:authorize="!hasRole('ROLE_ADMIN')">
+				<div class="row row-tr">
+					<div class="col-1 col-th">
+						<label for="userName" class="col-form-label col-form-label-sm">이름</label>
+					</div>
+					<div class="col-5">
+						<input type="text" class="form-control form-control-sm" id="userName" name="userName" placeholder="가입신청자 이름을 입력해주세요" th:value="${searchParam.userName}">
+					</div>
+					<div class="col-1 col-th">
+						<label for="userTelNo" class="col-form-label col-form-label-sm">전화번호</label>
+					</div>
+					<div class="col-5">
+						<input type="text" class="form-control form-control-sm" id="userTelNo" name="userTelNo" placeholder="가입신청자 전화번호를 입력해주세요" th:value="${searchParam.userTelNo}">
+					</div>
+				</div>
+			</th:block>
+			<div class="row justify-content-center align-items-center mt-3 mb-5">
+				<div class="col-12 justify-content-end">
+					<div class="float-start">
+						<h5 style="color: #808080">※ 검색조건을 통해 가입신청을 검색할 수 있습니다.</h5>
+					</div>
+					<div class="float-end">
+						<button type="reset" class="btn btn-secondary me-2 btn-sm">
+							<i class="bi bi-arrow-repeat"></i>
+						</button>
+						<button class="btn btn-primary btn-sm">
+							<i class="fa-solid fa-magnifying-glass"></i> 조회
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="row justify-content-center align-items-center mb-3">
+			<div class="col-2" id="total">
+				<h3></h3>
+			</div>
+			<div class="col-10">
+				<div class="row align-items-center justify-content-end">
+					<select id="listCnt" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+						<option value="10">10개씩</option>
+						<option value="30">30개씩</option>
+						<option value="50">50개씩</option>
+						<option value="70">70개씩</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row mb-2">
+			<div id="myGrid" class="ag-theme-alpine"></div>
+		</div>
+		<div class="row">
+			<div class="col float-end">
+				<button id="joinWriteBtn" class="btn btn-primary btn-sm float-md-end">가입신청</button>
+				<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+					<button id="joinListDeleteBtn" class="btn btn-danger btn-sm me-2 float-md-end">삭제</button>
+				</th:block>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+	<script th:src="@{/js/common/calendar.js}"></script>
+	<script th:src="@{/js/board/userAllowEvent.js}"></script>
+	<script th:src="@{/js/board/userAllowList.js}"></script>
+</th:block>
+</html>

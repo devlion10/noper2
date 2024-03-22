@@ -1,0 +1,47 @@
+.speech_bubble {
+    position: relative;
+    left: -11px;  /* 위치 조정 */
+    top: -14px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 8px 0;
+    font-size: 13px;
+    width: auto;
+    display: inline-block;
+}
+.speech_bubble:after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 0;
+    border-width: 13px 10px 0;
+    border-style: solid;
+    border-color: #ccc transparent transparent transparent;
+    display: block;
+    width: 0;
+}
+.speech_bubble .list_file {
+    padding: 4px;
+    font-size: 15px;
+    max-height: 254px;
+    overflow-y: auto;
+    background-color: #f0f0f0;
+}
+.speech_bubble .top {
+    display: flex;
+    justify-content: space-between;
+}
+.speech_bubble .top .tit {
+    font-size: 13px;
+}
+.speech_bubble .top .btn-close {
+    font-size: 12px;
+}
+.fileElement {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+.fileElement:hover {
+    cursor: pointer;
+    background-color: #e3e3e3;
+}

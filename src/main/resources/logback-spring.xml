@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60 seconds">
+     <!-- Import Spring Boot Default Logging Settings -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+    <!-- FileAppender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>${FILE_LOG_CHARSET}</charset>
+            <!-- 헤더에 패턴 출력 -->
+            <outputPatternAsHeader>true</outputPatternAsHeader>
+        </encoder>
+
+        <!-- Rolling 정책 결정 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 로그를 기록할 파일명과 경로 설정 -->
+            <!-- 파일 쓰기가 종료된 log 파일명의 패턴 지정. '.gz', '.zip'과 같이 지정하면 자동 압축 -->
+            <fileNamePattern>
+                ${LOG_PATH}/noper2-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <!-- 파일당 최대 용량 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 로그파일 최대 보관 주기(일). -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.springframework" level="info" />
+    <logger name="java.sql" level="info" />
+    <logger name="kr.go.seoul.noper2" level="debug" />
+    <logger name="org.apache.ibatis.logging" level="debug" />
+
+    <springProfile name="dev">
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+    <springProfile name="prod">
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Main</title>
+</head>
+<body class="p-5 overflow-x-hidden">
+    <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
+    <button type="button" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i> 조회</button>
+    <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-file-excel"></i> 엑셀</button>
+    <button type="button" class="btn btn-success btn-sm"><i class="fa-solid fa-download"></i> 다운로드</button>
+    <button type="button" class="btn btn-danger btn-sm"><i class="fa-solid fa-rectangle-xmark"></i> 삭제</button>
+    <button type="button" class="btn btn-warning btn-sm"><i class="fa-solid fa-wrench"></i> 설정</button>
+    <button type="button" class="btn btn-dark btn-sm"><i class="fa-solid fa-link"></i> 링크</button>
+<script th:inline="javascript">
+    $('button').click((e) => {
+        const value = e.target.textContent;
+        console.log('target:', value)
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="ownerChangeBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/moment-js/moment.min.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">기존무허가 소유자변경신고 상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>소유자변경신고</span></label>
+                <i class="bi bi-chevron-compact-right"></i>
+                <label class="col-form-label col-form-label-sm"><span>소유자변경신고 상세</span></label>
+            </div>
+        </div>
+        <form id="ownerChangeFindForm" name="ownerChangeFindForm" method="post">
+            <input type="hidden" name="ownerChangeFlag" value="" aria-label="소유자변경관리">
+            <p class="font-weight-bold mt-3">기본현황</p>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span th:utext="${ledgerInfo?.gmskk}"></span> -
+                    <span th:text="${(ledgerInfo?.gmdjgb == '0') ? '등재' : (ledgerInfo.gmdjgb == '1') ? '미등재' : '항측판독'}"></span>
+                    - <span th:utext="${ledgerInfo?.gmseqco}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">구조</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${ledgerInfo?.gmgzcd}"></span>
+                    <input type="hidden" name="gmgzcd" aria-label="구조" class="form-control form-control-sm modyFom" />
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">소유권</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${ledgerInfo?.tojisg}"></span>
+                    <input type="hidden" name="tojisg" aria-label="소유권" class="form-control form-control-sm modyFom" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물면적</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${ledgerInfo?.gmmunjuk}"></span>&nbsp;㎡
+                    <input type="hidden" name="gmmunjuk" aria-label="건물면적" class="form-control form-control-sm modyFom" />
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">토지면적</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom" th:utext="${ledgerInfo?.tojimunjuk}"></span>&nbsp;㎡
+                    <input type="hidden" name="tojimunjuk" aria-label="토지면적" class="form-control form-control-sm modyFom" />
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm"></label>
+                </div>
+                <div class="col-3 align_items_center">
+                </div>
+            </div>
+            <div class="row row-tr border-end-0">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주소</label>
+                </div>
+                <div class="col-11 p-0">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">도로명주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="detailFom" th:utext="${(ledgerInfo.newaddr1 == null) ? ledgerInfo.naRoadNm+#strings.defaultString(ledgerInfo.naMainBun, '')+'-'+#strings.defaultString(ledgerInfo.naSubBun, ''):ledgerInfo?.newaddr1} ?: '-'"></span>
+                            <input type="hidden" name="sinzip1" aria-label="우편번호" class="form-control form-control-sm modyFom" />
+                            <input type="hidden" name="sinzip2" aria-label="우편번호" class="form-control form-control-sm modyFom" />
+                            <input type="hidden" name="sinjname" aria-label="신청인외주소" class="form-control form-control-sm modyFom" />
+                            <input type="hidden" name="sinsna" aria-label="신청인특수주소" class="form-control form-control-sm modyFom" />
+                        </div>
+                    </div>
+                    <div class="row row-tr border-bottom-0">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">지번주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="detailFom" th:utext="${ledgerInfo?.gmskkname} ?: '-'"></span>
+                            <input type="hidden" name="gmcbuh" aria-label="382" class="form-control form-control-sm" />
+                            <input type="hidden" name="gmcji" aria-label="7" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-12 justify-content-end mb-5">
+                    <div class="float-start mt-3">
+                        <h5 style="color: #808080">※ 통상 마지막 순번이 최종 소유자이며, 최종소유자를 변경하시면 현 소유자내역이 변경됩니다.<br>
+                            소유자 변경은 &lt;소유자변경신고&gt; 메뉴를 통해 가능합니다.</h5>
+                    </div>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-5">신고사항</p>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">접수일자</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom detailSujilja" th:utext="${OwnerChangeFileList?.sujilja}"></span>
+                    <!--
+                        <span class="detailFom" th:utext="${confirmation.bigo}"></span>
+                        <input type="text" th:value="${confirmation.bigo}" name="bigo" aria-label="발급용도" class="form-control form-control-sm modyFom" />
+                    -->
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">처리일자</label>
+                </div>
+                <div class="col-7 align_items_center">
+                    <span class="detailFom detailCrilja" th:utext="${OwnerChangeFileList?.crilja}"></span>
+                    <!--
+                        <span class="detailFom" th:utext="${confirmation.bigo}"></span>
+                        <input type="text" th:value="${confirmation.bigo}" name="bigo" aria-label="발급용도" class="form-control form-control-sm modyFom" />
+                    -->
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증번호</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom delTex detailSgpno" th:utext="${OwnerChangeFileList?.sgpjno}"></span>
+                    <!--
+                    <span class="detailFom delText" th:utext="${confirmation.delc}"></span>
+                    <input type="text" th:value="${confirmation.delc}" name="delc" class="form-control form-control-sm" aria-label="삭제사유" />
+                    -->
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">매매가격</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="detailFom delText detailSqlesprice" th:utext="${#strings.defaultString(#numbers.formatInteger(OwnerChangeFileList?.salesprice, 3, 'COMMA'), '-') + ' 원'}"></span>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증 신고일자</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <span class="detailFom delText detailSgpjdate" th:utext="${OwnerChangeFileList?.sgpjdate} ?: '-'"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증파일</label>
+                </div>
+                <div class="col-11">
+                    <div id="myId"></div>
+                    <div class="row justify-content-center align-content-center mt-1">
+                        <div class="col-12">
+                            <ul id="user-files" class="list-inline">
+                            </ul>
+                        </div>
+                        <!--
+                        <div class="col-2">
+                            <button type="button" id="allDownload" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">비고</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom delText bigo" th:utext="${OwnerChangeFileList.bigo}"></span>
+                </div>
+            </div>
+            <!--
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">삭제사유</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom delText" th:utext="${OwnerChangeFileList?.delc}"></span>
+                </div>
+            </div>
+            -->
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급기관</label>
+                </div>
+                <div class="col-11 align_items_center">
+                    <span class="detailFom delText detailIssueorgkey" th:utext="${OwnerChangeFileList?.issueorgkey} ?: '-'"></span>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-5 bdnn">소유자 현황</p>
+            <div class="row align-items-end">
+                <div id="ownerGrid" style="width:100%;" class="ag-theme-alpine"></div>
+            </div>
+            <p class="font-weight-bold mt-5 mb-3">소유자 변경사유 현황</p>
+            <div class="row align-items-end">
+                <div id="ownerChangeReasonTotCnt" class="col-1 mb-3">
+                    Total <span></span>
+                </div>
+                <div id="ownerChangeReasonGrid" style="width:100%;" class="ag-theme-alpine"></div>
+            </div>
+            <p class="font-weight-bold mt-5 mb-3">소유자 변경현황</p>
+            <div class="row align-items-end">
+                <div id="ownerChangeTotCnt" class="col-1 mb-3">
+                    Total <span></span>
+                </div>
+                <div id="ownerChangeGrid" style="width:100%;" class="ag-theme-alpine"></div>
+            </div>
+            <input type="hidden" id="test" th:value="${ledgerInfo.gmskk}" name="gmskk" aria-label="기관코드" />
+            <input type="hidden" th:value="${ledgerInfo.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+            <input type="hidden" th:value="${ledgerInfo.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+            <input type="hidden" th:value="${OwnerChangeFileList.suilno}" name="suilno" class="suilno" aria-label="소유자일련번호" />
+            <input type="hidden" th:value="${OwnerChangeFileList.gmjilno}" name="gmjilno" class="gmjilno" aria-label="건물주일련번호" />
+            <input type="hidden" th:value="${gmbunho}" name="gmbunho" class="gmbunho" aria-label="대장번호" />
+            <input type="hidden" th:value="${userName}" name="userName" aria-label="유저이름" />
+
+            <input type="hidden" name="naBjdongNoDoc">
+            <input type="hidden" name="naRoadCdDoc">
+            <input type="hidden" name="naSigunguCdDoc">
+            <input type="hidden" name="naRoadNmDoc">
+            <input type="hidden" name="naMainBunDoc">
+            <input type="hidden" name="naSubBunDoc">
+            <input type="hidden" name="naEtcDoc">
+            <input type="hidden" name="newAddr1">
+            <input type="hidden" name="newAddr2">
+            <input type="hidden" name="jumincheck">
+
+            <div class="row d-flex justify-content-between mt-2 mb-5">
+                <div class="col-3">
+                    <p>선택된 사용자: <span id="selectedOwner" th:text="${ownerChangeList[0].gmjname}"></span></p>
+                </div>
+                <div class="col-3 text-center">
+                    <button type="button" id="declarationBtn" class="deleteBtn btn btn-secondary btn-sm" data-action="changeAdd">신고필증</button>
+                </div>
+                <div class="col-3"></div>
+            </div>
+        </form>
+        <form id="ownerChangeDetailForm" name="ownerChangeDetailForm" th:action="@{/unlcebldmng/ownerChangeDetail}" method="get">
+            <input type="hidden" id="gmskkDtl" th:value="${ledgerInfo.gmskk}" name="gmskk" aria-label="기관코드" />
+            <input type="hidden" id="gmdjgbDtl" th:value="${ledgerInfo.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+            <input type="hidden" id="gmseqcoDtl" th:value="${ledgerInfo.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+            <input type="hidden" id="suilnoDtl" th:value="${OwnerChangeFileList.suilno}" name="suilno" aria-label="소유자일련번호" />
+            <input type="hidden" id="gmjilnoDtl" th:value="${OwnerChangeFileList.gmjilno}" name="gmjilno" aria-label="건물주일련번호" />
+            <input type="hidden" id="gmbunhoDtl" th:value="${gmbunho}" name="gmbunho" aria-label="대장번호" />
+        </form>
+        <div class="row mt-5">
+            <div class="col-2">
+                <button type="button" id="newListBtn" class="btn btn-light btn-sm float-start bdaaa">목록</button>
+            </div>
+            <div class="col-10 tx-right">
+                <!--
+                <button type="button" id="deleteBtn" class="btn btn-danger btn-lg btn-sm me-2">삭제</button>
+                 -->
+                <button th:if="${auth.canUpdate}" type="button" id="saveBtn" class="btn btn-primary btn-sm" form="ownerChangeDetailForm" >수정</button>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        var isAdmin = [[${#authentication.principal.isAdmin}]]
+        var skkCd = [[${#authentication.principal.skkCd}]]
+        var gmskkCd = [[${#ledgerInfo}]]
+
+
+        var ownerChangeObj = [[${ownerChangeList}]];
+        var ownerInfoList = [[${ownerInfoList}]];
+        var addNowOwnerGridObj = 'false'
+
+        const type = {
+            type:'ownerChange',
+            fileName: 950,
+            size: 300,
+            modalId: 'modal-1',
+            readOnly: 'Y',
+            visible: true
+        }
+
+        const uploader = new snFileUpload.Uploader("myId", type);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // SEQ 지정
+            var gmskk = $('input[name=gmskk]').val();
+            var gmdjgb = $('input[name=gmdjgb]').val();
+            var gmseqco = $('input[name=gmseqco]').val();
+            var suilno = $('input[name=suilno]').val();
+            var gmdjgbVal = "";
+            if(gmdjgb === "등재"){
+                gmdjgbVal = "0";
+            }else if(gmdjgb === "미등재"){
+                gmdjgbVal = "1";
+            }else if(gmdjgb === "항측판독"){
+                gmdjgbVal = "2";
+            } else {
+             gmdjgbVal = gmdjgb;
+            }
+
+            const key =  gmskk+"-"+gmdjgbVal+"-"+gmseqco+"-"+suilno;
+            uploader.parentKey = key;
+            // 파일정보 로딩
+            await uploader.loadFiles();
+            uploader.getFiles().forEach(file=>{
+                    let $link = $("<a>")
+                        .text(`${file.name} (${file.vsize})`)
+                        .attr("title", file.name)
+                        .attr("href", `${file.name}`)
+                        .data("fseq", file.fseq)
+                        .data("seq", file.seq)
+                        .on("click", (e)=>{
+                            e.preventDefault();
+                            if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                    .on("click", uploader.imgPreview(file))[0];
+                            } else {
+                                uploader.downloadFile(file);
+                            }
+                        });
+                    $("<li class='list-inline-item'>")
+                        .append($link)
+                        .appendTo($("#user-files"));
+            });
+            // 정보만 불러오고 없애고 싶다면
+            // uploader.clearFiles()
+        });
+
+        /*
+        document.getElementById('allDownload').addEventListener('click', () => {
+            uploader.downloadAllFile()
+        })
+        */
+
+    </script>
+    <script th:src="@{/js/buildingmanagement/ownerChange.js}"></script>
+</th:block>
+</html>

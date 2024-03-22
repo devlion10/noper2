@@ -1,0 +1,210 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="userBold = true">
+	<th:block th:replace="fragments/LNB :: admin"></th:block>
+</th:block>
+<th:block layout:fragment="configScript">
+	<script th:src="@{/js/admin/userRegister.js}"></script>
+</th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+	<th:block th:replace="pages/common/modal :: resetPassword"></th:block>
+	<th:block th:replace="pages/common/loading :: loading"></th:block>
+	<div class="content container-fluid">
+		<div class="title_wrap" style="border-bottom: none">
+			<h3 class="tit">사용자 <th:block th:text="${user.userName} != null ? 수정 : 등록"></th:block></h3>
+			<div class="loc">
+				<i class="bi bi-house-fill"></i>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>관리자 메뉴</span>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>사용자관리</span>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>사용자 <th:block th:text="${user.userName} != null ? 수정 : 등록"></th:block></span>
+			</div>
+		</div>
+		<div>
+			<form id="registerForm" class="needs-validation" novalidate>
+				<div class="card">
+					<div class="card-header">
+						<div class="row align-items-center">
+							<div class="col-2">
+								<p class="fw-bold">사용자 정보
+									<th:block th:text="${user.userName} != null ? 수정 : 등록"></th:block>
+								</p>
+							</div>
+							<div class="col-10">
+								<h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="row row-tr"></div>
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="userId" class="col-form-label col-form-label-sm">아이디<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<input type="text" class="form-control form-control-sm disabled" id="userId" name="userId" th:value="${user?.userId == null} ? 자동생성 : ${user.userId}" readonly="readonly">
+							</div>
+							<div class="col-1 col-th">
+								<label for="userName" class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<input type="text" class="form-control form-control-sm" id="userName" name="userName" minlength="1" maxlength="10" data-input-type="noNumberString" th:value="${user?.userName}" placeholder="이름입력" required>
+								<p class="invalid-feedback">※ 사용자명을 입력해주세요.</p>
+							</div>
+						</div>
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="userPw" class="col-form-label col-form-label-sm">비밀번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<div th:if="!${user.userId} or ${#strings.startsWith(user.userId, 'NJ')}" class="input-group">
+									<input id="userPw" type="password" class="form-control form-control-sm" name="userPw" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$" aria-label="Small" minlength="8" maxlength="16" aria-describedby="inputGroup-sizing-sm" data-input-type="password" placeholder="비밀번호 입력" required>
+									<span class="input-group-text">
+										<i class="fa fa-eye" id="togglePassword" style="cursor: pointer" onclick="toggleSeePw('userPw')"></i>
+								    </span>
+									<p class="invalid-feedback">※ 비밀번호는 영문, 특수문자, 숫자가 모두 포함되게 입력해주세요.</p>
+								</div>
+								<button th:if="${user.userId} and !${#strings.startsWith(user.userId, 'NJ')}" type="button" data-bs-toggle="modal" data-bs-target="#findPasswordModal" class="btn btn-warning btn-sm" id="userPw" name="userPw">비밀번호 변경</button>
+							</div>
+							<div class="col-1 col-th">
+								<label for="userPwCh" class="col-form-label col-form-label-sm text-nowrap">비밀번호 확인<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<div th:if="!${user.userId} or ${#strings.startsWith(user.userId, 'NJ')}" class="input-group">
+									<input id="userPwCh" type="password" class="form-control form-control-sm" data-input-type="password" placeholder="비밀번호 입력">
+									<span class="input-group-text">
+										<i class="fa fa-eye togglePasswordCh" id="togglePasswordCh" style="cursor: pointer" onclick="toggleSeePw('userPwCh')"></i>
+								    </span>
+									<p class="invalid-feedback">※ 비밀번호를 다시 입력해주세요.</p>
+								</div>
+								<input th:if="${user.userId} and !${#strings.startsWith(user.userId, 'NJ')}" type="password" class="form-control form-control-sm disabled" id="userPwCh" name="userPwCh" disableCommon="true" placeholder="비밀번호 확인 입력" value="12345678" readonly>
+							</div>
+						</div>
+						<div class="row row-tr">
+							<div class="col-1 col-th pr4">
+								<label for="personalId1" class="col-form-label col-form-label-sm text-nowrap">주민등록번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<input type="text" class="form-control form-control-sm side-input" id="personalId1" minlength="6" maxlength="6" data-input-type="number" data-next-input="personalId2" th:value="${#strings.substring(user?.personalId, 0, 6)}" placeholder="주민번호 앞 6자리" required />
+								<span class="side-input-center mx-2">-</span>
+								<input type="text" class="form-control form-control-sm side-input" id="personalId2" minlength="7" maxlength="7" data-input-type="number" th:value="${#strings.substring(user?.personalId, 6)}" placeholder="주민번호 뒤 7자리" required />
+								<p class="invalid-feedback">※ 주민번호 형식에 맞춰 입력해주세요.</p>
+							</div>
+							<div class="col-1 col-th">
+								<label for="telNo" class="col-form-label col-form-label-sm">전화번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<input type="text" class="form-control form-control-sm" id="telNo" name="telNo" minlength="9" maxlength="11" data-input-type="number" th:value="${user?.telNo}" placeholder="숫자만 입력해주세요" required />
+								<p class="invalid-feedback">※ 전화번호를 입력하세요.</p>
+							</div>
+						</div>
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="skkCd" class="col-form-label col-form-label-sm">자치구<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<select class="form-select form-select-sm w150" id="skkCd" name="skkCd" required>
+									<option value="">시/군/구</option>
+									<option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${user?.skkCd}  == ${val.CDKEY}"></option>
+								</select>
+								<select class="form-select form-select-sm w150" id="instt" name="instt"  th:classappend="${user.skkCd == '11000' ? 'd-none' : ''}" required>
+									<option value="">소속 선택</option>
+									<option value="gu" th:selected="${user.dongInfo eq '000'}">구청</option>
+									<option value="dong" th:selected="${user.deptCd eq '11110'}">동사무소</option>
+								</select>
+								<select id="bjdCd" name="dongInfo" class="form-select form-select-sm w150" th:classappend="${user?.deptCd != '11110' || user?.skkCd == '11000' ? 'd-none' : ''}" th:disabled="${user?.deptCd != '11110' || user?.skkCd == '11000'}" required>
+									<option value="">동 선택</option>
+									<option th:each="val : ${bjd}" th:value="${val?.key}" th:utext="${val?.dpname}" th:selected="${user?.dongInfo} == ${val?.key}"></option>
+								</select>
+								<input type="text" id="bjdCdDirect" name="bjdCdDirect" class="form-control form-control-sm w240 d-none" disabled required>
+								<p class="invalid-feedback">※ 근무중인 자치구 시/군/구/동을 선택 또는 입력해주세요.</p>
+							</div>
+							<div class="col-1 col-th">
+								<label for="eMail1" class="col-form-label col-form-label-sm">이메일<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<input type="text" class="form-control form-select-sm side-input" id="eMail1" name="eMail1" data-input-type="email" pattern="[0-9a-zA-Z가-힇]([-_.]?[0-9a-zA-Z가-힇])" th:value="${user?.eMail eq 'none'} ? '' : ${#strings.setSplit(user?.eMail, '@')[0]}" placeholder="이메일 입력" required />
+								<span class="side-input-center">@</span>
+								<input type="text" class="form-control form-select-sm side-input" id="eMail2" name="eMail2" data-input-type="email" pattern="[0-9a-zA-Z가-힇]([-_.]?[0-9a-zA-Z가-힇])*.[a-zA-Z가-힇]{2,3}" th:value="${user?.eMail eq 'none'} ? 'seoul.go.kr' : ${#strings.setSplit(user?.eMail, '@')[1]}" required />
+								<p class="invalid-feedback">※ 이메일 주소를 입력하세요.</p>
+							</div>
+						</div>
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="deptCdSelect" class="col-form-label col-form-label-sm">부서명<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-5">
+								<select id="deptCdSelect" name="deptCd" class="form-select form-select-sm" th:classappend="${user?.skkCd == '11000' ? 'd-none' : ''}" th:disabled="${user?.deptCd == '11110' || user?.skkCd == '11000'}" required>
+									<option value="">선택</option>
+									<option th:if="${user?.deptCd == '11110'}" value="11110" selected>동사무소</option>
+									<option th:each="val : ${dept}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${user?.deptCd} == ${val.CDKEY}" th:unless="${val.CDKEY == '11110'}"></option>
+								</select>
+								<input id="deptCdInput" name="deptCd" class="form-control form-control-sm" placeholder="부서명을 입력해주세요." th:classappend="${user?.skkCd == '11000' ? '' : 'd-none'}" th:disabled="${user?.skkCd != '11000'}"th:value="${user?.skkCd == '11000' ? user?.deptName : ''}" required>
+								<p class="invalid-feedback">※ 부서명을 선택 또는 입력해 주세요.</p>
+							</div>
+							<div class="col-1 col-th">
+								<label for="perId" class="col-form-label col-form-label-sm">권한명</label>
+							</div>
+							<div class="col-5">
+								<select id="perId" name="perId" class="form-select form-select-sm" required>
+									<option value="" selected>선택</option>
+									<option th:each="val : ${permission}" th:value="${val?.perId}" th:utext="${(val?.perComment == null || val?.perComment == '') ? val?.perName : (val?.perName + ' - ' + val?.perComment)}" th:selected="${user?.perId} == ${val?.perId}"></option>
+								</select>
+								<p class="invalid-feedback">※ 권한명을 선택해주세요.</p>
+							</div>
+						</div>
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="workCharge" class="col-form-label col-form-label-sm">담당업무<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-11">
+								<input type="text" class="form-control form-control-sm" id="workCharge" name="workCharge"  th:value="${user?.workCharge}" placeholder="담당업무를 입력해주세요" required />
+								<p class="invalid-feedback">※ 담당 업무를 선택해주세요.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col-10">
+					</div>
+					<div class="col-2 tx-right">
+						<button id="registerCancelBtn" type="button" class="btn btn-secondary btn-sm">취소</button>
+						<button id="registerModifySaveBtn" type="submit" class="btn btn-primary btn-sm">저장</button>
+					</div>
+				</div>
+				<span class="row ms-3 mt-5 border-0 bg-white bold-text" style="font-size: 22px">
+					권한설명
+				</span>
+				<div class="row ms-2 mt-1 card">
+					<div class="card-body">
+						1. 신규대장관리자 : 기존무허가건축물을 대장에 추가(신규) 등재하여 승인해 주는 업무(팀장) 권한입니다.<br>
+						2. 조회/발급 : 기존무허가건축물 조회 및 확인원 발급 업무 권한입니다.<br>
+						3. 일반사용자 : 기존무허가건축물 관리, 조회, 등록 및 수정, 확인원(조회)발급, 통계조회 업무 권한입니다.<br>
+						4. 위반건축물관리 : 위반건축물 관리 조회, 등록, 수정 및 통계 조회 업무 권한입니다.<br>
+						5. 기존/위반 : 일반사용자 + 위반건축물관리 통합업무 권한입니다.<br>
+						6. 개발제한구역 :「개발제한구역법 시행규칙」 개발제한구역 건축물관리대장의 건축물을 관리하는 권한입니다.
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+	<script>
+		function toggleSeePw (id) {
+			const pwType = $(`#${id}`).attr('type');
+			if(pwType === 'text') $(`#${id}`).attr('type', 'password')
+			if(pwType === 'password') $(`#${id}`).attr('type', 'text')
+		}
+
+	</script>
+</th:block>
+</html>

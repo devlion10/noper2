@@ -1,0 +1,535 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<th:block layout:fragment="LNB" th:with="ownerChangeBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/moment-js/moment.min.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <!-- modal -->
+    <th:block th:if="${addFlage == 'change'}">
+        <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+    </th:block>
+    <th:block th:if="${addFlage == 'absorption'}">
+        <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+    </th:block>
+    <div class="content container-fluid">
+        <th:block th:if="${addFlage == 'change'}">
+            <div class="title_wrap">
+                <h3 class="tit">기존무허가 소유자변경신고<span th:if="${gmbunho != null}"> 수정</span></h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>소유자변경관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>소유자변경신고</span><span th:if="${gmbunho != null}"> 수정</span></label>
+                </div>
+            </div>
+        </th:block>
+        <th:block th:if="${addFlage == 'absorption'}">
+            <div class="title_wrap">
+                <h3 class="tit">기존무허가 소유자병합신고</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>소유자변경관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>소유자병합신고</span></label>
+                </div>
+            </div>
+        </th:block>
+        <form id="ownerChangeFindForm" name="ownerChangeFindForm">
+            <input type="hidden" name="ownerChangeFlag" value="" aria-label="소유자변경관리">
+            <p class="font-weight-bold mt-3">대장검색</p>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div class="col-1 align_items_center">
+                    <input th:if="${#strings.isEmpty(ledgerInfo?.gmskk)}" type="text" name="gmskkTmp" th:value="${authSkk}" aria-label="대장번호" readonly class="form-control form-control-sm modyFom disabled" />
+                    <input th:if="${not #strings.isEmpty(ledgerInfo?.gmskk)}" type="text" name="gmskkmp" th:value="${ledgerInfo?.gmskk}" aria-label="대장번호" class="form-control form-control-sm modyFom" />
+                </div>
+                <div class="col-2">
+                     <select id="gmdjgb" name="gmdjgb" class="form-select form-select-sm required" title="대장구분">
+                         <option value="">전체</option>
+                         <option th:each="ledger : ${codeLedger}" th:selected="${ledger.cdkey} == ${ledgerInfo?.gmdjgb}" th:value="${ledger.cdkey}" th:text="${ledger.cdvalue}">대장구분</option>
+                     </select>
+                 </div>
+                 <div class="col-1">
+                     <input type="text" id="gmseqco" name="gmseqco" th:value="${ledgerInfo?.gmseqco}" aria-label="무허가기관번호" class="form-control form-control-sm modyFom" />
+                 </div>
+                 <div class="col-2">
+                     <button type="button" id="noperNumSearchDiv2" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#noperNumSearchDiv"><i class="fa-solid fa-search"></i> 번호찾기</button>
+                 </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12 justify-content-end">
+                    <div class="float-start mt-3">
+                        <h5 style="color: #808080">※ 소유자변경신고하시면, 새로운 소유자가 건물주로 등록되며, 매매시에는 매매가격과 신고필증을 업로드하셔야 합니다</h5>
+                    </div>
+                    <div class="float-end mt-3">
+                        <button type="button" id="resetBtn" class="btn btn-secondary me-2 btn-sm">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                        <button type="button" form="ownerChangeFindForm" id="btnSearch" class="btn btn-primary btn-sm"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="font-weight-bold mt-5">기본현황</p>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div class="col-4 align_items_center">
+                    <th:block th:if="${not #strings.isEmpty(ledgerInfo)}">
+                        <span th:utext="${ledgerInfo?.gmskk}"></span>
+                        <span th:utext="${(ledgerInfo?.gmdjgb == '0') ? '- 등재 -' : (ledgerInfo?.gmdjgb == '1') ? '- 미등재 -' : (ledgerInfo?.gmdjgb == '1') ? '- 항측판독 -' : ''}"></span>
+                        <span th:utext="${ledgerInfo?.gmseqco}"></span>
+                    </th:block>
+                    <th:block th:if="${addFlage == 'absorption'}">
+                        <span class="dfGmskk"></span>
+                    </th:block>
+                    <th:block th:if="${#strings.isEmpty(ledgerInfo) && addFlage == 'change'}">
+                        <span class="dfGmskk"></span>
+                    </th:block>
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">구조</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="dfGmgzcd detailFom" th:utext="${ledgerInfo?.gmgzcd}"></span>
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">소유권</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <span class="dfTojisg detailFom" th:utext="${ledgerInfo?.tojisg}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물면적</label>
+                </div>
+                <div class="col-4 align_items_center">
+                    <span class="dfGmmunjuk detailFom" th:utext="(${ledgerInfo?.gmmunjuk} ?: '') + ' ㎡'"></span>
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">토지면적</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <span class="dfTojimunjuk detailFom" th:utext="(${ledgerInfo?.tojimunjuk} ?: '') + ' ㎡'"></span>
+                </div>
+            </div>
+            <div class="row row-tr border-end-0">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주소</label>
+                </div>
+                <div class="col-11 p-0">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">도로명주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="dfNaRoadNm detailFom" th:utext="${ledgerInfo?.newaddr1}"></span>
+                        </div>
+                    </div>
+                    <div class="row row-tr border-bottom-0">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">지번주소</label>
+                        </div>
+                        <div class="col-11 align_items_center">
+                            <span class="dfGmskkname detailFom" th:utext="${ledgerInfo?.gmskkname}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <h1>
+                </h1>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12 justify-content-end mb-5">
+                    <div class="float-start mt-3">
+                        <h5 style="color: #808080">※ 통상 마지막 순번이 최종 소유자이며, 최종소유자를 변경하시면 현 소유자내역이 변경됩니다.</h5>
+                    </div>
+                </div>
+            </div>
+
+
+<!--            <th:block th:if="${not #strings.isEmpty(gmbunho)}"> 240311 수정-->
+<!--                <p class="font-weight-bold mt-5 bdnn">소유자현황</p>-->
+<!--            </th:block>-->
+            <th:block>
+                <p class="font-weight-bold mt-5 bdnn">소유자현황</p>
+            </th:block>
+            <div class="row align-items-end">
+                <div id="nowOwnerGrid" style="height: 300px; width:100%;" class="ag-theme-alpine"></div>
+            </div>
+            <th:block th:if="${addFlage != 'absorption' && #strings.isEmpty(gmbunho)}">
+                <p class="font-weight-bold mt-5">기존 소유자(상단 현소유자현황에서 소유자를 먼저 선택해주세요.)</p>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">성명</label>
+                    </div>
+                    <div class="col-4 align_items_center">
+                        <span class="existName"></span>
+                        <input type="hidden" id="jgmjname" name="jgmjname">
+                    </div>
+                    
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">주민번호</label>
+                    </div>
+                    <div class="col-4 align_items_center">
+                        <span class="existJumin1"></span>-
+                        <span class="existJumin2"></span>
+                        <input type="hidden" name="jgmjjumin">
+                        <input type="hidden" name="jgmjjgn">
+                        <input type="hidden" name="jgmjzip1">
+                        <input type="hidden" name="jgmjzip2">
+                        <input type="hidden" name="jgmjsna">
+                        <input type="hidden" name="jgmjjname">
+                    </div>
+                </div>
+                <div class="row row-tr border-end-0">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">소유자주소</label>
+                    </div>
+                    <div class="col-11 p-0">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">도로명주소</label>
+                            </div>
+                            <div class="col-11 align_items_center">
+                                <span class="existRoad"></span>
+                                <input type="hidden" name="jnewAddr1">
+                            </div>
+                        </div>
+                        <div class="row row-tr border-bottom-0">
+                            <div class="col-1 col-th border-start-0">
+                                <label class="col-form-label col-form-label-sm">지번주소</label>
+                            </div>
+                            <div class="col-11 align_items_center">
+                                <span class="existjibun"></span>
+                                <input type="hidden" name="jnewAddr2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:if="${addFlage != 'absorption' && not #strings.isEmpty(gmbunho)}">
+                <p class="font-weight-bold mt-5">소유자</p>
+            </th:block>
+            <th:block th:if="${#strings.isEmpty(gmbunho)}">
+                <p class="font-weight-bold mt-5">신규소유자</p>
+            </th:block>
+            <div class="row row-tr">
+                <div class="col-1 col-th">성명<th:block th:replace="pages/common/util :: required"></th:block></div>
+                <div class="col-4">
+                    <input type="text" th:value="${OwnerChange?.gmjname}" required name="gmjname" aria-label="성명" class="form-control form-control-sm modyFom" value="" />
+                    <div class="invalid-feedback">성명을 입력해주세요.</div>
+                </div>
+                <div class="col-1 col-th">주민번호<th:block th:replace="pages/common/util :: required"></th:block></div>
+                <div class="col-6 align_items_center">
+                    <div class="col-3">
+                        <select id="gmjjgnTemp" name="gmjjgnTemp" class="form-select form-select-sm required" title="주민구분">
+                            <option th:each="gmjjgnTemp : ${codeGmjjgnTemp}" th:value="${gmjjgnTemp?.cdkey}"
+                                    th:utext="${gmjjgnTemp.cdvalue}"></option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <input type="text" th:value="${OwnerChange?.gmjjumin1}" required maxlength="6" name="gmjjumin1" aria-label="주민번호" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm modyFom" value="" />
+                        <div class="invalid-feedback">주민번호 앞자리를 입력해주세요.</div>
+                    </div>-
+                    <div class="col-4">
+                        <input type="text" th:value="${OwnerChange?.gmjjumin2}" required maxlength="7" name="gmjjumin2" aria-label="주민번호" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm modyFom" value="" />
+                        <div class="invalid-feedback">주민번호 뒷자리를 입력해주세요.</div>
+                    </div>
+                    <input type="hidden" name="gmjjumin" value="" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">소유자주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-5">
+                    <div class="row row-tr bdnn">
+                        <input type="text" th:value="${OwnerChange?.newaddr1}" readonly name="newaddr1" class="form-control form-control-sm disabled" aria-label="도로명주소" placeholder="도로명주소"/>
+                    </div>
+                    <div class="row row-tr bdnn mt-1">
+                        <input type="text" th:value="${OwnerChange?.newaddr2}" readonly  name="newaddr2" class="form-control form-control-sm disabled" aria-label="지번주소" placeholder="지번주소"/>
+                        <div class="invalid-feedback">주소를 입력해주세요.</div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-search"></i> 주소
+                    </button>
+                    <input type="hidden" th:value="${OwnerChange?.gmcsah}" value="" name="gmcsah" aria-label="대지/산" />
+                </div>
+                <input type="hidden" name="gmjjname" />
+                <input type="hidden" name="gmjsna" aria-label="지번주소" />
+                <input type="hidden" name="gmjzip1" />
+                <input type="hidden" name="gmjzip2" />
+            </div>
+            <p class="font-weight-bold mt-5">신고사항</p>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-5">
+                    <input type="date" onkeydown="return false" max="9999-12-31" required name="sujiljaTemp" aria-label="신고일자" class="form-control form-control-sm modyFom mt-2" />
+                    <input type="hidden" name="sujilja" aria-label="신고일자 데이터" />
+                    <div class="invalid-feedback">신고일자를 선택해주세요.</div>
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증<br>신고일자</label>
+                </div>
+                <div class="col-5 align_items_center">
+                    <input type="date" onkeydown="return false" max="9999-12-31" name="sgpjdateTemp" aria-label="신고필증신고일자" class="form-control form-control-sm modyFom" />
+                    <input type="hidden" value="" name="sgpjdate" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증<br>번호</label>
+                </div>
+                <div class="col-5 align_items_center">
+                    <input type="text" oninput="numberMaxLength(this, 6)" th:value="${OwnerChange?.sgpjno}" name="sgpjno" aria-label="신고필증번호" class="form-control form-control-sm modyFom" value="" />
+                </div>
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">매매가격</label>
+                </div>
+                <div class="col-5 align_items_center">
+                    <input type="text" oninput="numberMaxLength(this, 15)" th:value="${OwnerChange?.salesprice}" name="salesprice" aria-label="매매가격" class="form-control form-control-sm modyFom" value="" />
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">신고필증<br>업로드</label>
+                </div>
+                <div class="col-11">
+                    <div class="row">
+                        <div id="myId"></div>
+                    </div>
+                    <th:block th:if="${addFlage != 'absorption' && not #strings.isEmpty(gmbunho)}">
+                        <div class="row justify-content-center align-content-center mt-2">
+                            <div class="col-1 tx-center">파일</div>
+                            <div class="col-11">
+                                <ul id="user-files" class="list-inline">
+                                </ul>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">발급기관</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <select id="issueTemp" name="issueTemp" class="form-select form-select-sm required" title="발급기관">
+                        <option th:each="mngAdminstrBld : ${mngAdminstrBld}" th:value="${mngAdminstrBld.key}"
+                                th:utext="${mngAdminstrBld.prntnm}">관리행정동</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row row-tr">
+                
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">비고</label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <input type="text" th:value="${OwnerChange?.bigo}" name="bigo" aria-label="비고" class="form-control form-control-sm modyFom" value="" />
+                </div>
+            </div>
+            <th:block th:if="${addFlage != 'absorption'}">
+                <th:block th:if="${gmbunho == null}">
+                    <p class="font-weight-bold mt-5">명의변경 사유</p>
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">사유입력<th:block th:replace="pages/common/util :: required"></th:block></label>
+                        </div>
+                        <div class="col-11">
+                            <input type="text" required name="bksu" aria-label="사유입력" class="form-control form-control-sm modyFom" value="" maxlength="62" />
+                            <div class="invalid-feedback">명의변경 사유 입력(을)를 입력하세요.</div>
+                        </div>
+                    </div>
+                </th:block>
+            </th:block>
+            <th:block th:if="${addFlage == 'absorption'}">
+                <input type="hidden" name="bksu" aria-label="사유입력" class="form-control form-control-sm modyFom" value="" />
+            </th:block>
+            <input type="hidden" value="" name="gmbjdcd" aria-label="법정동" />
+            <input type="hidden" value="" name="gmcbuh" aria-label="본번" />
+            <input type="hidden" value="" name="gmcji" aria-label="부번" />
+            <input type="hidden" value="" name="gmcoh" aria-label="상세주소" />
+            <input type="hidden" value="" name="naSigunguCd" aria-label="시군구코드" />
+            <input type="hidden" value="" name="naBjdongNo" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naRoadCd" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naRoadNm" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naMainBun" aria-label="새주소본번" />
+            <input type="hidden" value="" name="naSubBun" aria-label="새주소부번" />
+            <input type="hidden" value="" name="naEtc" aria-label="새주소그외" />
+            <input type="hidden" value="" name="roadaddr" aria-label="도로명" />
+            <input type="hidden" value="" name="jibunaddr" aria-label="지번" />
+            <input type="hidden" value="" name="changDivision" aria-label="변경병합구분" />
+            <input type="hidden" th:value="${OwnerChange?.gmjilno}" name="gmjilno" aria-label="일련번호"/>
+            <input type="hidden" th:value="${OwnerChange?.suilno}" name="suilno" aria-label="일련번호"/>
+            <input type="hidden" name="issue" value=""/>
+
+            <input type="hidden" name="naBjdongNoDoc"/>
+            <input type="hidden" name="naRoadCdDoc"/>
+            <input type="hidden" name="naSigunguCdDoc"/>
+            <input type="hidden" name="naRoadNmDoc"/>
+            <input type="hidden" name="naMainBunDoc"/>
+            <input type="hidden" name="naSubBunDoc"/>
+            <input type="hidden" name="naEtcDoc"/>
+            <input type="hidden" name="jumincheck"/>
+            <input type="hidden" name="gmjjgn" value="" />
+            <input type="hidden" name="gmzip1" />
+            <input type="hidden" name="gmzip2" />
+            <input type="hidden" name="jNaBjdongNo" value="" />
+            <input type="hidden" name="jNaRoadNm" value="" />
+            <input type="hidden" name="jNaMainBun"  value="" />
+            <input type="hidden" name="jNaSubBun"  value=""/>
+            <input type="hidden" name="jNaEtc"  value=""/>
+            <input type="hidden" name="gmskk" value=""/>
+            <input type="hidden" name="naSigunguCdOwner" th:value="${ledgerInfo?.gmskk}" />
+        </form>
+        <div class="row mt-3">
+            <div class="col-2">
+                <button type="button" id="ownerListBtn" class="btn btn-light btn-sm float-start bdaaa">목록</button>
+            </div>
+            <div class="col-10 tx-right">
+                <th:block th:if="${#strings.isEmpty(gmbunho)}">
+                    <button type="button" class="btn btn-primary btn-sm ownerChangeBtn" form="ownerChangeFindForm" th:utext="${(addFlage == 'absorption') ? '병합' : '변경'}" ></button>
+                </th:block>
+                <th:block th:if="${not #strings.isEmpty(gmbunho)}">
+                    <button type="button" class="btn btn-primary btn-sm ownerChangeBtn" form="ownerChangeFindForm" th:utext="저장" ></button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        var ownerChangeObj = "false";
+        var addNowOwnerGridObj = [[${ownerChangeList}]];
+        var addOwnerInfoList = [[${ownerInfoList}]];
+        var gmbunho = [[${gmbunho}]];
+        var modalFlage = [[${addFlage}]];
+        var ownerChangeMody = [[${OwnerChange}]];
+        var authSkk = [[${authSkk}]];
+
+        if(ownerChangeMody != null){
+            var formatSujilja= moment(ownerChangeMody.sujilja).format('YYYY-MM-DD');
+            $('input[name=sujiljaTemp]').val(formatSujilja);
+            var formatSgpjdate = moment(ownerChangeMody.sgpjdate).format('YYYY-MM-DD');
+            $('input[name=sgpjdateTemp]').val(formatSgpjdate);
+        }
+
+        if(modalFlage != null){
+            $('input[name=popFlag]').val(modalFlage);
+        }
+        const type = {
+            type:'ownerChange',
+            fileName: 760,
+            size: 140,
+            modalId: 'modal-1',
+            readOnly: 'N'
+        }
+        const uploader = new snFileUpload.Uploader("myId", type);
+
+        if(gmbunho != null || gmbunho == "" ){
+            let gmdjgbArr = "";
+            const srr = gmbunho.split("-");
+            if(srr[1] === "등재"){
+                gmdjgbArr = "0";
+            }else if(srr[1] === "미등재"){
+                gmdjgbArr = "1";
+            }else if(srr[1] === "항측판독"){
+                gmdjgbArr = "2";
+            }else{
+                gmdjgbArr = srr[1];
+            }
+            var gmbunhoTxt = srr[0]+"-"+gmdjgbArr+"-"+srr[2]+"-"+srr[3]
+            uploader.parentKey = gmbunhoTxt;
+            uploader.loadFiles();
+            uploader.clearFiles()
+            document.addEventListener('DOMContentLoaded', async () => {
+                // SEQ 지정
+                uploader.parentKey = gmbunhoTxt
+                // 파일정보 로딩
+                await uploader.loadFiles();
+                uploader.getFiles().forEach(file=>{
+                    console.log(file)
+                        let $link = $("<a>")
+                            .text(`${file.name} (${file.vsize})`)
+                            .attr("title", file.name)
+                            .attr("href", `${file.name}`)
+                            .data("fseq", file.fseq)
+                            .data("seq", file.seq)
+                            .on("click", (e)=>{
+                                e.preventDefault();
+                                let seq = $(e.target).data("seq");
+                                let fseq =$(e.target).data("fseq");
+
+                                // console.log(seq)
+                                // console.log(fseq)
+                                console.log(file.type.match(/jpg|jpeg|png|gif/ig))
+                                if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                    return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                            .on("click", uploader.imgPreview(file))[0];
+                                } else {
+                                    uploader.downloadFile(file);
+                                }
+                            });
+                        let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                        $deleteLink.on("click", (e) => {
+                            $(e.target).closest("li").remove()
+                            console.log(file)
+                            uploader.deleteFiles(file)
+                        });
+
+                        $("<li class='list-inline-item'>")
+                            .append($link)
+                            .append($deleteLink)
+                            .appendTo($("#user-files"));
+                });
+                // 정보만 불러오고 없애고 싶다면
+                uploader.clearFiles()
+            })
+        }
+
+    </script>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/buildingmanagement/ownerChange.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+</th:block>
+</html>

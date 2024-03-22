@@ -1,0 +1,155 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="userBold = true">
+	<th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+<th:block layout:fragment="configScript">
+	<script th:src="@{/js/indexControl.js}"></script>
+	<script th:src="@{/js/board/userAllowEvent.js}"></script>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+	<div class="content container-fluid">
+		<div class="title_wrap" style="border-bottom: none">
+			<h3 class="tit">가입신청 상세</h3>
+			<div class="loc">
+				<i class="bi bi-house-fill"></i>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>게시판</span>
+				<i class="bi bi-chevron-compact-right"></i>
+				<span>가입신청 상세</span>
+			</div>
+		</div>
+		<div>
+			<div class="card">
+				<div class="card-header">
+					<div class="row align-items-center">
+						<div class="col-1">
+							<p class="fw-bold">사용자 정보</p>
+						</div>
+						<div class="col-11">
+							<h5 class="float-end d-flex"><p style="color:red;">*</p>&nbsp;필수 입력 항목입니다.</h5>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<input type="hidden" id="userId" th:value="${user.userId}">
+					<div class="row row-tr"></div>
+					<div class="row row-tr">
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">신청일자</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.registTs}"></span>
+						</div>
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">승인여부</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.joinFlag}"></span>
+						</div>
+					</div>
+					<div class="row row-tr">
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">자치구</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.skkCd}"></span>
+						</div>
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">부서명</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.deptCd}"></span>
+						</div>
+					</div>
+					<div class="row row-tr">
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">성명</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.userName}"></span>
+						</div>
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">주민등록번호</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${#strings.substring(user.personalId, 0, 6) + '-' + #strings.substring(user.personalId, 6, 13)}"></span>
+						</div>
+					</div>
+					<div class="row row-tr">
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">이메일</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.eMail}"></span>
+						</div>
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">전화번호</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.telNo}"></span>
+						</div>
+					</div>
+					<div class="row row-tr">
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">담당업무</label>
+						</div>
+						<div class="col-5">
+							<p th:utext="${user.workCharge}"></p>
+						</div>
+						<div class="col-1 col-th">
+							<label class="col-form-label col-form-label-sm">요청권한</label>
+						</div>
+						<div class="col-5">
+							<span th:utext="${user.perId}"></span>
+						</div>
+					</div>
+					<th:block th:if="${admin} or ${user.joinFlag == '반려'}">
+						<div class="row row-tr">
+							<div class="col-1 col-th">
+								<label for="compAt" class="col-form-label col-form-label-sm">반려사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+							</div>
+							<div class="col-11">
+								<th:block sec:authorize="!hasRole('ROLE_ADMIN')">
+									<p th:utext="${user.compAt}"></p>
+								</th:block>
+								<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+									<input type="text" class="form-control" id="compAt" placeholder="반려사유를 입력해주세요" th:value="${user.compAt}">
+									<p class="invalid-feedback">※ 반려시에만 반려사유를 입력해주세요.</p>
+								</th:block>
+							</div>
+						</div>
+					</th:block>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-10">
+					<button id="listBtn" class="btn btn-light btn-sm">목록</button>
+				</div>
+				<div class="col-2 tx-right">
+					<th:block th:if="${userCk} and ${user.joinFlag == '승인'}">
+						<button id="joinDeleteBtn" class="btn btn-danger btn-sm">삭제</button>
+					</th:block>
+					<th:block th:if="${userCk} or ${user.joinFlag == '반려'}">
+						<button id="joinModifyBtn" class="btn btn btn-primary btn-sm">수정</button>
+					</th:block>
+					<th:block sec:authorize="hasRole('ROLE_ADMIN')">
+						<button id="joinCompBtn" class="btn btn-danger btn-sm">반려</button>
+						<button id="joinAllowBtn" class="btn btn-primary btn-sm">가입승인</button>
+					</th:block>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+</th:block>
+</html>

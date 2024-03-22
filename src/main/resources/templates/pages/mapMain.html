@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+    <title>서울시 기존무허가건축물관리시스템 지도</title>
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/jquery-ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/dialog_css/gsw-jquery-ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/gpkisecureweb/client/dialog_css/mljquery-ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/map/speechBubble.css}" />
+
+    <link rel="stylesheet" th:href="@{/css/map/map.css}" />
+    <script th:src="@{/gpkisecureweb/client/jquery-1.7.1.min.js}"></script>
+    <script th:src="@{/gpkisecureweb/client/jquery-ui.min.js}"></script>
+
+    <!--openlayers vworld로 포트 뚫어야함, vworld 안되면 sdw-->
+   <!-- <script src="https://map.vworld.kr/js/map/OpenLayers-2.13/OpenLayers-2.13.js"></script>-->
+
+    <script th:src="@{/ol4/gistfile.js}"></script>
+    <script th:src="@{/ol4/ol.js}"></script>
+    <script th:src="@{/ol4/ol-debug.js}"></script>
+    <script th:src="@{/ol4/rAF.js}"></script>
+
+    <script th:src="@{/proj/proj4.js}"></script>
+    <script th:src="@{/proj/projection.js}"></script>
+    <!--vwordl 인증키를 통해 배경지도 get-->
+    <!--<script src="https://map.vworld.kr/js/apis.do?type=Base&apiKey=856D1588-BE74-3C9B-8E3A-850338D678C4"></script>-->
+    <style>
+        .olControlAttribution {
+            right: 20px;
+        }
+
+        .olControlLayerSwitcher {
+            right: 20px;
+            top: 20px;
+        }
+    </style>
+</head>
+<body>
+<input type="hidden" th:value="${geoserverUrl}" id="geoserverUrl" aria-label="geoserverUrl">
+<ul id="buttonList" class="noperButton btn-group list-group" style="left: 10px; top: 10px; background-color: rgb(55, 55, 55, .3); padding: 10px">
+    <li class="list-group-item" style="background: transparent; border: 0; padding: 0; margin: 10px 0 0 0;">
+        <div class="form-check form-switch">
+            <input id="noperLyr1000" type="checkbox" class="form-check-input">
+            <label for="noperLyr1000" class="form-check-label">
+                <span style="display: inline-block; width: 18px; height: 18px; background-color: #8cd294; border: 1px solid #777;"></span>
+                <b style="vertical-align: text-bottom;">1:1000</b>
+            </label>
+        </div>
+    </li>
+    <li class="list-group-item" style="background: transparent; border: 0; padding: 0; margin: 10px 0 0 0;">
+        <div class="form-check form-switch">
+            <input id="noperLyr1200sero" type="checkbox" class="form-check-input">
+            <label for="noperLyr1200sero" class="form-check-label">
+                <span style="display: inline-block; width: 18px; height: 18px; background-color: #cac1ab; border: 1px solid #777;"></span>
+                <b style="vertical-align: text-bottom;">1:1200</b>
+            </label>
+        </div>
+    </li>
+    <li class="list-group-item" style="background: transparent; border: 0; padding: 0; margin: 10px 0 0 0;">
+        <div class="form-check form-switch">
+            <input id="noperLyr1200garo" type="checkbox" class="form-check-input">
+            <label for="noperLyr1200garo" class="form-check-label">
+                <span style="display: inline-block; width: 18px; height: 18px; background-color: #b389ca; border: 1px solid #777;"></span>
+                <b style="vertical-align: text-bottom;">1:1200(가로)</b>
+            </label>
+        </div>
+    </li>
+</ul>
+
+
+    <div id="map" class="mainMap" >
+
+
+    </div>
+
+<form name="popForm">
+    <input type="hidden" name="guNm" value='' />
+    <input type="hidden" name="imgFileNm" value=''/>
+</form>
+
+</body>
+<script th:src="@{/js/map/proj.js?v=1}"></script>
+<script th:src="@{/js/map/map.js?v=2}"></script>
+<script th:src="@{/js/map/layer.js?v=1}"></script>
+<script>
+    $('#noperLyr1000').on('change', function () {
+        LAYER.setVisibleWmsImgLayer('noper2:noper5174_1000')
+    })
+
+    $('#noperLyr1200sero').on('change', function () {
+        LAYER.setVisibleWmsImgLayer('noper2:noper5174_1200_sero')
+    })
+
+    $('#noperLyr1200garo').on('change', function () {
+        LAYER.setVisibleWmsImgLayer('noper2:noper5174_1200_garo')
+    })
+</script>
+
+</html>

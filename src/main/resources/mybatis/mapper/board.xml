@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.BoardRepository">
+    <insert id="save" parameterType="NoticeBbs">
+        insert into NOTICE_BBS (
+                NOTICE_SEQ,
+                NOTICE_SUBJECT,
+                NOTICE_CONTENT,
+                REGIST_ID,
+                REGIST_TS,
+                UPDATE_ID,
+                UPDATE_TS,
+                FIX_FLAG
+        )
+        VALUES (
+                2,
+                #{noticeSubject},
+                #{noticeContent},
+                #{registId},
+                null,
+                null,
+                null,
+                null
+        )
+    </insert>
+    <insert id="createRegisterUser" parameterType="User">
+        insert into NOPER_USER (USER_ID, SKK_CD, DEPT_CD, USER_NAME, PERSONAL_ID, E_MAIL, TEL_NO, REGIST_TS, DONG_INFO, JOIN_FLAG, COMP_FLAG, LOGIN_FLAG)
+        values ('NJ'||LPAD(TO_CHAR("USER_NJ".NEXTVAL), 6, '0'), #{skkCd}, #{deptCd}, #{userName}, #{personalId}, #{eMail}, #{telNo}, SYSDATE, #{dongInfo}, 'N', 'N', 'N')
+    </insert>
+    <select id="findById" parameterType="long" resultType="Board">
+        select *
+        FROM NOTICE_BBS
+        where NOTICE_SEQ = 1
+    </select>
+    <select id="findTestById" parameterType="long" resultType="TestBoardDTO">
+        select *
+        FROM NOTICE_BBS
+        where NOTICE_SEQ = #{id}
+    </select>
+
+    <select id="findAll" parameterType="long" resultType="Board">
+        select *
+        FROM NOTICE_BBS
+        where NOTICE_SEQ = 1
+    </select>
+
+    <delete id="deleteRegisterUser" parameterType="string">
+        delete from NOPER_USER
+        where USER_ID = #{value}
+    </delete>
+
+    <update id="allowRegisterUser" parameterType="hashMap">
+        update NOPER_USER
+        set JOIN_FLAG = 'Y', COMP_FLAG = 'N', REGIST_ID = #{registId}, REGIST_TS = SYSDATE, LOGIN_FLAG = 'Y'
+        where USER_ID = #{userId}
+    </update>
+
+    <update id="companionRegisterUser" parameterType="User">
+        update NOPER_USER
+        set JOIN_FLAG = 'N', COMP_FLAG = 'Y', COMP_AT = #{compAt}, LOGIN_FLAG = 'N'
+        where USER_ID = #{userId}
+    </update>
+
+    <update id="registerUserModify" parameterType="User">
+        update NOPER_USER
+        set JOIN_FLAG = 'N', COMP_FLAG = 'Y', SKK_CD = #{skkCd}, DEPT_CD = #{deptCd}, USER_NAME = #{userName}, PERSONAL_ID = #{personalId}, E_MAIL = #{eMail},
+            TEL_NO = #{telNo}, COMP_AT = #{compAt}
+        where USER_ID = #{userId}
+    </update>
+
+    <select id="registerUserInfo" parameterType="string" resultType="User">
+        select USER_ID, TO_CHAR(REGIST_TS, 'yyyy-MM-dd') as REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) as JOIN_FLAG,
+               F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(SKK_CD,DONG_INFO)) AS SKK_CD, F_CDNAME('R04',DEPT_CD) AS DEPT_CD, USER_NAME,
+               REPLACE(PERSONAL_ID, '-'||SUBSTR(PERSONAL_ID, -6), '-******') as PERSONAL_ID, E_MAIL, TEL_NO, COMP_FLAG, COMP_AT
+        from NOPER_USER
+        where USER_ID = #{value}
+    </select>
+
+    <select id="registerUserList" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(SKK_CD,DONG_INFO)) AS SKK_CD, F_CDNAME('R04',DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER
+        where <![CDATA[ REGIST_TS > TO_DATE(#{startDate}, 'YYYY-MM-DD') and  REGIST_TS < TO_DATE(#{endDate}, 'YYYY-MM-DD') and SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and
+                        DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%' and JOIN_FLAG like '%'||COALESCE(#{joinType}, '')||'%' and COMP_FLAG like '%'||COALESCE(#{compType}, '')||'%']]>
+    </select>
+
+    <select id="registerUserListByUserName" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(SKK_CD,DONG_INFO)) AS SKK_CD, F_CDNAME('R04',DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER
+        where <![CDATA[ REGIST_TS > TO_DATE(#{startDate}, 'YYYY-MM-DD') and  REGIST_TS < TO_DATE(#{endDate}, 'YYYY-MM-DD') and SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and
+                        DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%' and JOIN_FLAG like '%'||COALESCE(#{joinType}, '')||'%' and COMP_FLAG like '%'||COALESCE(#{compType}, '')||'%' and USER_NAME like '%'||COALESCE(#{searchText}, '')||'%']]>
+    </select>
+
+    <select id="registerUserListByDeptName" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(SKK_CD,DONG_INFO)) AS SKK_CD, F_CDNAME('R04',DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER
+        where <![CDATA[ REGIST_TS > TO_DATE(#{startDate}, 'YYYY-MM-DD') and  REGIST_TS < TO_DATE(#{endDate}, 'YYYY-MM-DD') and SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and
+                        DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%' and JOIN_FLAG like '%'||COALESCE(#{joinType}, '')||'%' and COMP_FLAG like '%'||COALESCE(#{compType}, '')||'%' and DEPT_CD like '%'||COALESCE(#{searchText}, '')||'%']]>
+    </select>
+
+    <select id="registerUserListByTelNo" parameterType="SearchParam" resultType="User">
+        select USER_ID, F_CDNAME('70',SKK_CD)||DECODE(DONG_INFO,'','',' '||F_SIGUD(SKK_CD,DONG_INFO)) AS SKK_CD, F_CDNAME('R04',DEPT_CD) AS DEPT_CD,
+               USER_NAME, TEL_NO, TO_CHAR(REGIST_TS, 'YYYY.MM.DD') AS REGIST_TS, DECODE(JOIN_FLAG, 'Y', '승인', DECODE(COMP_FLAG, 'Y', '반려', '대기')) AS JOIN_FLAG
+        from NOPER_USER
+        where <![CDATA[ REGIST_TS > TO_DATE(#{startDate}, 'YYYY-MM-DD') and  REGIST_TS < TO_DATE(#{endDate}, 'YYYY-MM-DD') and SKK_CD like '%'||COALESCE(#{skkCd}, '')||'%' and
+                        DONG_INFO like '%'||COALESCE(#{bjdCd}, '')||'%' and JOIN_FLAG like '%'||COALESCE(#{joinType}, '')||'%' and COMP_FLAG like '%'||COALESCE(#{compType}, '')||'%' and TEL_NO like '%'||COALESCE(#{searchText}, '')||'%']]>
+    </select>
+</mapper>

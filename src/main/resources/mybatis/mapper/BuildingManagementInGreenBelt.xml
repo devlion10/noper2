@@ -1,0 +1,1328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.BuildingManagementInGreenBeltRepository">
+
+    <!-- 대장리스트 -->
+    <select id="findLedgerList" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT *
+        FROM (
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY A.ADM_SEQ ASC) RN,
+            A.ADM_SEQ,
+            A.SKK_CD,
+            F_BJDNAME(A.SKK_CD, A.BJD_CD, A.HJD_CD)||' '||F_CDNAME(87, A.C_SAH)||' '||A.C_BUH||DECODE(A.C_JI,'','','-'||A.C_JI) SKK_NAME,
+            A.BUILD_ADDR1,
+            A.BUILD_ADDR2,
+            A.OWNER1_NAME,
+            F_CDNAME('05', A.ST_CD) AS ST_CD,
+            F_CDNAME('07', A.JYD_CD) AS JYD_CD,
+            A.BUILD_MJ,
+            A.GROUND_AREA,
+            F_CDNAME(87,A.C_SAH) C_SAH,
+            B.PRE_OWNER_NAME,
+            DECODE(DEGB, NULL, 'N', DEGB) AS DEGB
+        FROM
+        LIMITED_HEAD A
+        <if test="ownerAllName != null and !ownerAllName.isEmpty()">
+            LEFT JOIN OWNER_INFO B ON A.ADM_SEQ = B.ADM_SEQ
+        </if>
+        <if test="ownerAllName == null or ownerAllName.isEmpty()">
+            LEFT JOIN (SELECT * FROM OWNER_INFO WHERE CH_DATE = (SELECT MAX(CH_DATE) FROM OWNER_INFO)) B ON A.ADM_SEQ = B.ADM_SEQ
+        </if>
+        WHERE 1=1
+        <if test="admSeq != null and !admSeq.isEmpty()">
+            AND A.ADM_SEQ = #{admSeq}
+        </if>
+        <if test="owner1Name != null and !owner1Name.isEmpty()">
+            AND A.OWNER1_NAME = #{owner1Name}
+        </if>
+        <if test="ownerAllName != null and !ownerAllName.isEmpty()">
+            AND B.PRE_OWNER_NAME = #{ownerAllName}
+        </if>
+        <if test="skkCd != null and !skkCd.isEmpty()">
+            AND A.SKK_CD = #{skkCd}
+        </if>
+        <if test="bjdCd != null and !bjdCd.isEmpty()">
+            AND A.BJD_CD = #{bjdCd}
+        </if>
+        <if test="hjdCd != null and !hjdCd.isEmpty()">
+            AND A.HJD_CD = #{hjdCd}
+        </if>
+        <if test="cSah != null and !cSah.isEmpty()">
+            AND A.C_SAH = #{cSah}
+        </if>
+        <if test="cBuh != null and !cBuh.isEmpty()">
+            AND A.C_BUH = #{cBuh}
+        </if>
+        <if test="cJi != null and !cJi.isEmpty()">
+            AND A.C_JI = #{cJi}
+        </if>
+        <if test="admSeqSearch != null and admSeqSearch != ''">
+            AND (UPPER(A.ADM_SEQ) LIKE '%' || UPPER(#{admSeqSearch}) || '%')
+        </if>
+        <if test="ownerAllNameSearch != null and ownerAllNameSearch != ''">
+            AND (UPPER(B.PRE_OWNER_NAME) LIKE '%' || UPPER(#{ownerAllNameSearch}) || '%')
+        </if>
+        <if test="owner1NameSearch != null and owner1NameSearch != ''">
+            AND (UPPER(A.OWNER1_NAME) LIKE '%' || UPPER(#{owner1NameSearch}) || '%')
+        </if>
+        <if test=' jusoSearch!=null and !jusoSearch.equals("")'>
+            AND (REGEXP_REPLACE(A.BUILD_ADDR1, '\s', '') LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%' OR
+                 REGEXP_REPLACE(A.BUILD_ADDR2, '\s', '') LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%' OR
+                 (F_BJDNAME(A.SKK_CD, A.BJD_CD, A.HJD_CD)||' '||A.C_BUH||DECODE(A.C_JI,'','','-'||A.C_JI) LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%'))
+        </if>
+        <if test="gmcsahSearch != null and gmcsahSearch != ''">
+            AND UPPER(A.C_SAH) LIKE '%' || UPPER(#{gmcsahSearch}) || '%'
+        </if>
+        ) TMP
+        ORDER BY RN DESC
+    </select>
+
+    <!-- 위치지번으로 등록된 대장 검색 -->
+    <select id="findLedgerDEGB" parameterType="LedgerDTO" resultType="LedgerDTO">
+        SELECT
+            ADM_SEQ,
+            DEGB
+        FROM
+            LIMITED_HEAD
+        WHERE
+            SKK_CD = #{skkCd}
+          AND BJD_CD = #{bjdCd}
+          AND HJD_CD = #{hjdCd}
+          AND C_SAH = #{cSah}
+          AND C_BUH = #{cBuh}
+          AND C_JI = #{cJi}
+    </select>
+
+    <!-- 대장조회 엑셀 -->
+    <select id="findLedgerExcelList" parameterType="kr.go.seoul.noper2.dto.GreenBeltLedgerExcelDTO" resultType="kr.go.seoul.noper2.dto.GreenBeltLedgerExcelDTO">
+        SELECT * FROM (
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY A.ADM_SEQ ASC) RN,
+            A.ADM_SEQ,
+            A.SKK_CD,
+            F_BJDNAME(A.SKK_CD, A.BJD_CD, A.HJD_CD)||' '||F_CDNAME(87, A.C_SAH)||' '||A.C_BUH||DECODE(A.C_JI,'','','-'||A.C_JI) SKK_NAME,
+            A.BUILD_ADDR1,
+            A.BUILD_ADDR2,
+            A.OWNER1_NAME,
+            F_CDNAME('05', A.ST_CD) AS ST_CD,
+            F_CDNAME('07', A.JYD_CD) AS JYD_CD,
+            A.BUILD_MJ,
+            A.GROUND_AREA,
+            F_CDNAME(87,A.C_SAH) C_SAH,
+            B.PRE_OWNER_NAME,
+            DECODE(DEGB, NULL, 'N', DEGB) AS DEGB
+        FROM LIMITED_HEAD A
+        <if test="ownerAllName != null and !ownerAllName.isEmpty()">
+            LEFT JOIN OWNER_INFO B ON A.ADM_SEQ = B.ADM_SEQ
+        </if>
+        <if test="ownerAllName == null or ownerAllName.isEmpty()">
+            LEFT JOIN (SELECT * FROM OWNER_INFO WHERE CH_DATE = (SELECT MAX(CH_DATE) FROM OWNER_INFO)) B ON A.ADM_SEQ = B.ADM_SEQ
+        </if>
+        WHERE 1=1
+        <if test="admSeq != null and !admSeq.isEmpty()">
+            AND A.ADM_SEQ = #{admSeq}
+        </if>
+        <if test="owner1Name != null and !owner1Name.isEmpty()">
+            AND A.OWNER1_NAME = #{owner1Name}
+        </if>
+        <if test="ownerAllName != null and !ownerAllName.isEmpty()">
+            AND B.PRE_OWNER_NAME = #{ownerAllName}
+        </if>
+        <if test="skkCd != null and !skkCd.isEmpty()">
+            AND A.SKK_CD = #{skkCd}
+        </if>
+        <if test="bjdCd != null and !bjdCd.isEmpty()">
+            AND A.BJD_CD = #{bjdCd}
+        </if>
+        <if test="hjdCd != null and !hjdCd.isEmpty()">
+            AND A.HJD_CD = #{hjdCd}
+        </if>
+        <if test="cSah != null and !cSah.isEmpty()">
+            AND A.C_SAH = #{cSah}
+        </if>
+        <if test="cBuh != null and !cBuh.isEmpty()">
+            AND A.C_BUH = #{cBuh}
+        </if>
+        <if test="cJi != null and !cJi.isEmpty()">
+            AND A.C_JI = #{cJi}
+        </if>
+        <if test="admSeqSearch != null and admSeqSearch != ''">
+            AND (UPPER(A.ADM_SEQ) LIKE '%' || UPPER(#{admSeqSearch}) || '%')
+        </if>
+        <if test="ownerAllNameSearch != null and ownerAllNameSearch != ''">
+            AND (UPPER(B.PRE_OWNER_NAME) LIKE '%' || UPPER(#{ownerAllNameSearch}) || '%')
+        </if>
+        <if test="owner1NameSearch != null and owner1NameSearch != ''">
+            AND (UPPER(A.OWNER1_NAME) LIKE '%' || UPPER(#{owner1NameSearch}) || '%')
+        </if>
+        <if test=' jusoSearch!=null and !jusoSearch.equals("")'>
+            AND (REGEXP_REPLACE(A.BUILD_ADDR1, '\s', '') LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%' OR
+                 REGEXP_REPLACE(A.BUILD_ADDR2, '\s', '') LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%' OR
+                 (F_BJDNAME(A.SKK_CD, A.BJD_CD, A.HJD_CD)||' '||A.C_BUH||DECODE(A.C_JI,'','','-'||A.C_JI) LIKE '%' || REGEXP_REPLACE(#{jusoSearch}, '\s', '') || '%'))
+        </if>
+        <if test="gmcsahSearch != null and gmcsahSearch != ''">
+            AND UPPER(A.C_SAH) LIKE '%' || UPPER(#{gmcsahSearch}) || '%'
+        </if>
+        ) TMP
+        ORDER BY RN DESC
+    </select>
+
+    <!-- 건축물현황조회 -->
+    <select id="legerLimited" parameterType="String" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerLimited">
+        SELECT
+            A.BUILD_FLAG,
+            A.ADM_SEQ,
+            A.SKK_CD,
+            A.BJD_CD,
+            A.HJD_CD,
+            A.C_SAH,
+            A.C_BUH,
+            A.C_JI,
+            A.C_OH,
+            A.BUILD_ADDR1,
+            A.BUILD_ADDR2,
+            A.GROUND_AREA,
+            A.JYD_CD,
+            A.WRITE_REASON,
+            A.BUILD_MJ,
+            A.ST_CD,
+            B.USER_NAME,
+            A.OWNER1_ZIP1,
+            A.OWNER1_ZIP2,
+            A.OWNER1_ADDR1,
+            A.OWNER1_ADDR2,
+            A.OWNER1_NAME,
+            A.CONFIRM_NAME,
+            A.ILLEGAL,
+            A.BIGO,
+            A.REGIST_ID,
+            A.DEGB
+        FROM
+            LIMITED_HEAD A
+                JOIN
+            NOPER_USER B ON A.REGIST_ID = B.USER_ID
+        WHERE
+            A.ADM_SEQ = #{admSeq}
+    </select>
+
+    <!-- 건축물현황 정정 -->
+    <update id="legerLimitedUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerLimited">
+        UPDATE LIMITED_HEAD
+        SET
+            BUILD_FLAG = #{buildFlag},
+            SKK_CD = #{skkCd},
+            HJD_CD = #{hjdCd},
+            BJD_CD = #{bjdCd},
+            C_SAH = #{gmcSah},
+            C_BUH = #{gmcbuh},
+            C_JI = #{gmcji},
+            C_OH = #{gmcoh},
+            BUILD_ADDR1 = #{buildAddr1},
+            BUILD_ADDR2 = #{buildAddr2},
+            GROUND_AREA = #{groundArea},
+            JYD_CD = #{jydCd},
+            WRITE_REASON = #{writeReason},
+            BUILD_MJ = #{buildMj},
+            ST_CD = #{stCd},
+            OWNER1_ZIP1 = '777',
+            OWNER1_ZIP2 = '777',
+            OWNER1_ADDR1 = #{owner1Addr1},
+            OWNER1_ADDR2 = #{owner1Addr2},
+            OWNER1_NAME = #{owner1Name},
+            CONFIRM_NAME = #{confirmName},
+            ILLEGAL = #{illegal},
+            BIGO = #{bigo},
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+    </update>
+
+    <!-- 대장폐쇄 -->
+    <update id="deleteLimitedHead" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerLimited">
+        UPDATE LIMITED_HEAD SET
+            DEGB = 'Y',
+            UPDATE_TS = SYSDATE
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND DEGB IS NULL
+    </update>
+
+    <!-- 건축물대장등록 -->
+    <insert id="legerLimitedAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerLimited">
+        INSERT INTO LIMITED_HEAD (
+            ADM_SEQ,
+            SKK_CD,
+            BJD_CD,
+            HJD_CD,
+            C_SAH,
+            C_BUH,
+            C_JI,
+            C_OH,
+            BUILD_ADDR1,
+            BUILD_ADDR2,
+            BUILD_FLAG,
+            GROUND_AREA,
+            JYD_CD,
+            WRITE_REASON,
+            BUILD_MJ,
+            ST_CD,
+            OWNER1_ZIP1,
+            OWNER1_ZIP2,
+            OWNER1_ADDR1,
+            OWNER1_ADDR2,
+            OWNER1_NAME,
+            CONFIRM_NAME,
+            ILLEGAL,
+            BIGO,
+            REGIST_ID,
+            REGIST_TS
+        ) VALUES (
+            #{admSeq},
+            #{skkCd},
+            #{bjdCd},
+            #{hjdCd},
+            #{gmcSah},
+            #{gmcbuh},
+            #{gmcji},
+            #{gmcoh},
+            #{buildAddr1},
+            #{buildAddr2},
+            #{buildFlag},
+            #{groundArea},
+            #{jydCd},
+            #{writeReason},
+            #{buildMj},
+            #{stCd},
+            '123',
+            '123',
+            #{owner1Addr1},
+            #{owner1Addr2},
+            #{owner1Name},
+            #{confirmName},
+            #{illegal},
+            #{bigo},
+            #{registId},
+            SYSDATE
+        )
+    </insert>
+
+    <!-- 기개발 대장번호 채번 -->
+    <select id="findAdmSeq" parameterType="String" resultType="String">
+        SELECT SUBSTR(#{skkCd},1,5)||LPAD((NVL(MAX(TO_NUMBER(SUBSTR(ADM_SEQ,6,length(adm_seq)))), 0) + 1),5,'0' )
+        FROM LIMITED_HEAD
+        WHERE SUBSTR(ADM_SEQ,1,5) = SUBSTR(#{skkCd},1,5)
+    </select>
+
+    <!-- 건축물현황 히스토리 -->
+    <insert id= "hisLegerLimitedAdd" parameterType="LedgerDTO" useGeneratedKeys="false">
+        INSERT INTO HIS_LIMITED_HEAD (
+            ADM_SEQ,
+            CRDATE,
+            SKK_CD,
+            BJD_CD,
+            HJD_CD,
+            C_SAH,
+            C_BUH,
+            C_JI,
+            C_OH,
+            CRGB,
+            BUILD_FLAG,
+            GROUND_AREA,
+            JYD_CD,
+            WRITE_REASON,
+            DEGB,
+            BIGO,
+            ILLEGAL,
+            BUILD_MJ,
+            ST_CD,
+            OWNER1_ZIP1,
+            OWNER1_ZIP2,
+            OWNER1_ADDR1,
+            OWNER1_ADDR2,
+            OWNER1_NAME,
+            CONFIRM_NAME,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        )
+        SELECT
+            ADM_SEQ,
+            (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+            SKK_CD,
+            BJD_CD,
+            HJD_CD,
+            C_SAH,
+            C_BUH,
+            C_JI,
+            C_OH,
+            #{crgb} AS CRGB,
+            BUILD_FLAG,
+            GROUND_AREA,
+            JYD_CD,
+            WRITE_REASON,
+            DEGB,
+            BIGO,
+            ILLEGAL,
+            BUILD_MJ,
+            ST_CD,
+            OWNER1_ZIP1,
+            OWNER1_ZIP2,
+            OWNER1_ADDR1,
+            OWNER1_ADDR2,
+            OWNER1_NAME,
+            CONFIRM_NAME,
+            '1' AS WORKID,
+            f_cdname('R' || SKK_CD, #{deptCd}) AS BSCD,
+            REGIST_ID,
+            REGIST_TS
+        FROM
+            LIMITED_HEAD
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND (DEGB = 'Y' OR DEGB IS NULL)
+    </insert>
+
+
+
+    <!-- 소유자현황조회 -->
+    <select id="legerOwner" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner">
+        SELECT
+            ADM_SEQ,
+            OWNER_SEQ,
+            CH_DATE,
+            OWNER_ZIP1,
+            OWNER_ZIP2,
+            OWNER_ADDR1,
+            OWNER_ADDR2,
+            OWNER_ADDR1 || ' ' || OWNER_ADDR2 AS OWNER_ADDR,
+            PRE_OWNER_NAME,
+            CONFIRM_NAME,
+            ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS ownerRn
+        FROM OWNER_INFO
+        WHERE ADM_SEQ = #{admSeq}
+        ORDER BY OWNER_SEQ DESC
+    </select>
+
+    <!-- 소유자현황 정정 -->
+    <update id="legerOwnerUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner">
+        UPDATE OWNER_INFO
+        SET
+            CH_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{chDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            PRE_OWNER_NAME = #{preOwnerName},
+            CONFIRM_NAME = #{confirmName},
+            OWNER_ADDR1 = #{ownerAddr1},
+            OWNER_ADDR2 = #{ownerAddr2},
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND OWNER_SEQ = #{ownerSeq}
+    </update>
+
+    <!-- 소유자현황등록 -->
+    <insert id="legerOwnerAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner">
+        <selectKey keyProperty="ownerSeq" resultType="String" order="BEFORE">
+            (SELECT NVL(MAX(OWNER_SEQ), 0) + 1 FROM OWNER_INFO WHERE ADM_SEQ = #{admSeq})
+        </selectKey>
+        INSERT INTO OWNER_INFO (
+            ADM_SEQ,
+            OWNER_SEQ,
+            CH_DATE,
+            OWNER_ADDR1,
+            OWNER_ADDR2,
+            PRE_OWNER_NAME,
+            CONFIRM_NAME,
+            REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+             #{admSeq},
+            #{ownerSeq},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{chDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            #{ownerAddr1},
+            #{ownerAddr2},
+            #{preOwnerName},
+            #{confirmName},
+            #{registId},
+        SYSDATE
+        )
+    </insert>
+
+    <!-- 소유자현황 히스토리등록 -->
+    <insert id= "hisLegerOwnerAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner" useGeneratedKeys="false">
+        INSERT INTO HIS_OWNER_INFO (
+            ADM_SEQ,
+            CRDATE,
+            OWNER_SEQ,
+            CH_DATE,
+            OWNER_ADDR1,
+            OWNER_ADDR2,
+            OWNER_ZIP1,
+            OWNER_ZIP2,
+            PRE_OWNER_NAME,
+            CONFIRM_NAME,
+            CRGB,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        )
+        SELECT
+            ADM_SEQ,
+            (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+            OWNER_SEQ,
+            CH_DATE,
+            OWNER_ADDR1,
+            OWNER_ADDR2,
+            OWNER_ZIP1,
+            OWNER_ZIP2,
+            PRE_OWNER_NAME,
+            CONFIRM_NAME,
+            #{crgb} AS CRGB, -- 바인딩 변수로 변경되는 값 i,u,d
+            '2',
+            f_cdname('R' || #{skkCd}, #{deptCd}) AS BSCD, -- deptCd bscd
+            REGIST_ID,
+            REGIST_TS
+        FROM OWNER_INFO
+        WHERE ADM_SEQ = #{admSeq}
+          AND OWNER_SEQ = #{ownerSeq}
+    </insert>
+
+    <!-- 소유자현황 삭제-->
+    <delete id="delLegerOwner" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerOwner">
+        DELETE FROM OWNER_INFO
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND OWNER_SEQ = #{ownerSeq}
+    </delete>
+
+    <!-- 동별현황조회 -->
+    <select id="legerDong" parameterType="String" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerDong">
+        SELECT
+            ADM_SEQ,
+            DONG_SEQ,
+            DONG_NO,
+            F_CDNAME('07', DONG_JYD_CD) AS DONG_JYD_LIST_NAME,
+            DONG_JYD_NAME,
+            DONG_JYD_CD,
+            F_CDNAME('05', DONG_ST_CD) AS DONG_ST_LIST_NAME,
+            DONG_ST_NAME,
+            DONG_ST_CD,
+            UNDER_SCALE,
+            FLOOR1_SCALE,
+            FLOOR2_SCALE,
+            FLOOR3_SCALE,
+            FLOOR4_SCALE,
+            FLOORS_SUM_SCALE,
+            DONG_PERMIT_DATE,
+            DONG_PERMIT_NO,
+            DONG_COMP_DATE,
+            ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS dongRn
+        FROM DONG_INFO
+        WHERE ADM_SEQ = #{admSeq}
+        ORDER BY DONG_SEQ DESC
+    </select>
+
+    <!-- 동별현황 정정 -->
+    <update id="legerDongUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerDong">
+        UPDATE DONG_INFO
+        SET
+            DONG_NO = #{dongNo},
+            DONG_JYD_CD = #{dongJydCd},
+            DONG_JYD_NAME = #{dongJydName},
+            DONG_ST_CD = #{dongStCd},
+            DONG_ST_NAME = #{dongStName},
+            UNDER_SCALE = #{underScale},
+            FLOOR1_SCALE = #{floor1Scale},
+            FLOOR2_SCALE = #{floor2Scale},
+            FLOOR3_SCALE = #{floor3Scale},
+            FLOOR4_SCALE = #{floor4Scale},
+            FLOORS_SUM_SCALE = #{floorsSumScale},
+            DONG_PERMIT_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{dongPermitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            DONG_PERMIT_NO = #{dongPermitNo},
+            DONG_COMP_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{dongCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND DONG_SEQ = #{dongSeq}
+    </update>
+
+    <!-- 동별현황등록 -->
+    <insert id="legerDongAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerDong">
+        <selectKey keyProperty="dongSeq" resultType="String" order="BEFORE">
+            (SELECT NVL(MAX(DONG_SEQ), 0) + 1 FROM DONG_INFO WHERE ADM_SEQ = #{admSeq})
+        </selectKey>
+        INSERT INTO DONG_INFO (
+            ADM_SEQ,
+            DONG_SEQ,
+            DONG_NO,
+            DONG_JYD_CD,
+            DONG_JYD_NAME,
+            DONG_ST_CD,
+            DONG_ST_NAME,
+            UNDER_SCALE,
+            FLOOR1_SCALE,
+            FLOOR2_SCALE,
+            FLOOR3_SCALE,
+            FLOOR4_SCALE,
+            FLOORS_SUM_SCALE,
+            DONG_PERMIT_DATE,
+            DONG_PERMIT_NO,
+            DONG_COMP_DATE,
+            REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+            #{admSeq},
+            #{dongSeq},
+            #{dongNo},
+            #{dongJydCd},
+            #{dongJydName},
+            #{dongStCd},
+            #{dongStName},
+            #{underScale},
+            #{floor1Scale},
+            #{floor2Scale},
+            #{floor3Scale},
+            #{floor4Scale},
+            #{floorsSumScale},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{dongPermitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            #{dongPermitNo},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{dongCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+        #{registId},
+        SYSDATE
+        )
+    </insert>
+
+    <!-- 동별현황 히스토리등록 -->
+    <insert id= "hisLegerDongAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerDong" useGeneratedKeys="false">
+        INSERT INTO HIS_DONG_INFO (
+            ADM_SEQ,
+            DONG_SEQ,
+            CRDATE,
+            DONG_NO,
+            DONG_JYD_CD,
+            DONG_JYD_NAME,
+            DONG_ST_CD,
+            DONG_ST_NAME,
+            UNDER_SCALE,
+            FLOOR1_SCALE,
+            FLOOR2_SCALE,
+            FLOOR3_SCALE,
+            FLOOR4_SCALE,
+            FLOORS_SUM_SCALE,
+            DONG_PERMIT_DATE,
+            DONG_PERMIT_NO,
+            DONG_COMP_DATE,
+            CRGB,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        ) SELECT
+              ADM_SEQ,
+              DONG_SEQ,
+              (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+              DONG_NO,
+              DONG_JYD_CD,
+              DONG_JYD_NAME,
+              DONG_ST_CD,
+              DONG_ST_NAME,
+              UNDER_SCALE,
+              FLOOR1_SCALE,
+              FLOOR2_SCALE,
+              FLOOR3_SCALE,
+              FLOOR4_SCALE,
+              FLOORS_SUM_SCALE,
+              DONG_PERMIT_DATE,
+              DONG_PERMIT_NO,
+              DONG_COMP_DATE,
+              #{crgb} AS CRGB, -- 바인딩 변수로 변경되는 값 i,u,d
+              '3',
+              f_cdname('R' || #{skkCd}, #{deptCd}) AS BSCD,  -- 'se_session.getDeptCd()'를 실제 값으로 대체해야 합니다.
+              REGIST_ID,
+              REGIST_TS
+        FROM DONG_INFO
+        WHERE ADM_SEQ = #{admSeq}  -- 'admSeq'와 'dongSeq'를 실제 값으로 대체해야 합니다.
+          AND DONG_SEQ = #{dongSeq}
+    </insert>
+
+    <!-- 동별현황 삭제-->
+    <delete id="delLegerDong" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerDong">
+       DELETE FROM DONG_INFO
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND DONG_SEQ = #{dongSeq}
+    </delete>
+
+    <!-- 구조물현황조회 -->
+    <select id="legerStructures" parameterType="String" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerStructures">
+        SELECT
+            ADM_SEQ,
+            ST_SEQ,
+            ST_DONG_NO,
+            F_CDNAME('07', ST_JYD_CD) AS ST_JYD_LIST_NAME,
+            ST_JYD_NAME,
+            ST_JYD_CD,
+            F_CDNAME('05', ST_CD) AS ST_LIST_NAME,
+            ST_NAME,
+            ST_CD,
+            ST_AREA,
+            ST_HEIGHT,
+            ST_PERMIT_DATE,
+            ST_PERMIT_NO,
+            ST_COMP_DATE,
+            ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS stRn
+        FROM STRUCTURES_INFO
+        WHERE ADM_SEQ = #{admSeq}
+        ORDER BY ST_SEQ DESC
+    </select>
+
+    <!-- 구조물현황 정정 -->
+    <update id="legerStructuresUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerStructures">
+        UPDATE STRUCTURES_INFO
+        SET
+            ST_DONG_NO = #{stDongNo},
+            ST_JYD_CD = #{stJydCd},
+            ST_JYD_NAME = #{stJydName},
+            ST_CD = #{stCd},
+            ST_NAME = #{stName},
+            ST_AREA = #{stArea},
+            ST_HEIGHT = #{stHeight},
+            ST_PERMIT_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{stPermitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            ST_PERMIT_NO = #{stPermitNo},
+            ST_COMP_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{stCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND ST_SEQ = #{stSeq}
+    </update>
+
+    <!-- 구조물현황등록 -->
+    <insert id="legerStructuresAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerStructures">
+        <selectKey keyProperty="stSeq" resultType="String" order="BEFORE">
+            (SELECT NVL(MAX(ST_SEQ), 0) + 1 FROM STRUCTURES_INFO WHERE ADM_SEQ = #{admSeq})
+        </selectKey>
+        INSERT INTO STRUCTURES_INFO (
+            ADM_SEQ,
+            ST_SEQ,
+            ST_DONG_NO,
+            ST_JYD_CD,
+            ST_JYD_NAME,
+            ST_CD,
+            ST_NAME,
+            ST_AREA,
+            ST_HEIGHT,
+            ST_PERMIT_DATE,
+            ST_PERMIT_NO,
+            ST_COMP_DATE,
+            REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+             #{admSeq},
+             #{stSeq},
+             #{stDongNo},
+             #{stJydCd},
+             #{stJydName},
+             #{stCd},
+             #{stName},
+             #{stArea},
+             #{stHeight},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{stPermitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+             #{stPermitNo},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{stCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            #{registId},
+        SYSDATE
+         )
+    </insert>
+
+    <!-- 구조물현황 히스토리등록 -->
+    <insert id= "hisLegerStructuresAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerStructures" useGeneratedKeys="false">
+        INSERT INTO HIS_STRUCTURES_INFO (
+            ADM_SEQ,
+            ST_SEQ,
+            CRDATE,
+            ST_DONG_NO,
+            ST_JYD_CD,
+            ST_JYD_NAME,
+            ST_CD,
+            ST_NAME,
+            ST_AREA,
+            ST_HEIGHT,
+            ST_PERMIT_DATE,
+            ST_PERMIT_NO,
+            ST_COMP_DATE,
+            CRGB,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        )
+        SELECT
+            ADM_SEQ,
+            ST_SEQ,
+            (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+            ST_DONG_NO,
+            ST_JYD_CD,
+            ST_JYD_NAME,
+            ST_CD,
+            ST_NAME,
+            ST_AREA,
+            ST_HEIGHT,
+            ST_PERMIT_DATE,
+            ST_PERMIT_NO,
+            ST_COMP_DATE,
+            #{crgb} AS CRGB,
+            '4',
+            f_cdname('R' || #{skkCd}, #{deptCd}) AS BSCD,
+            REGIST_ID,
+            REGIST_TS
+        FROM STRUCTURES_INFO
+        WHERE ADM_SEQ = #{admSeq}
+          AND ST_SEQ = #{stSeq}
+    </insert>
+
+    <!-- 구조물현황 삭제-->
+    <delete id="delLegerStructures" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerStructures">
+        DELETE FROM STRUCTURES_INFO
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND ST_SEQ = #{stSeq}
+    </delete>
+
+    <!-- 대지현황조회 -->
+    <select id="legerGround" parameterType="String" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerGround">
+        SELECT
+            ADM_SEQ,
+            GROUND_SEQ,
+            GROUND_AREA,
+            GROUND_CONTENTS,
+            CHA_AREA,
+            FARM_AREA,
+            GROUND_ETC,
+            ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS groundRn
+        FROM GROUND_INFO
+        WHERE ADM_SEQ = #{admSeq}
+        ORDER BY GROUND_SEQ DESC
+    </select>
+
+    <!-- 대지현황 정정 -->
+    <update id="legerGroundUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerGround">
+        UPDATE GROUND_INFO
+        SET
+            GROUND_AREA = #{groundArea},
+            GROUND_CONTENTS = #{groundContents},
+            CHA_AREA = #{chaArea},
+            FARM_AREA = #{farmArea},
+            GROUND_ETC = #{groundEtc},
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND GROUND_SEQ = #{groundSeq}
+    </update>
+
+    <!-- 대지현황등록 -->
+    <insert id="legerGroundAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerGround">
+        <selectKey keyProperty="groundSeq" resultType="String" order="BEFORE">
+            (SELECT NVL(MAX(GROUND_SEQ), 0) + 1 FROM GROUND_INFO WHERE ADM_SEQ = #{admSeq})
+        </selectKey>
+        INSERT INTO GROUND_INFO (
+            ADM_SEQ,
+            GROUND_SEQ,
+            GROUND_AREA,
+            GROUND_CONTENTS,
+            CHA_AREA,
+            FARM_AREA,
+            GROUND_ETC,
+            REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+             #{admSeq},
+             #{groundSeq},
+             #{groundArea},
+             #{groundContents},
+             #{chaArea},
+             #{farmArea},
+             #{groundEtc},
+        #{registId},
+        SYSDATE
+         )
+    </insert>
+
+    <!-- 대지현황 히스토리등록 -->
+    <insert id= "hisLegerGroundAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerGround" useGeneratedKeys="false">
+        INSERT INTO HIS_GROUND_INFO (
+            ADM_SEQ,
+            GROUND_SEQ,
+            CRDATE,
+            GROUND_AREA,
+            GROUND_CONTENTS,
+            CHA_AREA,
+            FARM_AREA,
+            GROUND_ETC,
+            CRGB,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        )
+        SELECT
+            ADM_SEQ,
+            GROUND_SEQ,
+            (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+            GROUND_AREA,
+            GROUND_CONTENTS,
+            CHA_AREA,
+            FARM_AREA,
+            GROUND_ETC,
+            #{crgb} AS CRGB,
+            '5',
+            f_cdname('R' || #{skkCd}, #{deptCd}) AS BSCD,
+            REGIST_ID,
+            REGIST_TS
+        FROM GROUND_INFO
+        WHERE ADM_SEQ = #{admSeq}
+          AND GROUND_SEQ = #{groundSeq}
+    </insert>
+
+    <!-- 대지현황 삭제-->
+    <delete id="delLegerGround" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerGround">
+        DELETE FROM GROUND_INFO
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND GROUND_SEQ = #{groundSeq}
+    </delete>
+
+    <!-- 허가신고사항조회 -->
+    <select id="legerPermit" parameterType="String" resultType="kr.go.seoul.noper2.dto.LedgerDTO$LegerPermit">
+        SELECT
+            ADM_SEQ,
+            PERMIT_SEQ,
+            ACT_FLAG,
+            F_CDNAME('07', PERMIT_JYD_CD) AS PERMIT_JYD_LIST_NAME,
+            PERMIT_JYD_NAME,
+            PERMIT_JYD_CD,
+            F_CDNAME('05', PERMIT_ST_CD) AS PERMIT_ST_LIST_NAME,
+            PERMIT_ST_NAME,
+            PERMIT_ST_CD,
+            PERMIT_AREA,
+            PERMIT_DATE,
+            PERMIT_NO,
+            PERMIT_COMP_DATE,
+            REGIST_INFO,
+            CONFIRM_INFO,
+            ROW_NUMBER() OVER (ORDER BY REGIST_TS ASC) AS permitRn
+        FROM PERMIT_INFO
+        WHERE ADM_SEQ = #{admSeq}
+        ORDER BY PERMIT_SEQ DESC
+    </select>
+
+    <!-- 허가신고사항 정정 -->
+    <update id="legerPermitUpdate" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerPermit">
+        UPDATE PERMIT_INFO
+        SET
+            ACT_FLAG = #{actFlag},
+            PERMIT_ST_CD = #{permitStCd},
+            PERMIT_ST_NAME = #{permitStName},
+            PERMIT_JYD_CD = #{permitJydCd},
+            PERMIT_JYD_NAME = #{permitJydName},
+            PERMIT_AREA = #{permitArea},
+            PERMIT_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{permitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            PERMIT_NO = #{permitNo},
+            PERMIT_COMP_DATE = TO_NUMBER(TO_CHAR(TO_DATE(#{permitCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+            REGIST_INFO = #{registInfo},
+            CONFIRM_INFO = #{confirmInfo},
+            UPDATE_TS = SYSDATE,
+            UPDATE_ID = #{updateId}
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND PERMIT_SEQ = #{permitSeq}
+    </update>
+
+    <!-- 허가신고사항등록 -->
+    <insert id="legerPermitAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerPermit">
+        <selectKey keyProperty="permitSeq" resultType="String" order="BEFORE">
+            (SELECT NVL(MAX(PERMIT_SEQ), 0) + 1 FROM PERMIT_INFO WHERE ADM_SEQ = #{admSeq})
+        </selectKey>
+        INSERT INTO PERMIT_INFO (
+            ADM_SEQ,
+            PERMIT_SEQ,
+            ACT_FLAG,
+            PERMIT_ST_CD,
+            PERMIT_ST_NAME,
+            PERMIT_JYD_CD,
+            PERMIT_JYD_NAME,
+            PERMIT_AREA,
+            PERMIT_DATE,
+            PERMIT_NO,
+            PERMIT_COMP_DATE,
+            REGIST_INFO,
+            CONFIRM_INFO,
+            REGIST_ID,
+        REGIST_TS
+        ) VALUES (
+             #{admSeq},
+             #{permitSeq},
+             #{actFlag},
+             #{permitStCd},
+             #{permitStName},
+             #{permitJydCd},
+             #{permitJydName},
+             #{permitArea},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{permitDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+             #{permitNo},
+             TO_NUMBER(TO_CHAR(TO_DATE(#{permitCompDate},'YYYY-MM-DD'), 'YYYYMMDD')),
+             #{registInfo},
+             #{confirmInfo},
+        #{registId},
+        SYSDATE
+         )
+    </insert>
+
+    <!-- 허가신고사항 히스토리등록 -->
+    <insert id= "hisLegerPermitAdd" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerPermit" useGeneratedKeys="false">
+        INSERT INTO HIS_PERMIT_INFO (
+            ADM_SEQ,
+            PERMIT_SEQ,
+            CRDATE,
+            ACT_FLAG,
+            PERMIT_ST_CD,
+            PERMIT_ST_NAME,
+            PERMIT_JYD_CD,
+            PERMIT_JYD_NAME,
+            PERMIT_AREA,
+            PERMIT_DATE,
+            PERMIT_NO,
+            PERMIT_COMP_DATE,
+            REGIST_INFO,
+            CONFIRM_INFO,
+            CRGB,
+            WORKID,
+            BSCD,
+            REGIST_ID,
+            REGIST_TS
+        ) SELECT
+              ADM_SEQ,
+              PERMIT_SEQ,
+              (SELECT TO_CHAR(SYSTIMESTAMP,'YYYYMMDDHH24MISS') FROM DUAL),
+              ACT_FLAG,
+              PERMIT_ST_CD,
+              PERMIT_ST_NAME,
+              PERMIT_JYD_CD,
+              PERMIT_JYD_NAME,
+              PERMIT_AREA,
+              PERMIT_DATE,
+              PERMIT_NO,
+              PERMIT_COMP_DATE,
+              REGIST_INFO,
+              CONFIRM_INFO,
+              #{crgb} AS CRGB,
+              '6',
+              f_cdname('R' || #{skkCd}, #{deptCd}) AS BSCD,
+              REGIST_ID,
+              REGIST_TS
+        FROM PERMIT_INFO
+        WHERE ADM_SEQ = #{admSeq}
+          AND PERMIT_SEQ = #{permitSeq}
+    </insert>
+
+    <!-- 허가신고사항 삭제-->
+    <delete id="delLegerPermit" parameterType="kr.go.seoul.noper2.dto.LedgerDTO$LegerPermit">
+        DELETE FROM PERMIT_INFO
+        WHERE
+            ADM_SEQ = #{admSeq}
+          AND PERMIT_SEQ = #{permitSeq}
+    </delete>
+
+    <!-- 관리행정동 -->
+    <select id="mngAdminstrBld" parameterType="String" resultType="LedgerDTO">
+        SELECT DISTINCT HJDONG_CD HJDCD, HJDONG_NM HNAM
+        FROM CMP_BJDONG_MGM
+        WHERE SIGUNGU_CD = #{gmskk}
+          AND HJDONG_CD &lt;&gt;'000'
+        ORDER BY HJDONG_NM
+    </select>
+
+    <!-- 건축물정보조회 -->
+    <select id="findLegerDetail" parameterType="String" resultType="LedgerDTO">
+        SELECT
+            A.BUILD_FLAG,
+            A.ADM_SEQ,
+            A.SKK_CD,
+            A.BJD_CD,
+            A.HJD_CD,
+            A.C_SAH,
+            A.C_BUH,
+            A.C_JI,
+            A.C_OH,
+            A.GROUND_AREA,
+            A.JYD_CD,
+            A.WRITE_REASON,
+            A.BUILD_MJ,
+            A.ST_CD,
+            B.USER_NAME,
+            A.OWNER1_ZIP1,
+            A.OWNER1_ZIP2,
+            A.OWNER1_ADDR1,
+            A.OWNER1_ADDR2,
+            A.OWNER1_NAME,
+            A.CONFIRM_NAME,
+            A.ILLEGAL,
+            A.BIGO,
+            A.DEGB
+        FROM
+            LIMITED_HEAD A, NOPER_USER B
+        WHERE
+            A.REGIST_ID = B.USER_ID
+          AND A.ADM_SEQ = #{admSeq}
+    </select>
+
+    <!-- 현장점검-->
+    <select id="findLedgerSiteChk" parameterType="String" resultType="NoperSiteChkDTO">
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY CHKILNO ASC) RN,
+                GMSKK, GMDJGB, GMSEQCO, CHKILNO, DECODE(VIOL_YN,'Y','위반',
+                                                        'N','해당사항없음') violYnTxt, VIOL_YN, VIOL_CNTT, TRSCT_CNTT, REM,
+            DECODE(CONFIRM1,'Y','승인',
+                   'N','미승인') CONFIRM1, CONFIRM2,  NVL(CHANG_DTIME,'-') CHANG_DTIME, CHK_DATE, CHK_CHARGE_ID, CHK_CHARGE_NM, TRSCT_CNFM_ID,
+            TRSCT_CNFM_NM, TRSCT_DATE, REG_DTIME, CHANG_DTIME, CHK_CHARGE_CLSPOS,
+            TRSCT_CNFM_CLSPOS, CHK_CHARGE_GMSKK, TRSCT_CNFM_GMSKK, REGT_ID, CHANG_ID
+        FROM NOPER_SITE_CHK
+        WHERE GMSKK= #{gmskk}
+          AND GMDJGB= #{gmdjgb}
+          AND GMSEQCO= #{gmseqco}
+          AND DELETE_AT='N'
+        ORDER BY CHKILNO ASC
+    </select>
+
+    <!-- 일일처리내역 -->
+    <select id="findHistoryList" resultType="HistoryMain">
+        SELECT
+            ROW_NUMBER() OVER(ORDER BY CRDATE ASC) AS "historySeq",
+                WORKNAME AS "workName",
+            WORKID,
+            CRGB AS "crgb",
+            ETC AS "etc",
+            CRDATE,
+            SKK_CD,
+            RTRIM(BSCD) || ' ' || RTRIM(USER_NAME) AS "bscdUsername",
+            SUBSTR(CRDATE,0,4)||'.'||SUBSTR(CRDATE,5,2)||'.'||SUBSTR(CRDATE,7,2)||' '||
+            SUBSTR(CRDATE,9,2)||':'||SUBSTR(CRDATE,11,2)||' '||SUBSTR(CRDATE,13,2)  AS "crdate"
+        FROM (
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     A.BJD_CD||', '||A.HJD_CD||', '||A.C_SAH||', '||A.C_BUH||', '||A.C_JI||', '||A.C_OH||', '||
+                     A.GROUND_AREA||', '||A.JYD_CD||', '||A.WRITE_REASON||', '||A.BUILD_MJ||', '||A.ST_CD||', '||A.OWNER1_ADDR1||', '||
+                     A.OWNER1_ADDR2||', '||A.BIGO AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     A.SKK_CD ,A.BSCD
+                 FROM
+                     HIS_LIMITED_HEAD A, NOPER_USER B
+                 WHERE A.REGIST_ID = B.USER_ID
+                 UNION ALL
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     CH_DATE||', '||OWNER_ADDR1||', '||OWNER_ADDR2||', '||PRE_OWNER_NAME||', '||A.CONFIRM_NAME AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     C.SKK_CD,A.BSCD
+                 FROM HIS_OWNER_INFO A, NOPER_USER B, LIMITED_HEAD C
+                 WHERE A.REGIST_ID = B.USER_ID
+                   AND A.ADM_SEQ=C.ADM_SEQ
+                 UNION ALL
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     DONG_NO||', '||F_CDNAME('07',DONG_JYD_CD)||', '||DONG_JYD_NAME||', '||
+                     DONG_JYD_CD||', '||F_CDNAME('05',DONG_ST_CD)||', '||DONG_ST_NAME||', '||
+                     DONG_ST_CD||', '||UNDER_SCALE||', '||FLOOR1_SCALE||', '||FLOOR2_SCALE||', '||FLOOR3_SCALE||', '||
+                     FLOOR4_SCALE||', '||FLOORS_SUM_SCALE||', '||DONG_PERMIT_DATE||', '||DONG_PERMIT_NO||', '||DONG_COMP_DATE AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     C.SKK_CD,A.BSCD
+                 FROM HIS_DONG_INFO A, NOPER_USER B, LIMITED_HEAD C
+                 WHERE A.REGIST_ID = B.USER_ID
+                   AND A.ADM_SEQ=C.ADM_SEQ
+                 UNION ALL
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     ST_DONG_NO||', '||F_CDNAME('07',ST_JYD_CD)||', '||ST_JYD_NAME||', '||ST_JYD_CD||', '||
+                     F_CDNAME('05',A.ST_CD)||', '||ST_NAME||', '||ST_AREA||', '||
+                     ST_HEIGHT||', '||ST_PERMIT_DATE||', '||ST_PERMIT_NO||', '||ST_COMP_DATE  AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     C.SKK_CD,A.BSCD
+                 FROM HIS_STRUCTURES_INFO A, NOPER_USER B, LIMITED_HEAD C
+                 WHERE A.REGIST_ID = B.USER_ID
+                   AND A.ADM_SEQ=C.ADM_SEQ
+                 UNION ALL
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     A.GROUND_AREA||', '||GROUND_CONTENTS||', '||CHA_AREA||', '||FARM_AREA||', '||GROUND_ETC AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     C.SKK_CD,A.BSCD
+                 FROM HIS_GROUND_INFO A, NOPER_USER B, LIMITED_HEAD C
+                 WHERE A.REGIST_ID = B.USER_ID
+                   AND A.ADM_SEQ=C.ADM_SEQ
+                 UNION ALL
+                 SELECT
+                     F_CDNAME('L03',A.WORKID) AS WORKNAME,
+                     A.WORKID,
+                     DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+                     ACT_FLAG||', '||F_CDNAME('07',PERMIT_JYD_CD)||', '||PERMIT_JYD_NAME||', '||
+                     PERMIT_JYD_CD||', '||F_CDNAME('05',PERMIT_ST_CD)||', '||PERMIT_ST_NAME||', '||
+                     PERMIT_AREA||', '||PERMIT_DATE||', '||PERMIT_NO||', '||PERMIT_COMP_DATE||', '||
+                     REGIST_INFO||', '||CONFIRM_INFO AS ETC,
+                     A.CRDATE,
+                     B.USER_NAME,
+                     C.SKK_CD,A.BSCD
+                 FROM HIS_PERMIT_INFO A, NOPER_USER B, LIMITED_HEAD C
+                 WHERE A.REGIST_ID = B.USER_ID
+                   AND A.ADM_SEQ=C.ADM_SEQ
+             ) WHERE 1=1
+        <if test="skkcdSearch != null and skkcdSearch != '' and skkcdSearch != '선택하세요.'">
+            AND SKK_CD IN #{skkcdSearch}
+        </if>
+        <if test="workidSearch != null and workidSearch != '' and workidSearch != '선택하세요.'">
+            AND WORKID IN #{workidSearch}
+        </if>
+        <if test='searchTxt != null and !searchTxt.equals("")'>
+            AND (UPPER(BSCD) LIKE '%' || UPPER(#{searchTxt}) || '%' OR UPPER(USER_NAME) LIKE '%' || UPPER(#{searchTxt}) || '%')
+        </if>
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') >= #{stDate}]]>
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        ORDER BY CRDATE DESC, "historySeq" DESC
+    </select>
+    <select id="findDailyHistoryDataExcel" parameterType="kr.go.seoul.noper2.dto.HistoryMainDTO" resultType="kr.go.seoul.noper2.dto.HistoryMainDTO">
+        SELECT
+        ROW_NUMBER() OVER(ORDER BY CRDATE ASC) AS "historySeq",
+        WORKNAME AS "workName",
+        WORKID,
+        CRGB AS "crgb",
+        ETC AS "etc",
+        CRDATE,
+        SKK_CD,
+        RTRIM(BSCD) || ' ' || RTRIM(USER_NAME) AS "bscdUsername",
+        SUBSTR(CRDATE,0,4)||'.'||SUBSTR(CRDATE,5,2)||'.'||SUBSTR(CRDATE,7,2)||' '||
+        SUBSTR(CRDATE,9,2)||':'||SUBSTR(CRDATE,11,2)||' '||SUBSTR(CRDATE,13,2)  AS "crdate"
+        FROM (
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        A.BJD_CD||', '||A.HJD_CD||', '||A.C_SAH||', '||A.C_BUH||', '||A.C_JI||', '||A.C_OH||', '||
+        A.GROUND_AREA||', '||A.JYD_CD||', '||A.WRITE_REASON||', '||A.BUILD_MJ||', '||A.ST_CD||', '||A.OWNER1_ADDR1||', '||
+        A.OWNER1_ADDR2||', '||A.BIGO AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        A.SKK_CD ,A.BSCD
+        FROM
+        HIS_LIMITED_HEAD A, NOPER_USER B
+        WHERE A.REGIST_ID = B.USER_ID
+        UNION ALL
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        CH_DATE||', '||OWNER_ADDR1||', '||OWNER_ADDR2||', '||PRE_OWNER_NAME||', '||A.CONFIRM_NAME AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        C.SKK_CD,A.BSCD
+        FROM HIS_OWNER_INFO A, NOPER_USER B, LIMITED_HEAD C
+        WHERE A.REGIST_ID = B.USER_ID
+        AND A.ADM_SEQ=C.ADM_SEQ
+        UNION ALL
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        DONG_NO||', '||F_CDNAME('07',DONG_JYD_CD)||', '||DONG_JYD_NAME||', '||
+        DONG_JYD_CD||', '||F_CDNAME('05',DONG_ST_CD)||', '||DONG_ST_NAME||', '||
+        DONG_ST_CD||', '||UNDER_SCALE||', '||FLOOR1_SCALE||', '||FLOOR2_SCALE||', '||FLOOR3_SCALE||', '||
+        FLOOR4_SCALE||', '||FLOORS_SUM_SCALE||', '||DONG_PERMIT_DATE||', '||DONG_PERMIT_NO||', '||DONG_COMP_DATE AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        C.SKK_CD,A.BSCD
+        FROM HIS_DONG_INFO A, NOPER_USER B, LIMITED_HEAD C
+        WHERE A.REGIST_ID = B.USER_ID
+        AND A.ADM_SEQ=C.ADM_SEQ
+        UNION ALL
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        ST_DONG_NO||', '||F_CDNAME('07',ST_JYD_CD)||', '||ST_JYD_NAME||', '||ST_JYD_CD||', '||
+        F_CDNAME('05',A.ST_CD)||', '||ST_NAME||', '||ST_AREA||', '||
+        ST_HEIGHT||', '||ST_PERMIT_DATE||', '||ST_PERMIT_NO||', '||ST_COMP_DATE  AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        C.SKK_CD,A.BSCD
+        FROM HIS_STRUCTURES_INFO A, NOPER_USER B, LIMITED_HEAD C
+        WHERE A.REGIST_ID = B.USER_ID
+        AND A.ADM_SEQ=C.ADM_SEQ
+        UNION ALL
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        A.GROUND_AREA||', '||GROUND_CONTENTS||', '||CHA_AREA||', '||FARM_AREA||', '||GROUND_ETC AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        C.SKK_CD,A.BSCD
+        FROM HIS_GROUND_INFO A, NOPER_USER B, LIMITED_HEAD C
+        WHERE A.REGIST_ID = B.USER_ID
+        AND A.ADM_SEQ=C.ADM_SEQ
+        UNION ALL
+        SELECT
+        F_CDNAME('L03',A.WORKID) AS WORKNAME,
+        A.WORKID,
+        DECODE(A.CRGB,'u','수정','i','추가','d','삭제') AS CRGB,
+        ACT_FLAG||', '||F_CDNAME('07',PERMIT_JYD_CD)||', '||PERMIT_JYD_NAME||', '||
+        PERMIT_JYD_CD||', '||F_CDNAME('05',PERMIT_ST_CD)||', '||PERMIT_ST_NAME||', '||
+        PERMIT_AREA||', '||PERMIT_DATE||', '||PERMIT_NO||', '||PERMIT_COMP_DATE||', '||
+        REGIST_INFO||', '||CONFIRM_INFO AS ETC,
+        A.CRDATE,
+        B.USER_NAME,
+        C.SKK_CD,A.BSCD
+        FROM HIS_PERMIT_INFO A, NOPER_USER B, LIMITED_HEAD C
+        WHERE A.REGIST_ID = B.USER_ID
+        AND A.ADM_SEQ=C.ADM_SEQ
+        ) WHERE 1=1
+        <if test="skkcdSearch != null and skkcdSearch != '' and skkcdSearch != '선택하세요.'">
+            AND SKK_CD IN #{skkcdSearch}
+        </if>
+        <if test="workidSearch != null and workidSearch != '' and workidSearch != '선택하세요.'">
+            AND WORKID IN #{workidSearch}
+        </if>
+        <if test='searchTxt != null and !searchTxt.equals("")'>
+            AND (UPPER(BSCD) LIKE '%' || UPPER(#{searchTxt}) || '%' OR UPPER(USER_NAME) LIKE '%' || UPPER(#{searchTxt}) || '%')
+        </if>
+        <if test='stDate != null and !stDate.equals("") and !stDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') >= #{stDate}]]>
+        </if>
+        <if test='endDate != null and !endDate.equals("") and !endDate.equals("all")'>
+            <![CDATA[AND TO_CHAR(TO_DATE(CRDATE, 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        ORDER BY CRDATE DESC, "historySeq" DESC
+    </select>
+
+</mapper>

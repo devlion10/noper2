@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.CodeRepository">
+    <select id="findDeptList" resultType="Code">
+        SELECT * FROM  COM_CODE WHERE cdid = 'R04'
+    </select>
+
+    <select id="findSkkList" resultType="Code">
+        SELECT * FROM  COM_CODE WHERE cdid = '70' AND CDKEY LIKE '11%'
+    </select>
+
+    <select id="findBjdNameListBySkkCd" parameterType="string" resultType="BjdongDTO">
+        SELECT KEY, DPNAME, PRNTNM FROM K00SIGUD WHERE SKKCD = #{value}
+    </select>
+
+    <select id="findSkkCdBySkkNm" parameterType="string" resultType="Code">
+        SELECT * FROM COM_CODE WHERE cdid = '70' AND CDVALUE = #{value}
+    </select>
+
+    <select id="findLedget" resultType="Code" >
+        /* CodeRepository.findLedget */
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N01'
+        ORDER BY CDKEY
+    </select>
+    <select id="findPossession" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = '29'
+        ORDER BY CDKEY
+    </select>
+    <select id="findUsage" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N02'
+        ORDER BY CDKEY
+    </select>
+    <select id="findRedevelopmentDistrict" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N05'
+        ORDER BY CDKEY
+    </select>
+    <select id="findPdointOut" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = '18'
+        ORDER BY CDKEY
+    </select>
+    <select id="findDistrict" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N06'
+        ORDER BY CDKEY
+    </select>
+    <select id="findUrbanPlanning" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N04'
+        ORDER BY CDKEY
+    </select>
+    <select id="findStructure" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N03'
+        ORDER BY CDKEY
+    </select>
+    <select id="findConditions" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N07'
+        ORDER BY CDKEY
+    </select>
+    <select id="findGmjjgnTemp" resultType="Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = '14'
+        ORDER BY CDKEY
+    </select>
+    <select id="findGmcsah" resultType="kr.go.seoul.noper2.domain.Code">
+        /* CodeRepository.findGmcsah */
+        SELECT *
+        FROM COM_CODE
+        WHERE CDID = '87'
+    </select>
+    <select id="findBjdJusoList" resultType="kr.go.seoul.noper2.dto.LedgerDTO">
+        /* CodeRepository.findBjdJusoList */
+        SELECT SIGUNGU_CD||','||BJDONG_CD AS bjdcd
+             , DECODE(BJDONG_CD, '00000', SIDO_NM||' '||SIGUNGU_NM,SIDO_NM||' '||SIGUNGU_NM||' '||BJDONG_NM) bnam
+        FROM CMP_BJDONG_MGM
+         <![CDATA[
+        WHERE SIGUNGU_CD LIKE '11%' AND SIGUNGU_CD <> '11000'
+          AND HJDONG_CD ='000'
+          AND APPLY_EXP_DAY > TO_CHAR(SYSDATE, 'YYYYMMDD')
+            ]]>
+        ORDER BY bnam
+    </select>
+    <select id="findComCode" resultType="kr.go.seoul.noper2.dto.DemolitionDTO">
+        /* CodeRepository.findComCode */
+        SELECT CDID
+             , CDKEY
+             , CDVALUE
+             , CDDESC
+        FROM COM_CODE
+        WHERE CDID = #{cdid}
+          AND CDKEY = #{cdkey}
+        ORDER BY CDKEY
+    </select>
+
+    <!-- 개발제한 대장관리 -->
+    <select id="findStCd" resultType="kr.go.seoul.noper2.domain.Code">
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = '05'
+        ORDER BY CDKEY
+    </select>
+    <select id="findJydCd" resultType="kr.go.seoul.noper2.domain.Code">
+        SELECT CDID,
+               CDKEY,
+               CDVALUE,
+               CDDESC
+        FROM COM_CODE
+        WHERE CDID = '07'
+          AND SUBSTR(CDKEY,3,3) = '000'
+        ORDER BY CDKEY
+    </select>
+
+    <!-- 기존무허가 일일처리내역 -->
+    <select id="findWorkId" resultType="kr.go.seoul.noper2.domain.Code">
+        SELECT CDID,
+               CDKEY,
+               CDVALUE,
+               CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'N08'
+        ORDER BY CDKEY
+    </select>
+    <select id="findGmskk" resultType="kr.go.seoul.noper2.domain.Code">
+        SELECT CDID,
+               CDKEY,
+               CDVALUE,
+               CDDESC
+        FROM COM_CODE
+        WHERE CDID = '70'
+          AND cdkey like '11%'
+        ORDER BY CDKEY
+    </select>
+    <select id="findGreenBeltWorkId" resultType="kr.go.seoul.noper2.domain.Code">
+        SELECT CDID,
+               CDKEY,
+               CDVALUE,
+               CDDESC
+        FROM COM_CODE
+        WHERE CDID = 'L03'
+        ORDER BY CDKEY
+    </select>
+
+    <!-- 철거 - 철거유형 조회(SelectBox) -->
+    <select id="findDemolitionDeuh" resultType="Code" >
+        /* CodeRepository.findDemolitionDeuh */
+        SELECT CDID, CDKEY, CDVALUE, CDDESC
+        FROM COM_CODE
+        WHERE CDID = '97'
+        ORDER BY CDKEY
+    </select>
+
+    <select id="findDptList" resultType="Code" parameterType="String">
+        SELECT
+            CDID
+            ,CDKEY
+            ,CDVALUE
+            ,CDDESC
+        FROM
+        COM_CODE
+        WHERE CDID = 'R'||#{skkCd}
+    </select>
+    <select id="findEmailListBySkkCd" resultType="Code">
+        SELECT
+            CDID
+            ,CDKEY
+            ,CDVALUE
+            ,CDDESC
+        FROM
+        COM_CODE
+        WHERE CDID = 'E'||#{skkCd}
+    </select>
+</mapper>

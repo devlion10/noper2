@@ -1,0 +1,219 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+</th:block>
+<meta charset="UTF-8">
+<!--/* meta 호출 */-->
+<th:block th:replace="config/meta :: meta"></th:block>3
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="renovationBold = true">
+    <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+</th:block>
+<!--/* library 호출 */-->
+<th:block th:replace="config/library :: library"></th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <!--/* modal 호출 */-->
+    <th:block th:replace="pages/common/modal :: noperNumSearchModal"></th:block>
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">개보수신고관리</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>기존무허가 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>개보수신고관리</span>
+            </div>
+        </div>
+        <form id="renovationForm" th:action="@{/unlcebldmng/renovation/search}" th:method="post">
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호</label>
+                </div>
+                <div class="justify-content-center" th:classappend="${#authentication.principal.isAdmin ? 'col-2' : 'col-1'}">
+                    <select id="gmskk" class="form-select form-select-sm" name="gmskk" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <option th:each="val : ${skk}" th:value="${val?.CDKEY}" th:utext="${val?.CDVALUE}" th:selected="${val?.CDKEY} == ${searchParam?.skkCd}"></option>
+                    </select>
+                    <input type="text" id="gmskk" class="form-control form-control-sm w90 disabled" name="gmskk" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" readonly aria-label="Small" aria-describedby="inputGroup-sizing-sm"/>
+                </div>
+                <div class="col-2 justify-content-center">
+                    <select name="gmdjgb" id="gmdjgb" class="form-select form-select-sm" title="대장구분">
+                        <option value="" selected="selected">전체</option>
+                        <option th:each="gmdjgb : ${gmdjgbList}" th:value="${gmdjgb.cdkey}" th:text="${gmdjgb.cdvalue}">대장구분</option>
+                    </select>
+                </div>
+                <div class="col-2">
+                    <input type="text" name="gmseqco" id="gmseqco" class="form-control form-control-sm w70" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                    &nbsp~&nbsp
+                    <input type="text" name="gmseqco2" id="gmseqco2" class="form-control form-control-sm w70" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                </div>
+                <div class="col-1">
+                    <button type="button" id="btnNoperNumModalCall" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#noperNumSearchDiv"><i class="fa-solid fa-magnifying-glass"></i> 번호찾기</button>
+                </div>
+                <th:block th:if="!${#authentication.principal.isAdmin}">
+                    <div class="col-1"></div>
+                </th:block>
+                <div class="col-1"></div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주</label>
+                </div>
+                <div class="col-2">
+                    <input type="text" name="gmjname" id="gmjname" class="form-control form-control-sm" placeholder="건물주명 입력">
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건축기간</label>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-3">
+                            <select id="gmgunilSelect" class="form-select form-select-sm w150">
+                                <option value="all">전체기간</option>
+                                <option value="simple">기간선택</option>
+                                <option value="set">기간설정</option>
+                            </select>
+                            <input type="hidden" id="gmgunil1" name="gmgunil1">
+                            <input type="hidden" id="gmgunil2" name="gmgunil2">
+                        </div>
+                        <div id="gmgunilRemote" class="col-9 row align-items-center justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">접수일자</label>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-3">
+                            <select id="gbsgoilSelect" max="9999-12-31" class="form-select form-select-sm w150">
+                                <option value="all">전체기간</option>
+                                <option value="simple">기간선택</option>
+                                <option value="set">기간설정</option>
+                            </select>
+                            <input type="hidden" id="gbsgoil1" name="gbsgoil1">
+                            <input type="hidden" id="gbsgoil2" name="gbsgoil2">
+                        </div>
+                        <div id="gbsgoilRemote" class="col-9 row align-items-center justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">준공일자</label>
+                </div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-3">
+                            <select id="jgongSelect" max="9999-12-31" class="form-select form-select-sm w150">
+                                <option value="all">전체기간</option>
+                                <option value="simple">기간선택</option>
+                                <option value="set">기간설정</option>
+                            </select>
+                            <input type="hidden" id="jgong1" name="jgong1">
+                            <input type="hidden" id="jgong2" name="jgong2">
+                        </div>
+                        <div id="jgongRemote" class="col-9 row align-items-center justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주소</label>
+                </div>
+                <div class="col-8">
+                    <input type="text" name="searchJuso" id="searchJuso" class="form-control form-control-sm" placeholder="주소"/>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대지/산</label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <select id="gmcsah" name="gmcsah" class="form-select form-select-sm" title="대지산구분">
+                        <option value="" selected="selected">전체</option>
+                        <option th:each="gmcsah : ${gmcsahList}" th:value="${gmcsah.cdkey}" th:text="${gmcsah.cdvalue}">대장구분</option>
+                    </select>
+                </div>
+                <input type="hidden" name="gmskkcd" id="gmskkcd" aria-label="시군구코드">
+                <input type="hidden" name="gmhjdcd" id="gmhjdcd" aria-label="위치행정동코드">
+                <input type="hidden" name="gmbjdcd" id="gmbjdcd" aria-label="위치법정동코드">
+                <input type="hidden" name="gmcbuh" id="gmcbuh" aria-label="위치본번">
+                <input type="hidden" name="gmcji" id="gmcji" aria-label="위치부번">
+                <input type="hidden" id="userName" th:value="${#authentication.principal.userName}"/>
+            </div>
+        </form>
+        <div class="row justify-content-center">
+            <div class="col-12 justify-content-end mt-3 mb-3">
+                <div class="float-start">
+                    <h5 style="color: #808080">※ 검색조건을 통해 개보수신고현황을 검색할 수 있습니다.</h5>
+                </div>
+                <div class="float-end">
+                    <button type="button" id="btnReload" class="btn btn-secondary btn-sm me-2" alt="새로고침"><i class="bi bi-arrow-repeat"></i></button>
+                    <button type="button" id="btnSearch" class="btn btn-primary btn-sm" alt="조회"><i class="fa-solid fa-magnifying-glass"></i> 조회</button>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center align-items-center mt-3">
+            <div id="totCnt" class="col-2 mt-2">
+                <h3></h3>
+            </div>
+            <div class="col-10">
+                <div class="row align-items-center justify-content-end mb-3">
+                    <button type="button" id="excelDownBtn" class="col-2 btn btn-success btn-sm me-2 w120">
+                        <i class="fa-solid fa-file-excel"></i> 엑셀 다운로드
+                    </button>
+                    <!--<button type="button" id="csvBtn" class="col-2 btn btn-success btn-sm me-2 w120">-->
+                    <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                        <option value="10">10개씩</option>
+                        <option value="30">30개씩</option>
+                        <option value="50">50개씩</option>
+                        <option value="70">70개씩</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="myGrid" style="width: 100%;" class="ag-theme-alpine"></div>
+        </div>
+        <div class="float-start mt-3 hidden">
+            <button type="button" id="goQuick1" class="btn btn-light btn-sm">대장현황</button>
+            <button type="button" id="goQuick2" class="btn btn-light btn-sm">기존무허가확인원</button>
+            <button type="button" id="goQuick3" class="btn btn-light btn-sm">소유자관리</button>
+            <button type="button" id="goQuick4" class="btn btn-light btn-sm">철거신고</button>
+            <button type="button" id="goQuick5" class="btn btn-light btn-sm">부분철거신고</button>
+        </div>
+        <div class="float-end mt-3">
+            <button type="button" id="reportCallBtn" class="btn btn-primary btn-sm" name="RPAIR_STTUS">대장출력</button>
+            <button th:if="${auth.canInsert}" type="button" id="btnNewRvAdd" class="btn btn-sm btn-primary" th:onclick="|location.href='add'|">신규개보수신고</button>
+        </div>
+    </div>
+    <form id="renovationDetailForm" th:action="@{/unlcebldmng/renovation/detail}" th:method="get">
+        <input type="hidden" name="gmskk" id="gmskkDtlIp"/>
+        <input type="hidden" name="gmdjgb" id="gmdjgbDtlIp"/>
+        <input type="hidden" name="gmseqco" id="gmseqcoDtlIp"/>
+        <input type="hidden" name="gmilno" id="gmilnoDtlIp"/>
+        <input type="hidden" name="balno" id="balnoDtlIp"/>
+        <input type="hidden" name="gbsgoil" id="gbsgoilDtlIp"/>
+        <input type="hidden" name="gbscotent" id="gbscotentDtlIp"/>
+        <input type="hidden" name="chcontent" id="chcontentDtlIp"/>
+        <input type="hidden" name="jgong" id="jgongDtlIp"/>
+        <input type="hidden" name="gmjname" id="gmjnameDtlIp"/>
+    </form>
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:inline="javascript">
+        var isAdmin = [[${#authentication.principal.isAdmin}]]
+        var gmskkcd = [[${#authentication.principal.skkCd}]]
+    </script>
+</th:block>
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:src="@{/js/common/calendar.js}"></script>
+    <script th:src="@{/js/buildingmanagement/renovation.js}"></script>
+    <script th:src="@{/js/buildingmanagement/renovationCalendar.js}"></script>
+    <script th:src="@{/js/common/modal.js}"></script>
+</th:block>
+</html>

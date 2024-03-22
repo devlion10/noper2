@@ -1,0 +1,396 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="questionAndAnswerBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="container-fluid content">
+        <div class="title_wrap">
+            <h3 class="tit">Q&amp;A 상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>Q&A</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>Q&A 상세</span>
+            </div>
+        </div>
+        <form id="qnaDetailForm" class="g-3 mb-5">
+            <input type="hidden" name="qaSeq" th:value="${dto.qaSeq}" />
+            <input type="hidden" name="qaSubject" th:value="${dto.qaSubject}" />
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">제목</label>
+                </div>
+                <div class="col-5">
+                    <span class="form-span fw-bold mt-2" th:text="${dto.qaSubject}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <span class="form-span fw-bold mt-2">조회수</span>
+                </div>
+                <div class="col-5">
+                    <span th:text="${dto.getReadCnt()}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">작성자</label>
+                </div>
+                <div class="col-5">
+                    <span th:text="${dto.userName}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">문의유형</label>
+                </div>
+                <div class="col-5">
+                    <span th:text="${dto.getQaType}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <span class="form-span fw-bold mt-2">자치구명</span>
+                </div>
+                <div class="col-5">
+                    <span th:text="${dto.getSkkCd()}"></span>
+                    <!--<span th:text="${registTs}"></span>-->
+                </div>
+                <div class="col-1 col-th">
+                    <span class="form-span fw-bold mt-2">이메일</span>
+                </div>
+                <div class="form-group col-5">
+                    <span th:text="${dto.getEMail()}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <span class="form-span fw-bold mt-2">작성일</span>
+                </div>
+                <div class="col-5">
+                    <span th:text="${dto.getRegistTs}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">답변상태</label>
+                </div>
+                <div class="col-5">
+                    <span th:text="${answerDto != null ? '답변완료' : '답변대기'}"></span>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-12">
+                    <textarea id="qaContents"></textarea>
+                </div>
+            </div>
+            <div class="row row-tr btccc justify-content-center mt-3">
+                <div class="col-1 col-th">
+                    <label class="fw-bold mt-2">첨부 파일</label>
+                </div>
+                <div class="col-11">
+                    <div id="myId"></div>
+                    <div class="row justify-content-center align-content-center mt-2">
+                        <div class="col-1 text-center">파일</div>
+                        <div class="col-9">
+                            <ul id="user-files" class="list-inline">
+                            </ul>
+                        </div>
+                        <div class="col-2">
+                            <button id="allDownload" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="title_wrap bdnn">
+                <h3 class="tit mt-5">답변</h3>
+            </div>
+            <div class="justify-content-center mt-3">
+                <textarea name="qaContents"></textarea>
+            </div>
+            <div class="row row-tr btccc justify-content-center mt-3">
+                <div class="col-1 col-th">
+                    <label class="fw-bold mt-2">첨부 파일</label>
+                </div>
+                <div class="col-11">
+                    <div id="myId2" class="col"></div>
+                    <div class="row justify-content-center align-content-center mt-2">
+                        <div class="col-1 text-center">파일</div>
+                        <div class="col-9">
+                            <ul id="user-files2" class="list-inline">
+                            </ul>
+                        </div>
+                        <div class="col-2">
+                            <button id="allDownload2" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-6">
+                    <button type="button" id="listBtn" class="btn btn-light btn-sm" th:onclick="|location.href='/board/questionAndAnswer/list'|"><i class="bi bi-list-ul"></i> 목록</button>
+                </div>
+                <div class="col-6 tx-right">
+                    <th:block sec:authorize="isAuthenticated()">
+                        <button type="button" id="deleteBtn" class="btn btn-sm btn-danger" th:onclick="|location.href='#'|" th:if="${#authentication.principal.isAdmin} or ${dto.getRegistId} == ${#authentication.principal.userId}"><i class="fa-regular fa-trash-can"></i> 삭제</button>
+                        <button type="button" id="modifyBtn" class="btn btn-sm btn-success" th:if="${dto.getRegistId} == ${#authentication.principal.userId}"> 수정</button>
+                        <button type="button" id="saveAnswerBtn" class="btn btn-sm btn-success" th:if="${answerDto == null} and ${#authentication.principal.isAdmin}" > 답변등록</button>
+                        <button type="button" id="modifyAnswerBtn" class="btn btn-success btn-sm" th:if="${answerDto != null} and ${#authentication.principal.isAdmin}" > 답변수정</button>
+                    </th:block>
+                </div>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        const admin = [[${#authentication.principal != "anonymousUser" ? #authentication.principal.isAdmin : false}]];
+        const seq = [[${dto.qaSeq != null ? dto.qaSeq : 0}]];
+        // flag(QA) 임시 예제 값
+        const flag = 1;
+        /*type : 파일 업무 구분
+        fileName : 파일명 가로길이 설정
+        size : 파일크기 가로길이 설정
+        readOnly : 조회페이지 구분(업로드 버튼들이 삭제됨)*/
+        const type = {
+            type:'qa',
+            fileName: 700,
+            size: 200,
+            readOnly: 'Y',
+            modalId: 'modal-1',
+            visible: true
+        }
+        const type2 = {
+            type:'qa',
+            fileName: 900,
+            size: 300,
+            readOnly: admin ? 'N' : 'Y',
+            modalId: 'modal-2',
+            visible: false
+        }
+        const uploader = new snFileUpload.Uploader("myId", type);
+        const uploader2 = new snFileUpload.Uploader("myId2", type2);
+
+        const dto = [[${dto}]];
+        const answerDto = [[${answerDto}]];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            uploader.parentKey = seq
+            uploader2.parentKey = seq
+            uploader.flag = '1'
+            uploader2.flag = '2'
+            await uploader.loadFiles();
+            await uploader2.loadFiles();
+            uploader.getFiles().forEach(file=>{
+                console.log(file)
+                let $link = $("<a>")
+                    .text(`${file.name} (${file.vsize})`)
+                    .attr("title", file.name)
+                    .attr("href", `${file.name}`)
+                    .data("fseq", file.fseq)
+                    .data("seq", file.seq)
+                    .on("click", (e)=>{
+                        e.preventDefault();
+                        let seq = $(e.target).data("seq");
+                        let fseq =$(e.target).data("fseq");
+
+                        // console.log(seq)
+                        // console.log(fseq)
+                        console.log(file.type.match(/jpg|jpeg|png|gif/ig))
+                        if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                            return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                .on("click", uploader.imgPreview(file))[0];
+                        } else {
+                            uploader.downloadFile(file);
+                        }
+                    });
+                $("<li class='list-inline-item'>")
+                    .append($link)
+                    .appendTo($("#user-files"));
+                console.log(uploader2.filesData)
+
+                // 파일이 있을 때만 전체 다운로드 버튼 나타나게
+                document.getElementById('allDownload').style.display = uploader.filesData.length === 0 ? 'none' : 'block'
+                document.getElementById('allDownload2').style.display = uploader2.filesData.length === 0 ? 'none' : 'block'
+            });
+            uploader2.getFiles().forEach(file=>{
+                console.log(file)
+                let $link = $("<a>")
+                    .text(`${file.name} (${file.vsize})`)
+                    .attr("title", file.name)
+                    .attr("href", `${file.name}`)
+                    .data("fseq", file.fseq)
+                    .data("seq", file.seq)
+                    .on("click", (e)=>{
+                        e.preventDefault();
+                        let seq = $(e.target).data("seq");
+                        let fseq =$(e.target).data("fseq");
+
+                        // console.log(seq)
+                        // console.log(fseq)
+                        console.log(file.type.match(/jpg|jpeg|png|gif/ig))
+                        if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                            return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                .on("click", uploader2.imgPreview(file))[0];
+                        } else {
+                            uploader2.downloadFile(file);
+                        }
+                    });
+
+                if(admin) {
+                    let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                    $deleteLink.on("click", (e) => {
+                        $(e.target).closest("li").remove()
+                        console.log(file)
+                        uploader2.deleteFiles(file)
+                    });
+
+                    $("<li class='list-inline-item'>")
+                        .append($link)
+                        .append($deleteLink)
+                        .appendTo($("#user-files2"));
+                } else {
+                    $("<li class='list-inline-item'>")
+                        .append($link)
+                        .appendTo($("#user-files2"));
+                }
+            });
+            // 정보만 불러오고 없애고 싶다면
+            uploader.clearFiles()
+            uploader2.clearFiles()
+        })
+
+        document.getElementById('allDownload').addEventListener('click', async () => {
+            uploader.downloadAllFile()
+        })
+
+        document.getElementById('allDownload2').addEventListener('click', async () => {
+            uploader2.downloadAllFile()
+        })
+
+        $(document).ready(function() {
+            // 질문
+            $('#qaContents').summernote({
+                height: 300,                 // 에디터 높이
+                minHeight: null,             // 최소 높이
+                maxHeight: null,             // 최대 높이
+                focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
+                lang: "ko-KR",					// 한글 설정
+                placeholder: '최대 2048자까지 쓸 수 있습니다'	//placeholder 설정
+            });
+
+            $('#qaContents').summernote('code', dto.qaContents);
+            $('#qaContents').summernote('disable');
+
+            // 답변
+            $('textarea[name=qaContents]').summernote({
+                height: 300,                 // 에디터 높이
+                minHeight: null,             // 최소 높이
+                maxHeight: null,             // 최대 높이
+                focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
+                lang: "ko-KR",					// 한글 설정
+                placeholder: '최대 2048자까지 쓸 수 있습니다'	//placeholder 설정
+            });
+
+            if(!admin) $('textarea[name=qaContents]').summernote('disable');
+
+            if(answerDto?.qaSeq) {
+                $('textarea[name=qaContents]').summernote('code', answerDto.qaContents);
+            }
+
+            // 사용자일 때
+            // 답변 있을 때
+            // $('textarea[name=qaContents]').summernote('disable');
+            // 답변 없을 때는 thymeleaf로 처리
+
+            $("#modifyBtn").click(() => {
+                location.href='/board/questionAndAnswer/update?qaSeq=' + [[${dto.qaSeq}]];
+            });
+
+            // 삭제
+            $("#deleteBtn").click(() => {
+                const params = {qaSeq: [[${dto.qaSeq}]]}
+
+                let url = "/api/questionAndAnswer/delete";
+                let type = "post";
+                let json = JSON.stringify(params);
+                let contentType = "application/json";
+
+                snAlert.confirm("삭제하시겠습니까?").then((resultChk) => {
+                    if (resultChk.isConfirmed){
+                        ajaxCall(url, type, json, contentType, function(result){
+                            snAlert.alert("작성글이 삭제되었습니다.").then((resultChk) => {
+                                if (resultChk.isConfirmed){
+                                    location.href='/board/questionAndAnswer/list'
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+            const answerAjax = e => {
+                const params = $("#qnaDetailForm").serializeObject()
+                const url = "/api/questionAndAnswer/saveAnswer";
+                const type = "post";
+                const json = JSON.stringify(params);
+                const contentType = "application/json";
+                ajaxCall(url, type, json, contentType, function(result){
+                    uploader2.parentKey = seq;
+                    uploader2.flag = '2'
+                    uploader2.uploadFiles(false);
+                    snAlert.alert(`답변이 ${e}되었습니다.`).then(() => {
+                        uploader2.clearFiles()
+                        location.href = '/board/questionAndAnswer/list';
+                    });
+                });
+            }
+            $("#saveAnswerBtn").click(() => {
+                answerAjax('등록')
+            });
+
+            $("#modifyAnswerBtn").click(() => {
+                answerAjax('수정')
+            });
+        });
+
+        /*
+        const fileInput = document.getElementById("fileUpload");
+
+        const handleFiles = (e) => {
+            const selectedFile = [...fileInput.files];
+            const fileReader = new FileReader();
+
+            fileReader.readAsDataURL(selectedFile[0]);
+
+            fileReader.onload = function () {
+                document.getElementById("previewImg").src = fileReader.result;
+            }
+        };
+        fileInput.addEventListener("change", handleFiles);
+         */
+
+        //ajax 공통
+        function ajaxCall(url, type, param, contentType, callback) {
+            $.ajax({
+                url : url,
+                type : type,
+                data : param,
+                contentType: contentType,
+                success: function (result){
+                    return callback(result);
+                },
+                error : function(error){
+                    snAlert.alert("글 등록이 실패하였습니다.");
+                }
+            });
+        };
+
+    </script>
+</th:block>
+</html>

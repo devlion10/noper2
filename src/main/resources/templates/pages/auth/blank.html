@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>Blank</title>
+</head>
+<body>
+<script th:inline="javascript">
+    let errorRes = [[${referer != null ? referer : "/"}]];
+    // errorRes 객체가 any[][] 타입일 수 있어서 체크
+    if (typeof errorRes !== 'string') {
+        errorRes = '/';
+    }
+
+    const returnPath = errorRes !== '/' ? new URL(errorRes).pathname : '/';
+
+    snAlert.error('해당 메뉴에 접근 권한이 없습니다.\n관리자에게 문의하세요.')
+        .then(() => {
+            location.href = returnPath === '/access-denied' ? '/' : returnPath;
+        });
+
+
+
+</script>
+</body>
+</html>

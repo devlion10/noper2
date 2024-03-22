@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.go.seoul.noper2.repository.ViolationBuildingRepository">
+    <update id="updateViolationBuilding" parameterType="ViomaMaster">
+        merge into VIOMA_MASTER
+        using DUAL on (GMSKK = #{gmskk})
+        when matched then
+        update set UPDATE_ID = #{registId}, UPDATE_TS = SYSDATE, GMSKKCD = #{gmskkcd},
+            GMBJDCD = #{gmbjdcd}, GMHJDCD = #{gmhjdcd, jdbcType=VARCHAR}, GMADDR = #{gmaddr},
+            GMNADDR = #{gmnaddr}, DEJIMJ = #{dejimj}, DEJIJMG = #{dejijmg}, DEJISG = #{dejisg},
+            DEJIJU = #{dejiju}, DEJIJG = #{dejijg}, DEJIGU = #{dejigu}, GCNAME = #{gcname},
+            GCFORIGB = #{gcforigb}, GCBIRTH = TO_DATE(#{gcbirth}, 'YYYYMMDD'), GCTELNO = #{gctelno}, GCADDR = #{gcaddr},
+            GCNADDR = #{gcnaddr}, GMTYPE = #{gmtype}, GMDATE = TO_DATE(#{gmdate}, 'YYYY-MM-DD'),
+            GMNAME = #{gmname, jdbcType=VARCHAR}, GMFTYPE = #{gmftype, jdbcType=VARCHAR},
+            GMCDATE = TO_DATE(#{gmcdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), GMMUNJUK = #{gmmunjuk, jdbcType=NUMERIC},
+            GMFLOOR = #{gmfloor, jdbcType=NUMERIC}, GMBSUB = #{gmbsub, jdbcType=VARCHAR},
+            GMASUB = #{gmasub, jdbcType=VARCHAR}, GMGDATE = TO_DATE(#{gmgdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'),
+            GMJDATE = TO_DATE(#{gmjdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), GMHDATE = TO_DATE(#{gmhdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'),
+            GMSNAME = #{gmsname, jdbcType=VARCHAR}, GMSNUMBER = #{gmsnumber, jdbcType=VARCHAR},
+            GMGNAME = #{gmgname, jdbcType=VARCHAR}, GMGNUMBER = #{gmgnumber, jdbcType=VARCHAR},
+            GMINFO = #{gminfo, jdbcType=VARCHAR}, GMRST = #{gmrst, jdbcType=VARCHAR},
+            GMMST = #{gmmst, jdbcType=VARCHAR}, GMFACSEQ = #{gmfacseq, jdbcType=VARCHAR},
+            GMHCDATE = TO_DATE(#{gmhcdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), GMHCONT = #{gmhcont, jdbcType=VARCHAR}, GMCSAH = #{gmcsah, jdbcType=VARCHAR}
+        when not matched then
+        insert
+            ( GMSKK, GMSKKCD, GMBJDCD, GMHJDCD, GMADDR, GMNADDR, DEJIMJ, DEJIJMG, DEJISG, DEJIJU, DEJIJG, DEJIGU, GCNAME, GCFORIGB,
+                GCBIRTH, GCTELNO, GCADDR, GCNADDR, GMTYPE, GMDATE, GMNAME, GMFTYPE, GMCDATE, GMMUNJUK, GMFLOOR,
+                GMBSUB, GMASUB, GMGDATE, GMJDATE, GMHDATE, GMHCDATE, GMHCONT, GMSNAME, GMSNUMBER,
+                GMGNAME, GMGNUMBER, GMINFO, GMRST, GMMST, GMFACSEQ, REGIST_ID, REGIST_TS, GMCSAH )
+        values
+            ( #{gmskk}, #{gmskkcd, jdbcType=VARCHAR}, #{gmbjdcd}, #{gmhjdcd, jdbcType=VARCHAR}, #{gmaddr}, #{gmnaddr},
+             #{dejimj}, #{dejijmg}, #{dejisg}, #{dejiju}, #{dejijg}, #{dejigu}, #{gcname}, #{gcforigb},
+             TO_DATE(#{gcbirth}, 'YYYYMMDD'), #{gctelno}, #{gcaddr}, #{gcnaddr}, #{gmtype}, TO_DATE(#{gmdate}, 'YYYY-MM-DD'), #{gmname, jdbcType=VARCHAR},
+             #{gmftype, jdbcType=VARCHAR}, TO_DATE(#{gmcdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), #{gmmunjuk, jdbcType=NUMERIC},
+             #{gmfloor, jdbcType=NUMERIC}, #{gmbsub, jdbcType=VARCHAR}, #{gmasub, jdbcType=VARCHAR},
+             TO_DATE(#{gmgdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), TO_DATE(#{gmjdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), TO_DATE(#{gmhdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'),
+             TO_DATE(#{gmhcdate, jdbcType=VARCHAR}, 'YYYY-MM-DD'), #{gmhcont, jdbcType=VARCHAR}, #{gmsname, jdbcType=VARCHAR},
+             #{gmsnumber, jdbcType=VARCHAR}, #{gmgname, jdbcType=VARCHAR}, #{gmgnumber, jdbcType=VARCHAR},
+             #{gminfo, jdbcType=VARCHAR}, #{gmrst, jdbcType=VARCHAR}, #{gmmst, jdbcType=VARCHAR},
+             #{gmfacseq, jdbcType=VARCHAR}, #{registId}, SYSDATE, #{gmcsah, jdbcType=VARCHAR} )
+    </update>
+    <update id="updateResident" parameterType="ViomaResi">
+        <selectKey keyProperty="resiSeq" resultType="Long" order="BEFORE">
+            select NVL(#{resiSeq, jdbcType=NUMERIC}, NVL(max(RESI_SEQ), 0) + 1)
+            from VIOMA_RESI
+            where GMSKK = #{gmskk}
+        </selectKey>
+        merge into VIOMA_RESI
+        using DUAL on (RESI_SEQ = #{resiSeq} and GMSKK = #{gmskk})
+        when matched then
+        update set RESI_NAME = #{resiName}, RESI_FORIGB = #{resiForigb}, RESI_BIRTH = TO_DATE(#{resiBirth}, 'YYYYMMDD'),
+            RESI_TELNO = #{resiTelno}, RESI_ADDRESS = #{resiAddress}, RESI_NEW_ADDRESS = #{resiNewAddress}
+        when not matched then
+        insert
+        ( RESI_SEQ, GMSKK, RESI_NAME, RESI_FORIGB, RESI_BIRTH, RESI_TELNO, RESI_ADDRESS, RESI_NEW_ADDRESS )
+        values
+        ( #{resiSeq}, #{gmskk}, #{resiName}, #{resiForigb}, TO_DATE(#{resiBirth}, 'YYYYMMDD'), #{resiTelno},
+        #{resiAddress}, #{resiNewAddress} )
+    </update>
+    <update id="updateEnforcementImposition" parameterType="ViomaEnfoImpo">
+        <selectKey keyProperty="impoSeq" resultType="Long" order="BEFORE">
+            select NVL(#{impoSeq, jdbcType=NUMERIC}, NVL(max(IMPO_SEQ), 0) + 1)
+            from VIOMA_ENFO_IMPO
+            where GMSKK = #{gmskk}
+        </selectKey>
+        merge into VIOMA_ENFO_IMPO
+        using DUAL on (IMPO_SEQ = #{impoSeq} and GMSKK = #{gmskk})
+        when matched then
+        update set IMPO_DATE = TO_DATE(#{impoDate}, 'YYYY-MM-DD'), IMPO_AMOUNT = #{impoAmount}
+        when not matched then
+        insert
+        ( IMPO_SEQ, GMSKK, IMPO_DATE, IMPO_AMOUNT )
+        values
+        ( #{impoSeq}, #{gmskk}, TO_DATE(#{impoDate}, 'YYYY-MM-DD'), #{impoAmount})
+    </update>
+    <update id="updateEnforcementCollection" parameterType="ViomaEnfoColl">
+        <selectKey keyProperty="collSeq" resultType="Long" order="BEFORE">
+            select NVL(#{collSeq, jdbcType=NUMERIC}, NVL(max(COLL_SEQ), 0) + 1)
+            from VIOMA_ENFO_COLL
+            where GMSKK = #{gmskk}
+        </selectKey>
+        merge into VIOMA_ENFO_COLL
+        using DUAL on (COLL_SEQ = #{collSeq} and GMSKK = #{gmskk})
+        when matched then
+        update set COLL_DATE = TO_DATE(#{collDate}, 'YYYY-MM-DD'), COLL_AMOUNT = #{collAmount}
+        when not matched then
+        insert
+        ( COLL_SEQ, GMSKK, COLL_DATE, COLL_AMOUNT )
+        values
+        ( #{collSeq}, #{gmskk}, TO_DATE(#{collDate}, 'YYYY-MM-DD'), #{collAmount})
+    </update>
+    <select id="selectViolationBuildingList" parameterType="SearchParam" resultType="ViomaMaster">
+        select row_number() over (order by REGIST_TS) as rn, GMSKK, F_CDNAME('70',GMSKKCD) as GMSKKCD, GMTYPE,
+               GMADDR, GMNADDR, NVL2(GMASUB, GMBSUB||'/'||GMASUB, GMBSUB) as GMBSUB, NVL2(GMTYPE, '1', '-') as gmasub,
+               NVL2(GMHCDATE, '1', '-') as GMHCDATE, NVL2(GMGDATE, '1', '-') as GMGDATE,
+               NVL2(GMJDATE, '1', '-') as GMJDATE, NVL2(GMHDATE, '1', '-') as GMHDATE, to_char(GMDATE, 'YYYY.MM.DD') as GMDATE,
+               GCNAME, TO_CHAR(GCBIRTH, 'YYYY-MM-DD') as gcbirth, GMMST
+        from VIOMA_MASTER
+        where GMSKK like '%'||#{gmskk}||'%' and GMCSAH like '%'||#{gmcsah}||'%' and GMSKKCD like '%'||#{skkCd}||'%' and GMTYPE like '%'||#{violationType}||'%' and
+              <if test="!useType.equals('')">GMBSUB = #{useType} and </if>
+              GMADDR like '%'||#{address}||'%' and GMNADDR like '%'||#{newAddress}||'%' and
+              <![CDATA[GMDATE >= TO_DATE(#{startDate}, 'YYYY-MM-DD') and GMDATE <= TO_DATE(#{endDate}, 'YYYY-MM-DD')]]>
+        order by REGIST_TS desc
+
+    </select>
+    <select id="selectViolationBuildingStatus" parameterType="SearchParam" resultType="ViomaStatus">
+        SELECT NVL(GMTYPE, '계') AS GMTYPE, NVL(GMSUB, '계') AS GMSUB, DECODE(SUM(GM_N_CNT), '0', '-', SUM(GM_N_CNT)) AS GM_N_CNT, DECODE(SUM(GM_E_CNT), '0', '-', SUM(GM_E_CNT)) AS GM_E_CNT,
+               DECODE(SUM(IMPO_CNT), '0', '-', SUM(IMPO_CNT)) AS IMPO_CNT, DECODE(SUM(IMPO_AMT), '0', '-', TO_CHAR(SUM(IMPO_AMT), 'FM999,999,999,999,999')) AS IMPO_AMT, DECODE(SUM(COLL_CNT), '0', '-', SUM(COLL_CNT)) AS COLL_CNT,
+               DECODE(SUM(COLL_AMT), '0', '-', TO_CHAR(SUM(COLL_AMT), 'FM999,999,999,999,999')) AS COLL_AMT, DECODE(SUM(IMPO_AMT) - SUM(COLL_AMT), '0', '-', TO_CHAR(SUM(IMPO_AMT) - SUM(COLL_AMT), 'FM999,999,999,999,999')) as N_IMPO_AMT,
+               DECODE(SUM(GMG_N_CNT), '0', '-', SUM(GMG_N_CNT)) AS GMG_N_CNT, DECODE(SUM(GMG_E_CNT), '0', '-', SUM(GMG_E_CNT)) AS GMG_E_CNT, DECODE(SUM(GMH_CNT), '0', '-', SUM(GMH_CNT)) AS GMH_CNT
+        FROM (
+                 select m.GMTYPE, m.GMBSUB as GMSUB, NVL(count(m.GMTYPE), 0) as GM_N_CNT,
+                        NVL(count(m.GMHDATE), 0) as GM_E_CNT, e.IMPO_CNT, e.IMPO_AMT, e.COLL_CNT,
+                        e.COLL_AMT, NVL(count(m.GMGDATE), 0) as GMG_N_CNT ,NVL(count(m.GMJDATE), 0) as GMG_E_CNT,
+                        NVL(count(m.GMHDATE), 0) as GMH_CNT
+                 from VIOMA_MASTER m, (
+                        SELECT i.GMSKK, i.IMPO_CNT, i.IMPO_AMT, c.COLL_CNT, c.COLL_AMT
+                        FROM
+                        (
+                        select m.GMSKK, NVL(count(i.IMPO_SEQ), 0) as IMPO_CNT, NVL(SUM(i.IMPO_AMOUNT), 0) as IMPO_AMT
+                        from VIOMA_MASTER m, VIOMA_ENFO_IMPO i
+                        where <if test="!useType.equals('')"> m.GMBSUB = #{useType} and </if>m.GMSKK = i.GMSKK(+)
+                        group by m.GMSKK
+                        ) i,
+                        (
+                        select m.GMSKK, NVL(count(c.COLL_SEQ), 0) as COLL_CNT, NVL(SUM(c.COLL_AMOUNT), 0) as COLL_AMT
+                        from VIOMA_MASTER m, VIOMA_ENFO_COLL c
+                        where <if test="!useType.equals('')"> m.GMBSUB = #{useType} and </if>m.GMSKK = c.GMSKK(+)
+                        group by m.GMSKK
+                        ) c
+                        WHERE i.GMSKK = c.GMSKK
+                    ) e
+                 where m.GMSKK = e.GMSKK(+) and m.GMSKKCD like '%'||#{skkCd}||'%' and m.GMTYPE like '%'||#{violationType}||'%' and
+                     <![CDATA[ m.GMDATE >= TO_DATE(#{startDate}, 'YYYY-MM-DD') and m.GMDATE <= TO_DATE(#{endDate}, 'YYYY-MM-DD') ]]>
+                 group by m.GMTYPE, m.GMBSUB, e.IMPO_CNT, e.IMPO_AMT, e.COLL_CNT, e.COLL_AMT
+             ) t
+        GROUP BY ROLLUP (GMTYPE, GMSUB)
+        ORDER BY DECODE(GMTYPE, '무단 용도변경 건축물', '1', '위법시공 건축물', '2', '기타 위반건축물', '3', '무허가 건축물', '4', '5'),
+                 DECODE(GMSUB, '주거용', '1', '비주거용', '2', '3')
+    </select>
+    <select id="selectViolationBuilding" parameterType="ViomaMaster" resultType="ViomaMaster">
+        select m.GMSKK, m.GMSKKCD, F_SIGUD(m.GMSKKCD, m.GMBJDCD) as GMBJDCD,
+               m.GMHJDCD, m.GMADDR, m.GMNADDR, m.DEJIMJ, m.DEJIJMG, m.DEJISG, m.DEJIJU, m.DEJIJG, m.DEJIGU,
+               m.GCNAME, TO_CHAR(m.GCBIRTH, 'YYYYMMDD') as GCBIRTH, m.GCTELNO, m.GCADDR, m.GCNADDR, m.GMTYPE,
+               TO_CHAR(m.GMDATE, 'YYYY-MM-DD') as GMDATE, m.GMFTYPE, TO_CHAR(m.GMCDATE, 'YYYY-MM-DD') as GMCDATE,
+               m.GMMUNJUK, m.GMFLOOR, m.GMBSUB, m.GMASUB, m.GMSNAME, m.GMSNUMBER, m.GMGNAME, m.GMGNUMBER, m.GMINFO, m.GMRST, m.GMMST,
+               m.GMFACSEQ, TO_CHAR(m.REGIST_TS, 'YYYY-MM-DD') as REGIST_TS, TO_CHAR(m.UPDATE_TS, 'YYYY-MM-DD') as UPDATE_TS,
+               TO_CHAR(m.GMGDATE, 'YYYY-MM-DD') as GMGDATE, TO_CHAR(m.GMJDATE, 'YYYY-MM-DD') as GMJDATE,
+               TO_CHAR(m.GMHDATE, 'YYYY-MM-DD') as GMHDATE, u.USER_NAME as REGIST_ID, F_CDNAME('R'||u.SKK_CD, u.DEPT_CD) as DEPT_CD, m.UPDATE_ID, m.GMHCONT,
+               TO_CHAR(m.GMHCDATE, 'YYYY-MM-DD') as GMHCDATE, m.GCFORIGB, m.GMNAME, m.GMCSAH
+        from VIOMA_MASTER m, NOPER_USER u
+        where m.REGIST_ID = u.USER_ID and m.GMSKK = #{gmskk}
+    </select>
+    <select id="selectViolationBuildingResi" parameterType="ViomaMaster" resultType="ViomaResi">
+        select RESI_SEQ, GMSKK, TO_CHAR(RESI_BIRTH, 'YYYYMMDD') as RESI_BIRTH,
+               RESI_TELNO, RESI_ADDRESS, RESI_NEW_ADDRESS, RESI_NAME, RESI_FORIGB
+        from VIOMA_RESI
+        where GMSKK = #{gmskk}
+        order by RESI_SEQ
+    </select>
+    <select id="selectViolationBuildingImpo" parameterType="ViomaMaster" resultType="ViomaEnfoImpo">
+        select IMPO_SEQ, GMSKK, TO_CHAR(IMPO_DATE, 'YYYY-MM-DD') as IMPO_DATE, IMPO_AMOUNT
+        from VIOMA_ENFO_IMPO
+        where GMSKK = #{gmskk}
+        order by IMPO_SEQ
+    </select>
+    <select id="selectViolationBuildingColl" parameterType="ViomaMaster" resultType="ViomaEnfoColl">
+        select COLL_SEQ, GMSKK, TO_CHAR(COLL_DATE, 'YYYY-MM-DD') as COLL_DATE, COLL_AMOUNT
+        from VIOMA_ENFO_COLL
+        where GMSKK = #{gmskk}
+        order by COLL_SEQ
+    </select>
+</mapper>

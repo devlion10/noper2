@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <title>서울시 기존무허가건축물관리시스템 지도</title>
+</head>
+<body>
+<img id="image" alt="항측도" style="position: relative; top: 0; left: 0; margin: 0; padding: 0; transition-duration: 100ms; scale: 1; z-index: 9998;">
+<button id="imageDownload" class="btn btn-success" style="position: fixed; top: 0; right: 0; margin: 10px; z-index: 9999"><i class="bi bi-download"></i> 다운로드</button>
+</body>
+<script>
+    const nowUrl = new URL(location.href);
+    const urlParameter = window.location.search.replace('?', '');
+    const params = urlParameter.split('&');
+    const domain = nowUrl.host
+    const protocol = nowUrl.protocol
+    const baseUrl = '/file/getAirialImgFile/';
+    const baseDirName = params[0].split('=')[1].indexOf('%') === -1 ? params[0].split('=')[1] : decodeURI(params[0].split('=')[1]);
+    const baseFileName = params[1].split('=')[1].indexOf('%') === -1 ? params[1].split('=')[1] : decodeURI(params[1].split('=')[1]);
+    const baseFileType = baseFileName.split('.')[baseFileName.split('.').length - 1].toLowerCase();
+    const responseType = baseFileType === 'png' ? 'image/png' : 'image/jpeg';
+    const url = protocol + '//' + domain + baseUrl + baseDirName + '/' + baseFileName;
+    const downloadUrl = protocol + '//' + domain + baseUrl + 'download/' + baseDirName + '/' + baseFileName;
+
+    const baseOption = {
+        width: 0,
+        height: 0
+    }
+
+    const nowOption = {
+        scale: 1,
+        top: 0,
+        left: 0,
+        pageX: 0,
+        pageY: 0,
+        centerX: 0,
+        centerY: 0,
+    }
+
+    let loadingDelayPdfViewer = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const image = document.getElementById('image');
+        const downloadButton = document.getElementById('imageDownload');
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            cache: false,
+            xhrFields: {
+                responseType: responseType,
+            },
+            success: function (data) {
+                const blob = new Blob([new ArrayBuffer(data)], { type: responseType });
+                const imageUrl = window.URL.createObjectURL(blob);
+                image.src = url;
+                image.onload = function () {
+                    baseOption.width = image.width;
+                    baseOption.height = image.height;
+                }
+                window.URL.revokeObjectURL(imageUrl);
+            }
+        })
+
+        function changePopupLayout(action) {
+            if(!loadingDelayPdfViewer) {
+                loadingDelayPdfViewer = true;
+                const currentScale = nowOption.scale
+
+                switch (action) {
+                    case 'SCROLL_UP': nowOption.scale += 0.1; break;
+                    case 'SCROLL_DOWN': if(nowOption.scale > 0.3) nowOption.scale -= 0.1; break;
+                }
+
+                const ratio = 1 - nowOption.scale / currentScale
+
+                const width = baseOption.width * nowOption.scale;
+                const height = baseOption.height * nowOption.scale;
+                nowOption.left += (nowOption.clientX - nowOption.left) * ratio;
+                nowOption.top += (nowOption.clientY - nowOption.top) * ratio;
+
+                image.width = width;
+                image.height = height;
+                image.style.left = nowOption.left + 'px';
+                image.style.top = nowOption.top + 'px';
+
+                setInterval(() => { loadingDelayPdfViewer = false }, 50);
+            }
+        }
+
+        addEventListener('mousemove', function (e) {
+            nowOption.clientX = e.clientX;
+            nowOption.clientY = e.clientY;
+        })
+
+        addEventListener('wheel', function (e) {
+            if (e.deltaY < 0) {
+                changePopupLayout('SCROLL_UP');
+            } else if (e.deltaY > 0) {
+                changePopupLayout('SCROLL_DOWN');
+            }
+        })
+
+        addEventListener('mousedown', function (e) {
+            const shiftX = e.clientX - image.getBoundingClientRect().left;
+            const shiftY = e.clientY - image.getBoundingClientRect().top;
+
+            const moveImage = (e) => {
+                nowOption.left = e.pageX - shiftX;
+                nowOption.top = e.pageY - shiftY;
+                image.style.left = nowOption.left + 'px';
+                image.style.top = nowOption.top + 'px';
+            }
+
+            addEventListener('mousemove', moveImage);
+
+            onmouseup = function () {
+                removeEventListener('mousemove', moveImage)
+                onmouseup = null;
+            }
+        })
+
+        ondragstart = function () { return false; };
+
+        image.onwheel = function () { return false; };
+
+        downloadButton.addEventListener('click', function () {
+            $.ajax({
+                url: downloadUrl,
+                type: 'GET',
+                cache: false,
+                xhrFields: {
+                    responseType: "blob",
+                },
+                success: function (blob, status, xhr) {
+                    let fileName = baseFileName;
+                    const disposition = xhr.getResponseHeader("Content-Disposition");
+
+                    if (disposition && disposition.indexOf("attachment") !== -1) {
+                        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        const matches = filenameRegex.exec(disposition);
+
+                        if (matches != null && matches[1]) {
+                            fileName = decodeURI(matches[1].replace(/['"]/g, ""));
+                        }
+                    }
+
+                    const imageUrl = window.URL.createObjectURL(blob);
+
+                    if (fileName) {
+                        const a = document.createElement("a");
+                        a.href = imageUrl;
+                        a.download = fileName;
+                        console.log(a)
+                        console.log(document.body)
+                        document.body.appendChild(a);
+                        a.click();
+                    }
+                }
+            })
+        })
+
+    })
+</script>
+</html>

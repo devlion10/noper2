@@ -1,0 +1,321 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <th:block layout:fragment="LNB" th:with="ledger = 'on', ledgerBold = true">
+        <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+    </th:block>
+
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+    </th:block>
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/buildingmanagement/ledgerAdd.js}"></script>
+        <script th:src="@{/moment-js/moment.min.js}"></script>
+    </th:block>
+    <th:block layout:fragment="content">
+        <div class="content container-fluid">
+            <div class="title_wrap bdnn">
+                <h3 class="tit">기존무허가 신규대장등록</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>기존무허가 건축물관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>대장관리</span></label>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <label class="col-form-label col-form-label-sm"><span>신규대장등록</span></label>
+                </div>
+            </div>
+                <!--  -->
+            <form id="ledgerAddForm" class="needs-validation" name="ledgerAddForm" novalidate>
+                <div class="d-flex align-items-center pt10" style="border-bottom: 1px solid #ccc;">
+                        <p class="font-weight-bold bdnn">기본정보</p>
+                        <h5 class="float-end ms-lg-auto pb10"><span style="color:red;">*</span>&nbsp;필수 입력 항목입니다.</h5>
+                </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대장번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <div class="row align-items-center">
+                        <span type="text" class="w70" th:utext="${gmskk}"></span>
+                        &nbsp;-&nbsp;
+                        <select name="gmdjgb" class="form-select form-select-sm w110" title="대장구분">
+                            <option th:each="ledger : ${codeLedget}" th:value="${ledger.cdkey}"
+                                    th:utext="${ledger.cdvalue}">대장구분</option>
+                        </select>
+                        &nbsp;-&nbsp;
+                        <button type="button" class="btn btn-secondary btn-sm w70">자동부여</button>
+                    </div>
+                </div>
+                <div class="col-2 col-th">
+                    <label for="dhbh" class="col-form-label col-form-label-sm">도엽번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <input type="text" id="dhbh" name="dhbh" required maxlength="9" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm" placeholder="도엽번호" aria-label="도엽번호"/>
+                    <div class="invalid-feedback">도엽번호를 입력하세요.</div>
+                </div>
+                <div class="col-2 col-th">
+                    <label for="dhgbh" class="col-form-label col-form-label-sm">도엽건물관리번호</label>
+                </div>
+                <div class="col-2">
+                    <input type="text" id="dhgbh" name="dhgbh" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm" aria-label="도엽건물관리번호" />
+                </div>
+            </div>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label for="dongbh" class="col-form-label col-form-label-sm">동번호</label>
+                </div>
+                <div class="col-3">
+                    <input type="text" id="dongbh" name="dongbh" maxlength='3' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm"  aria-label="동번호" />
+                </div>
+                <div class="col-2 col-th">
+                    <label for="donggbh" class="col-form-label col-form-label-sm">동일련번호</label>
+                </div>
+                <div class="col-2">
+                    <input type="text" id="donggbh" name="donggbh" maxlength="4" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm"  aria-label="동일련번호" />
+                </div>
+                <div class="col-2 col-th">
+                    <label for="daejang" class="col-form-label col-form-label-sm">대장등재<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <input type="text" id="daejang" name="daejang" maxlength="5" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm"  aria-label="대장등재" />
+                    <div class="invalid-feedback">대장등재를 등록해주세요.</div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-5">
+                    <div class="bdnn row row-tr">
+                        <input type="text" id="newaddr1" readonly required name="newaddr1" class="form-control form-control-sm disabled" aria-label="도로명주소" placeholder="도로명주소" />
+                    </div>
+                    <div class="bdnn row row-tr">
+                        <input type="text" readonly required name="newaddr2" class="form-control form-control-sm disabled" aria-label="지번주소" placeholder="지번주소" />
+                        <div class="invalid-feedback">주소를 입력해주세요.</div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm">
+                        <i class="fa-solid fa-search"></i> 주소
+                    </button>
+                    <input type="hidden" class="mt-1" disabled value="" name="gmcsahTemp" aria-label="대지/산" />
+                    <input type="hidden" disabled value="" name="gmcsahTemp" aria-label="대지/산" />
+                    <input type="hidden" value="" name="gmcsah" aria-label="대지/산" />
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">관리행정동<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <select name="gmhjdcd" required class="form-select form-select-sm" title="관리행정동">
+                        <option value="" disabled selected>관리행정동</option>
+                        <option th:each="mngAdminstrBld : ${mngAdminstrBld}" th:value="${mngAdminstrBld.hjdcd}"
+                                th:utext="${mngAdminstrBld.hnam}">관리행정동</option>
+                    </select>
+                    <div class="invalid-feedback">관리행정동 선택하세요.</div>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-3">대장내역</p>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">구조<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <select name="gmgzcd" class="form-select form-select-sm" title="구조">
+                        <option th:each="structure : ${codeStructure}" th:value="${structure.cdvalue}"
+                                th:utext="${structure.cdvalue}">구조</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <select name="gmyd" class="form-select form-select-sm" title="용도">
+                        <option th:each="usage : ${codeUsage}" th:value="${usage.cdvalue}"
+                                th:utext="${usage.cdvalue}">용도</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">부속건축물동수<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <input type="text" class="form-control form-control-sm row row-tr tx-right" required name="gmbsdong" maxlength='1' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="부속건축물동수" />
+                    <div class="invalid-feedback">부속건축물동수를 선택하세요.</div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건물면적<br />(당초)<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <input type="text" class="form-control form-control-sm w100 tx-right" maxlength='14' name="gmmunjuk" required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" onkeyup="fnChgPung_S1(ledgerAddForm.gmmunjuk.value,'gmgunp')" aria-label="건물면적" >㎡&nbsp; (
+                    <input type="text" class="form-control form-control-sm w100 tx-right" name="gmgunp" aria-label="건물면적 평" disabled readonly><span> 평</span>)
+                    <div class="invalid-feedback">건물면적을 입력하세요.</div>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">건물층수</label>
+                </div>
+                <div class="col-2">
+                    <input type="text" name="gmfoors" class="form-control form-control-sm w100 tx-right" aria-label="건물층수" maxlength='1' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" placeholder="건물층수" />층
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">건축일자</label>
+                </div>
+                <div class="col-2">
+                    <input type="date" onkeydown="return false" max="9999-12-31" name="gmgunilDate" class="form-control form-control-sm" aria-label="건축일자"  placeholder="건축일자" />
+                </div>
+            </div>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">토지면적<br />(당초)<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3 align_items_center">
+                    <input type="text" class="form-control form-control-sm w100 tx-right" maxlength='19' name="tojimunjuk" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" onkeyup="fnChgPung_S1(ledgerAddForm.tojimunjuk.value,'tojimj')">㎡&nbsp; (
+                    <input type="text" class="form-control form-control-sm w100 tx-right" name="tojimj" aria-label="토지면적 평" disabled readonly><span class="tip_con"> 평</span>)
+                    <div class="invalid-feedback">토지면적을 입력하세요.</div>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">소유권<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <select name="tojisg" class="form-select form-select-sm" title="소유권">
+                        <option th:each="posseion : ${codePosseion}" th:value="${posseion.cdvalue}"
+                                th:utext="${posseion.cdvalue}">소유권</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">지목<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2 align_items_center">
+                    <select name="tojijmg" class="form-select form-select-sm" title="지목">
+                        <option th:each="pdointOut : ${codePdointOut}" th:value="${pdointOut.cdkey}"
+                                th:utext="${pdointOut.cdvalue}">지목</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">도시계획<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <select name="tojidp" class="form-select form-select-sm" title="도시계획">
+                        <option th:each="urbanPlanning : ${codeUrbanPlanning}" th:value="${urbanPlanning.cdvalue}"
+                                th:utext="${urbanPlanning.cdvalue}">도시계획</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">재개발지구여부<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2 text-center">
+                    <select name="jigujdg" class="form-select form-select-sm" title="재개발지구여부">
+                        <option th:each="redevelopmentDistrict : ${codeRedevelopmentDistrict}" th:value="${redevelopmentDistrict.cdvalue}"
+                                th:utext="${redevelopmentDistrict.cdvalue}">재개발지구여부</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">지구구분<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <select name="jigugb" class="form-select form-select-sm" title="지구구분">
+                        <option th:each="district : ${codeDistrict}" th:value="${district.cdvalue}"
+                                th:utext="${district.cdvalue}">지구구분</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">지구여건<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <select name="jiguug" class="form-select form-select-sm" title="지구여건">
+                        <option th:each="conditions : ${codeConditions}" th:value="${conditions.cdvalue}"
+                                th:utext="${conditions.cdvalue}">지구여건</option>
+                    </select>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">도로저촉<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-2">
+                    <input type="text" maxlength='4' required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" name="jigudz" aria-label="도로저촉" class="form-control form-control-sm w100 tx-right" />㎡
+                    <div class="invalid-feedback">도로저촉을 입력하세요.</div>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">위반사유</label>
+                </div>
+                <div class="col-2">
+                    <input type="text" name="gmweban" maxlength='10' aria-label="위반사유" class="form-control form-control-sm" />
+                </div>
+            </div>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">위반건수<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-3">
+                    <input type="text" maxlength='3' required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" name="gmwebanno" aria-label="위반건수" class="form-control form-control-sm" />
+                    <div class="invalid-feedback">위반건수를 입력하세요.</div>
+                </div>
+                <div class="col-2 col-th">
+                    <label class="col-form-label col-form-label-sm">확정일자</label>
+                </div>
+                <div class="col-2">
+                    <input type="date" onkeydown="return false" max="9999-12-31" name="decisionDate" aria-label="확정일자" class="form-control form-control-sm" />
+                </div>
+            </div>
+
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">등록사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+                </div>
+                <div class="col-11">
+                    <textarea class="form-control form-control-sm lh-sm my-1" rows="2" cols="70" required maxlength="500" aria-label="등록사유" name="reason"></textarea>
+                    <div class="invalid-feedback">등록사유를 입력하세요.</div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm my-1">발급정지사유</label>
+                </div>
+                <div class="col-11">
+                    <input type="text" name="bgstop" aria-label="발급정지사유" class="form-control form-control-sm" />
+                    <p style="color: #808080">* 발급정지사유를 입력하시면 자동으로 발급정지가 됩니다.</p>
+                </div>
+            </div>
+            <input type="hidden" id="gmgunil" name="gmgunil" aria-label="건축일자" />
+            <input type="hidden" name="decision" aria-label="확정일자" />
+            <input type="hidden" name="gmskk" th:value="${gmskk}" aria-label="시군구코드" />
+            <input type="hidden" name="gmskkcd" th:value="${gmskk}" aria-label="위치시군구코드" />
+            <input type="hidden" value="" name="gmbjdcd" aria-label="법정동" />
+            <input type="hidden" value="" name="gmcbuh" aria-label="본번" />
+            <input type="hidden" value="" name="gmcji" aria-label="부번" />
+            <input type="hidden" value="" name="gmcoh" aria-label="상세주소" />
+            <input type="hidden" value="" name="naSigunguCd" aria-label="시군구코드" />
+            <input type="hidden" value="" name="naBjdongNo" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naRoadCd" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naRoadNm" aria-label="새주소관련" />
+            <input type="hidden" value="" name="naMainBun" aria-label="새주소본번" />
+            <input type="hidden" value="" name="naSubBun" aria-label="새주소부번" />
+            <input type="hidden" value="" name="naEtc" aria-label="새주소그외" />
+            </form>
+                <div class="row mt-3">
+                    <div class="col-2">
+                        <button id="listBtn" class="btn btn-light btn-sm float-start">목록</button>
+                    </div>
+                    <div class="col-10 tx-right">
+                        <button type="button" id="cansellBtn" class="btn btn-secondary btn-lg btn-sm me-1">취소</button>
+                        <button type="submit" id="saveBtn" class="btn btn-primary btn-lg btn-sm" form="ledgerAddForm">저장</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+        </script>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/common/modal.js}"></script>
+    </th:block>
+</html>

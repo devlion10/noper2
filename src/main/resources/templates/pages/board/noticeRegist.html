@@ -1,0 +1,162 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/board/notice.js}"></script>
+</th:block>
+
+<th:block layout:fragment="LNB" th:with="noticeBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">공지사항 등록</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>공지사항</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>공지사항 등록</span>
+            </div>
+        </div>
+        <form id="noticeRegistForm" name="noticeRegistForm" method="post" class="needs-validation" novalidate>
+            <div class="row row-tr ">
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">제목<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-11">
+                    <input type="text" name="noticeSubject" id="noticeSubject" class="form-control form-control-sm" alt="title" placeholder="제목을 100자 이내로 입력해주세요." maxlength="100" required />
+                    <div class="invalid-feedback">
+                        제목을 100자 이내로 입력해주세요.
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">상단고정</label>
+                </div>
+                <div class="col-11">
+                    <input type="checkbox" name="pinYn" id="pinYn" class="form-check-input" alt="pinYn" />
+                    <span>공지사항 상단 고정</span>
+                    <p class="mt-2" style="color:#808080;">※ 체크박스 체크시 공지사항 글이 상단에 고정됩니다.</p>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th form-group">
+                    <label class="col-form-label-sm">내용<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-11 form-group">
+                    <textarea rows="10" class="form-control form-control-sm" id="noticeContents" name="noticeContents" required></textarea>
+                    <div class="invalid-feedback">
+                        ※ 내용을 입력해주세요.
+                    </div>
+                </div>
+            </div>
+            <div class="row row-tr justify-content-center">
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">첨부 파일</label>
+                </div>
+                <div class="col-11">
+                    <!-- name="uploadfile" -->
+                    <div id="myId"></div>
+                    <!--<button id="upload" class="btn btn-primary btn-sm">업로드</button>-->
+                    <!--<div class="row justify-content-center align-content-center mt-2">
+                        <div class="col-1 text-center">파일</div>
+                        <div class="col-11">
+                            <ul id="user-files" class="list-inline">
+                            </ul>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-12 tx-right">
+                    <button type="button" id="cancelBtn" class="btn btn-sm btn-secondary" th:onclick="|location.href='/board/notice/list'|" /><i class="fa-solid fa-xmark"></i> 취소</button>
+                    <button type="button" id="registBtn" class="btn btn-sm btn-primary" /><i class="fa-regular fa-floppy-disk"></i> 등록</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // var noticeSeq = [[${noticeSeq}]];
+        // 해당 화면의 seq를 호출
+        const type = {
+            type:'notice',
+            fileName: 750,
+            modalId: 'modal-1',
+            size: 200,
+            readOnly: 'N'
+        }
+        const uploader = new snFileUpload.Uploader("myId", type);
+
+        $(() => {
+            $('#noticeContents').val('')
+            document.querySelectorAll('.note-editable')[0].addEventListener('blur', e => {
+                const textAria = document.getElementById('noticeContents')
+                const textVal = textAria.value.trim();
+                if (textVal !== '') {
+                    textAria.classList.remove("is-invalid");
+                } else {
+                    textAria.classList.add("is-invalid");
+                }
+            })
+        })
+
+        $("#registBtn").click(() => {
+            const noticeRegistForm = $("#noticeRegistForm").serializeObject();
+            noticeRegistForm.pinYn = $("#pinYn").is(":checked") ? 'Y' : 'N'; // 상단 고정 여부 추가
+
+            let url = "/api/board/notice/save";
+            let type = "post";
+            let json = JSON.stringify(noticeRegistForm);
+            let contentType = "application/json";
+
+            // 폼 전체 유효성 검사
+            if (!$("#noticeRegistForm")[0].checkValidity()) {
+                $("#noticeRegistForm")[0].classList.add('was-validated');
+                return;
+            }
+
+            snAlert.confirm('저장하시겠습니까?').then((res) => {
+                if (res.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: type,
+                        data: json,
+                        contentType: contentType,
+                        success: function (result) {
+                            console.log('noticeResult!!')
+                            console.log(result);
+                            uploader.parentKey = result.noticeSeq;
+                            uploader.uploadFiles(false);
+                            snAlert.success("알림", "등록 완료").then((result) => {
+                                if (result.isConfirmed) {
+                                    location.href = "/board/notice/list";
+                                } else if (result.isDismissed) {
+                                    snAlert.close();
+                                }
+                            });
+                        },
+                        error: function (error) {
+                            snAlert.error("알림", "글 등록이 실패하였습니다.");
+                        }
+                    });
+                }
+            });
+
+        });
+
+    </script>
+</th:block>
+
+
+</html>

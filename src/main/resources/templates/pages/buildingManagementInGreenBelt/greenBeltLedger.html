@@ -1,0 +1,149 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"   xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <th:block layout:fragment="LNB" th:with="ledgerBold = true, ledger = 'on'">
+        <th:block th:replace="fragments/LNB :: bldmngingb"></th:block>
+    </th:block>
+
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/buildingManagementInGreenBelt/greenBeltLedger.js}"></script>
+        <script th:src="@{/js/common/calendar.js}"></script>
+    </th:block>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+    </th:block>
+
+    <th:block layout:fragment="content">
+
+        <div class="content container-fluid">
+            <div class="title_wrap">
+                <h3 class="tit">대장현황</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>개발제한구역내 건축물관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>대장관리</span>
+                </div>
+            </div>
+            <div>
+                <form id="ledgerFindForm" th:object="${LedgerDTO}" action="/api/bldmngingb/ledger/search" method="post">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label name="admSeq" class="col-form-label col-form-label-sm">관리번호</label>
+                    </div>
+                    <div class="col-1">
+                        <input type="hidden" id="admSeqSearch" name="admSeqSearch" aria-label="위치시군구코드" />
+                        <input type="text" id="gmskk" class="form-control form-control-sm w90" name="gmskkTmp" sec:authorize="hasRole('ROLE_ADMIN')" value="" placeholder="기관"/>
+                        <input type="text" id="gmskk" class="form-control form-control-sm w90 disabled" name="gmskkTmp" sec:authorize="hasRole('ROLE_USER')" th:value="${#authentication.principal.skkCd}" readonly />
+                    </div>
+                    <div class="col-2">
+                        <!--<input type="text" class="form-control form-control-sm" id="admSeqSearch" name="admSeqSearch" placeholder="관리번호">-->
+                        <!--<input type="text" class="form-control form-control-sm w90" name="skkCd" th:value="${gmskk}" readonly placeholder="관리번호 기관코드">-->
+                        <input type="text" class="form-control form-control-sm" id="admNum" name="admNum" placeholder="연번">
+                    </div>
+                    <div class="col-1 col-th">
+                        <label name="ownerAllName" class="col-form-label col-form-label-sm">전체소유자</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm" id="ownerAllNameSearch" name="ownerAllNameSearch" placeholder="전체소유자">
+                    </div>
+                    <div class="col-1 col-th">
+                        <label name="owner1Name" class="col-form-label col-form-label-sm">현소유자</label>
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm" id="owner1NameSearch" name="owner1NameSearch" placeholder="현소유자">
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label name="jusoSearch" class="col-form-label col-form-label-sm">건물주소</label>
+                    </div>
+                    <div class="col-7">
+                        <div class="row">
+                            <div class="col-12">
+                                <input type="text" id="jusoSearch" name="jusoSearch" class="form-control form-control-sm" placeholder="건물주소" aria-label="건물주소"/>
+                            </div>
+                            <!--<div class="col-5">
+                                <input type="text" name="roadaddr" id="roadaddrSearch" class="form-control form-control-sm" placeholder="도로명주소" />
+                            </div>
+                            <div class="col-5">
+                                <input type="text" name="jibunaddr" id="jibunaddrSearch" class="form-control form-control-sm" placeholder="지번주소" />
+                            </div>
+                            <div class="col-2">
+                                <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-search"></i> 주소</button>
+                            </div>-->
+                        </div>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">대지/산</label>
+                    </div>
+                    <div class="col-3">
+                        <select id="gmcsahSearch" class="form-select form-select-sm" name="gmcsah">
+                            <option value="">전체</option>
+                            <option th:each="gmcsah : ${findGmcsah}" th:value="${gmcsah.cdkey}"
+                                    th:text="${gmcsah.cdvalue}">대지/산</option>
+                        </select>
+                    </div>
+                </div>
+                </form>
+                <div class="row align-items-center">
+                    <div class="col-12 justify-content-end mt-3 mb-5">
+                        <div class="float-start">
+                            <h5 style="color: #808080">※ 검색조건을 통해 대장현황을 검색할 수 있습니다.</h5>
+                        </div>
+                        <div class="float-end">
+                            <button type="button" id="refreshBtn" class="btn btn-secondary me-2 btn-sm">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <button type="button" id="searchBtn" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                조회
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center align-items-center">
+                    <div id="totCnt" class="col-2 mt-2">
+                        <h3 th:text="${findLedgerListCount}"></h3>
+                    </div>
+                    <div class="col-10">
+                        <div class="row align-items-center justify-content-end mb-3">
+                            <button type="button" id="csvBtn" class="col-2 btn btn-success btn-sm me-2 w120">
+                                <i class="fa-solid fa-file-excel"></i>
+                                액셀 다운로드
+                            </button>
+                            <select name="listCnt" onchange="onPageSizeChanged()" id="page-size" class="col-2 form-select form-select-sm d-block me-3 w100" title="리스트 갯수">
+                                <option value="10">10개씩</option>
+                                <option value="30">30개씩</option>
+                                <option value="50">50개씩</option>
+                                <option value="70">70개씩</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myGrid" class="ag-theme-alpine"></div>
+            <div class="float-end mt-3">
+                <button th:if="${auth.canInsert}" type="button" id="newLegerAddBtn" class="btn btn-primary btn-sm">신규대장추가</button>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            const ledgerFindForm = $("#ledgerFindForm").serializeArray();
+            var param = {};
+            ledgerFindForm.map(function(data,index){
+                param[data.name] = data.value;
+            });
+
+            /*function jusoCallBack(roadFullAddr,roadAddrPart1,addrDetail,roadAddrPart2,engAddr, jibunAddr, zipNo, admCd, rnMgtSn, bdMgtSn
+                , detBdNmList, bdNm, bdKdcd, siNm, sggNm, emdNm, liNm, rn, udrtYn, buldMnnm, buldSlno, mtYn, lnbrMnnm, lnbrSlno, emdNo){
+                console.log(arguments);
+                $('#roadaddrSearch').val(arguments[0])
+                $('#jibunaddrSearch').val(arguments[5])
+            }
+            document.querySelector("#jusoBtn").addEventListener("click", (e)=>{
+                const w = window.open('/common/juso', 'juso', 'width=500px,height=500px');
+                w.focus();
+            });*/
+        </script>
+    </th:block>
+</html>

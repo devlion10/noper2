@@ -1,0 +1,356 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html">
+<!--/* LNB 호출 */-->
+<th:block layout:fragment="LNB" th:with="questionAndAnswerBold = true">
+    <th:block th:replace="fragments/LNB :: board"></th:block>
+</th:block>
+<!--/* 주 화면 컨텐츠 */-->
+<th:block layout:fragment="content">
+    <th:block th:replace="pages/common/loading :: loading"></th:block>
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit" th:text="${dto.qaSeq != null ? 'Q&A 수정' : 'Q&A 등록'}"></h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>게시판</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>Q&amp;A</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span th:text="${dto.qaSeq != null ? 'Q&A 수정' : 'Q&A 등록'}"></span>
+            </div>
+        </div>
+        <form id="qnaSaveForm" class="needs-validation g-3 mb-5" novalidate>
+            <input name="qaSeq" id="qaSeq" th:if="${dto != null}" type="hidden" th:value="${dto.qaSeq}" >
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">문의유형<span style="color:red;"> *</span></label>
+                </div>
+                <div class="col-4 d-flex align-items-center">
+                    <select name="qaType" id="sbQaType" class="form-select form-select-sm" required>
+                        <option value="">선택</option>
+                    </select>
+                    <p class="invalid-feedback">※ 문의 유형을 선택해주세요</p>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">비밀글</label>
+                </div>
+                <div class="col-6 d-flex align-items-center">
+                    <input type="checkbox" name="secYn" id="secYn" class="form-check-input mt-0" value="Y"
+                           checked="checked"/>
+                    <label for="secYn" class="col-form-label-sm mx-1 mt-1">비밀글</label>
+                    <p class="mx-2 fs-6" style="color:#808080;">※ 비밀글 체크시 작성자와 관리자만 확인할 수 있습니다.</p>
+                </div>
+            </div>
+            <div class="row row-tr justify-content-center">
+                <div class="col-1 col-th">
+                    <label for="qaSubject" class="col-form-label-sm">제목<span style="color:red;"> *</span></label>
+                </div>
+                <div class="col-11">
+                    <input type="text" name="qaSubject" id="qaSubject" class="form-control form-control-sm" alt="title"
+                           placeholder="제목을 30자 이내로 입력해주세요." minlength="1" maxlength="30" required/>
+                    <p class="invalid-feedback">※ 제목을 입력해주세요.</p>
+                </div>
+            </div>
+            <th:block th:if="${#authentication.principal.isAdmin}">
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label-sm">상단고정</label>
+                    </div>
+                    <div class="col-11">
+                        <input type="checkbox" name="fixFlag" id="fixFlag" class="form-check-input" value="N"
+                               alt="fixFlag"/>
+                        <span>Q&A 상단 고정</span>
+                        <p class="mt-2" style="color:#808080;">※ 체크박스 체크 시 Q&A 글이 상단에 고정됩니다.</p>
+                    </div>
+                </div>
+            </th:block>
+            <div class="row row-tr">
+                <div class="col-1 col-th form-group">
+                    <label class="col-form-label-sm">내용</label>
+                </div>
+                <div class="col-11 form-group">
+                    <textarea name="qaContents" id="qaContents" disableCommon="true" required></textarea>
+                    <p class="invalid-feedback">※ 내용을 입력해주세요.</p>
+                </div>
+            </div>
+            <div class="row row-tr justify-content-center">
+                <div class="col-1 col-th">
+                    <label class="col-form-label-sm">첨부 파일</label>
+                </div>
+                <div class="col-11">
+                    <div class="row">
+                        <div id="myId" class="col"></div>
+                    </div>
+                    <th:block th:if="${dto.qaSeq != null}">
+                        <div class="row justify-content-center align-content-center mt-2">
+                            <div class="col-1 text-center">파일</div>
+                            <div class="col-9">
+                                <ul id="user-files" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2">
+                                <button id="allDownload" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+                <!--
+                <div class="col-11">
+                    <textarea class="form-control form-control-sm lh-sm my-1" rows="3"></textarea>
+                    <p class="mt-2" style="color:#808080">※ 최대 10개 100,000MB 제한 (허용 확장자 : gif, jpg, dwg, pdf, bmp, psd, tga, png, hwp)</p>
+                    <p>
+                        <span style="color:#ff0000">0</span>
+                        <span style="color:#808080">개</span>
+                        <span style="color:#ff0000">0</span>
+                        <span style="color:#808080">MB 추가됨<br/></span>
+                    </p>
+                    <button type="button" class="btn btn-sm btn-danger"><i class="fa-regular fa-trash-can"></i> 삭제</button>
+                    <button type="file" class="btn btn-sm btn-primary" id="fileUpload" multiple="multiple" accept="image/*"><i class="fa-solid fa-upload"></i> 파일 추가</button>
+                    <img id="previewImg" width="700" alt="이미지영역"/>
+                </div>
+                -->
+            </div>
+            <div class="row justify-content-center mt-3">
+                <div class="col-12 tx-right">
+                    <button type="button" id="cancelBtn" class="btn btn-sm btn-secondary"><i class="fa-solid fa-xmark"></i> 취소</button>
+                    <button th:if="${dto.qaSeq == null}" type="button" id="saveBtn" class="btn btn-sm btn-primary"><i class="fa-regular fa-floppy-disk"></i> 등록</button>
+                    <button th:if="${dto.qaSeq != null}" type="button" id="modifyBtn" class="btn btn-sm btn-primary"><i class="fa-regular fa-floppy-disk"></i> 수정</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+
+        const dto = [[${dto}]];
+        console.log(dto)
+
+/*
+        const fileInput = document.getElementById("fileUpload");
+
+        const handleFiles = (e) => {
+            const selectedFile = [...fileInput.files];
+            const fileReader = new FileReader();
+
+            fileReader.readAsDataURL(selectedFile[0]);
+
+            fileReader.onload = function () {
+                document.getElementById("previewImg").src = fileReader.result;
+            }
+        };
+        fileInput.addEventListener("change", handleFiles);
+*/
+
+        /*
+        $("#secYn").click(() => {
+            const checkbox = document.getElementById("secYn");
+            let is_checked = 'N';
+
+            if (checkbox.checked){
+                is_checked = "Y";
+            } else {
+                is_checked = "N";
+            }
+            param.secYn = is_checked;
+        });
+
+        $("#fixFlag").click(() => {
+            const checkbox = document.getElementById("fixFlag");
+            let is_checked = 'N';
+
+            if (checkbox.checked){
+                is_checked = "Y";
+            } else {
+                is_checked = "N";
+            }
+            param.fixFlag = is_checked;
+        });
+         */
+
+        $("#cancelBtn").click(() => {
+            if (dto.qaSeq) {
+                location.href = "/board/questionAndAnswer/detail?qaSeq=" + dto.qaSeq;
+            } else {
+                location.href = "/board/questionAndAnswer/list";
+            }
+        });
+
+        $("#saveBtn").click(() => {
+            const qnaSaveForm = $("#qnaSaveForm").serializeObject();
+            qnaSaveForm.fixFlag = $("#fixFlag").is(":checked") ? 'Y' : 'N';
+            qnaSaveForm.secYn = $("#secYn").is(":checked") ? 'Y' : 'N';
+
+            let url = "/api/questionAndAnswer/save";
+            let type = "post";
+            let json = JSON.stringify(qnaSaveForm);
+            let contentType = "application/json";
+            $('#sbQaType').blur();
+            if($('#qnaSaveForm')[0].checkValidity() === false) return false;
+            $('.loading-background')[0].style.display = 'block'
+            ajaxCall(url, type, json, contentType, function (result) {
+                $('.loading-background')[0].style.display = 'none'
+                uploader.parentKey = result;
+                uploader.uploadFiles(false);
+                snAlert.alert("Q&A가 등록되었습니다.").then(() => {
+                    location.href = "/board/questionAndAnswer/list";
+                });
+            });
+        });
+
+            $("#modifyBtn").click(() => {
+                const qnaSaveForm = $("#qnaSaveForm").serializeObject();
+                qnaSaveForm.fixFlag = $("#fixFlag").is(":checked") ? 'Y' : 'N';
+                qnaSaveForm.secYn = $("#secYn").is(":checked") ? 'Y' : 'N';
+
+                const url = "/api/questionAndAnswer/modify";
+                const type = "post";
+                const json = JSON.stringify(qnaSaveForm);
+                const contentType = "application/json";
+                $('#sbQaType').blur();
+                if($('#qnaSaveForm')[0].checkValidity() === false) return false;
+                ajaxCall(url, type, json, contentType, function (result) {
+                    uploader.uploadFiles(false);
+                    snAlert.alert("Q&A가 수정되었습니다.").then(() => {
+                        location.href = "/board/questionAndAnswer/detail?qaSeq=" + dto.qaSeq;
+                    });
+                });
+            });
+
+
+
+        // 파일 업로드(선익)
+        // 해당 화면의 seq를 호출
+        const seq = [[${dto.qaSeq != null ? dto.qaSeq : 0}]];
+        // flag(QA) 임시 예제 값
+        const flag = 1;
+        /*type : 파일 업무 구분
+        fileName : 파일명 가로길이 설정
+        size : 파일크기 가로길이 설정
+        readOnly : 조회페이지 구분(업로드 버튼들이 삭제됨)*/
+        const type = {
+            type:'qa',
+            fileName: 800,
+            size: 300,
+            readOnly: 'N',
+            visible: false
+        }
+        const uploader = new snFileUpload.Uploader("myId", type);
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            //여기 아래 부분
+            $('#qaContents').summernote({
+                height: 300,                 // 에디터 높이
+                minHeight: null,             // 최소 높이
+                maxHeight: null,             // 최대 높이
+                focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
+                lang: "ko-KR",					// 한글 설정
+                placeholder: '최대 2048자까지 쓸 수 있습니다'	//placeholder 설정
+            });
+
+            $('#qaContents').on('summernote.blur', function () {
+                if($(this).val() === '') $(this)[0].classList.add("is-invalid");
+                else $(this)[0].classList.remove("is-invalid");
+            })
+
+            const url = "/api/questionAndAnswer/qaTypeList";
+            const type = "post";
+            const json = JSON.stringify({});
+            const contentType = "application/json";
+
+            ajaxCall(url, type, json, contentType, function (result) {
+                let qaType;
+                let str = "<option value='all'>전체</option>";
+
+                for (let i = 0; i < result.qaTypeList.length; i++) {
+                    qaType = result.qaTypeList[i].qaType;
+                    if(qaType == dto.qaType) {
+                        str += "<option value='" + qaType + "' selected='selected'>" + qaType + "</option>";
+                    } else {
+                        str += "<option value='" + qaType + "'>" + qaType + "</option>";
+                    }
+                }
+                $("#sbQaType").html(str);
+            });
+
+            if(dto.qaSeq){
+                $("#secYn").prop("checked", dto.secYn === 'Y');
+                $("#fixFlag").prop("checked", dto.fixFlag === 'Y');
+                $("#qaSubject").val(dto.qaSubject);
+                $("#qaContents").summernote("code", dto.qaContents);
+            }
+
+            uploader.parentKey = seq
+            uploader.flag = '1'
+            if (seq !== 0) {
+                await uploader.loadFiles();
+                uploader.getFiles().forEach(file=>{
+                    console.log(file)
+                    let $link = $("<a>")
+                        .text(`${file.name} (${file.vsize})`)
+                        .attr("title", file.name)
+                        .attr("href", `${file.name}`)
+                        .data("fseq", file.fseq)
+                        .data("seq", file.seq)
+                        .on("click", (e)=>{
+                            e.preventDefault();
+                            let seq = $(e.target).data("seq");
+                            let fseq =$(e.target).data("fseq");
+
+                            // console.log(seq)
+                            // console.log(fseq)
+                            console.log(file.type.match(/jpg|jpeg|png|gif/ig))
+                            if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                    .on("click", uploader.imgPreview(file))[0];
+                            } else {
+                                uploader.downloadFile(file);
+                            }
+                        });
+                    let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                    $deleteLink.on("click", (e) => {
+                        $(e.target).closest("li").remove()
+                        console.log(file)
+                        uploader.deleteFiles(file)
+                    });
+
+                    $("<li class='list-inline-item'>")
+                        .append($link)
+                        .append($deleteLink)
+                        .appendTo($("#user-files"));
+                });
+                // 정보만 불러오고 없애고 싶다면
+                uploader.clearFiles()
+            }
+        })
+
+        if (document.getElementById('allDownload')) {
+            document.getElementById('allDownload').addEventListener('click', async () => {
+                uploader.downloadAllFile()
+            });
+        }
+
+        //ajax 공통
+        function ajaxCall(url, type, param, contentType, callback) {
+            $.ajax({
+                url: url,
+                type: type,
+                data: param,
+                contentType: contentType,
+                success: function (result) {
+                    return callback(result);
+                },
+                error: function (error) {
+                    snAlert.alert("글 등록이 실패하였습니다.");
+                }
+            });
+        };
+    </script>
+</th:block>
+</html>

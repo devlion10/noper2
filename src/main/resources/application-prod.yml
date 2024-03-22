@@ -1,0 +1,37 @@
+# PROD datasource settings
+server:
+  port: 8080
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@98.33.11.119:1521:SMPPDB
+    username: noper
+    password: angjrk1234!
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 15000
+      #connection-init-sql: SELECT 1
+      validation-timeout: 2000
+      minimum-idle: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+logging:
+  file:
+    path: /home/noper/logs
+noper:
+  juso:
+    key: U01TX0FVVEgyMDIzMTAyNTE0MzU0ODExNDIwODc=
+    domain: https://10.182.60.20
+  media:
+    file:
+      location: /data
+  airial:
+    file:
+      window_location: D:/airialFiles
+      linux_location: /data/airialFiles
+  geoserver:
+    url: http://98.33.11.180:8080/geoserver

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+    <th:block th:fragment="container">
+        <div id='login-container' class="modal micromodal-slide" aria-hidden="true">
+            <div class="modal__overlay" tabindex="-1">
+                <div id="login-modal" class="modal__container p0 w500 index-top" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+                    <div class="modal__header p-3" style="background-color: #f0f0f8;">
+                        <h2 class="modal__title" style="color: #333333;">GPKI 인증서 로그인 안내</h2>
+                        <button class="modal__close modal-closed float-end" aria-label="Close modal" data-micromodal-close></button>
+                    </div>
+                    <main class="my-5 px-5 tx-center">
+                        <p>
+                            최초 1회 로그인 시점에서는<br />
+                            GPKI 인증서  등록이 필요합니다.<br />
+                            발급 받으신 인증서로 로그인 해주세요.<br />
+                            인증서 로그인을 취소할 경우<br />
+                            해당 시스템을 사용하실 수 없습니다.<br />
+                        </p>
+                    </main>
+                    <footer class="px-5 mb-4">
+                        <div class="row justify-content-center">
+                            <div class="col-4">
+                                <button class="modal__btn modal-closed w-100 h50" data-micromodal-close aria-label="Close this dialog window" style="font-size: 16px;">로그인 취소</button>
+                            </div>
+                            <div class="col-8">
+                                <button type="button" id="loginBtn" class="modal__btn modal__btn-primary btn-primary w-100 h50" style="font-size: 16px;">인증서 로그인</button>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</html>

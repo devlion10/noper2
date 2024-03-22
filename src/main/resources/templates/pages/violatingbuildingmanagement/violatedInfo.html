@@ -1,0 +1,792 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko">
+<th:block layout:fragment="css">
+</th:block>
+<th:block layout:fragment="LNB" th:with="viobldmngListBold = true">
+    <th:block th:replace="fragments/LNB :: viobldmng"></th:block>
+</th:block>
+<th:block layout:fragment="configScript">
+    <script th:src="@{/js/common/calendar.js}"></script>
+</th:block>
+
+<th:block layout:fragment="content">
+
+    <div class="content container-fluid">
+        <div class="title_wrap">
+            <h3 class="tit">위반건축물 상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물 현황</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>위반건축물 상세</span>
+            </div>
+        </div>
+        <div>
+            <p class="font-weight-bold bdnn mt-3">기본정보</p>
+            <div class="row row-tr"></div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">관리번호</label>
+                </div>
+                <div class="col-7">
+                    <span id="gmskk" th:utext="${vioma.gmskk}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">관리행정동</label>
+                </div>
+                <div class="col-3">
+                    <span th:utext="${vioma.gmbjdcd}"></span>
+                </div>
+            </div>
+            <div class="row row-tr border-end-0">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">건축물주소</label>
+                </div>
+                <div class="col-11 p-0">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">도로명주소</label>
+                        </div>
+                        <div class="col-11">
+                            <label class="col-form-label col-form-label-sm">
+                                <span class="" th:text="${vioma.gmnaddr}"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row row-tr border-bottom-0">
+                        <div class="col-1 col-th border-start-0">
+                            <label class="col-form-label col-form-label-sm">지번주소</label>
+                        </div>
+                        <div class="col-11">
+                            <label class="col-form-label col-form-label-sm">
+                                <span class="" th:text="${vioma.gmaddr}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="font-weight-bold bdnn mt-5">대지정보</p>
+            <div class="row row-tr"></div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">대지위치</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejimj}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">지목</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejijmg}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">토지소유권</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejisg}"></span>
+                </div>
+            </div>
+            <div class="row row-tr">
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">용도지역</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejiju}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">용도지구</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejijg}"></span>
+                </div>
+                <div class="col-1 col-th">
+                    <label class="col-form-label col-form-label-sm">용도구역</label>
+                </div>
+                <div class="col-3">
+                    <span th:text="${vioma.dejigu}"></span>
+                </div>
+            </div>
+            <p class="font-weight-bold mt-5">건축주 정보</p>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">성명</label>
+                    </div>
+                    <div class="col-3">
+                        <span th:text="${vioma.gcname}"></span>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">생년월일</label>
+                    </div>
+                    <div class="col-1">
+                        <span th:text="${vioma.gcforigb} == 'f' ? '외국인' : '내국인'"></span>
+                    </div>
+                    <div class="col-2">
+                        <span th:text="${vioma.gcbirth}"></span>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">전화번호</label>
+                    </div>
+                    <div class="col-3">
+                        <span th:text="${vioma.gctelno}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">도로명&nbsp;주소</label>
+                        </div>
+                        <div class="col-5">
+                            <span class="" th:text="${vioma.gcnaddr}"></span>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">지번&nbsp;주소</label>
+                        </div>
+                        <div class="col-5">
+                            <span class="" th:text="${vioma.gcaddr}"></span>
+                        </div>
+                    </div>
+
+                <p class="font-weight-bold mt-5">현거주자 정보</p>
+                <th:block th:each="r: ${resi}">
+                    <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">성명</label>
+                        </div>
+                        <div class="col-3">
+                            <span th:text="${r.resiName}"></span>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">생년월일</label>
+                        </div>
+                        <div class="col-1">
+                            <span th:text="${r.resiForigb} == 'f' ? '외국인' : '내국인'"></span>
+                        </div>
+                        <div class="col-2">
+                            <span th:text="${r.resiBirth}"></span>
+                        </div>
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">전화번호</label>
+                        </div>
+                        <div class="col-3">
+                            <span th:text="${r.resiTelno}"></span>
+                        </div>
+                    </div>
+                    <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">도로명&nbsp;주소</label>
+                            </div>
+                            <div class="col-5">
+                                <span class="" th:text="${r.resiNewAddress}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">지번&nbsp;주소</label>
+                            </div>
+                            <div class="col-5">
+                                <span class="" th:text="${r.resiAddress}"></span>
+                            </div>
+                        </div>
+                </th:block>
+
+                <p class="font-weight-bold bdnn mt-5">위반내역 - <span th:text="${vioma.gmtype}"></span></p>
+                <div class="row row-tr"></div>
+                <th:block th:if="${vioma.gmtype} == '무단 용도변경 건축물'">
+                    <div id="unauthorizedChange">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발일자</label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmdate}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발유형</label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmftype}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">발생일자
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmcdate}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반면적(m²)
+                                </label>
+                            </div>
+                            <div class="col-3 align-items-center d-flex">
+                                <span th:text="${#numbers.formatInteger(vioma.gmmunjuk, 1, 'COMMA')}"></span>
+                                <span class="ml6">m²</span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반층수
+                                </label>
+                            </div>
+                            <div class="col-3 align-items-center d-flex">
+                                <span th:text="${vioma.gmfloor}"></span>
+                                <span class="ml6">층</span>
+                            </div>
+                            <div class="col-1 text-center">
+                            </div>
+                            <div class="col-3">
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">변경 전 용도
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmbsub}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">변경 후 용도
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmasub}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr" id="fileContainer1">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">파일</label>
+                            </div>
+                            <div class="col-9">
+                                <div id="file1"></div>
+                                <ul id="files1" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" id="allDownload" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <!--선택 후 바뀌는 영역-->
+                <th:block th:if="${vioma.gmtype} == '위법시공 건축물'">
+                    <div id="illegalConstruction">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발일자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmdate}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmname}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">발생일자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmname}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반용도</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmbsub}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반면적</label>
+                            </div>
+                            <div class="col-5">
+                                <div class="align-items-center d-flex">
+                                    <span th:text="${#numbers.formatInteger(vioma.gmmunjuk, 1, 'COMMA')}"></span>
+                                    <span class="ml6">m²</span>
+                                </div>
+                            </div>
+                            <div class="col-6"></div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">시공사명</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmsname}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w110">시공사 면허번호</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmsnumber}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">감리자명</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmgname}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w110">감리자 면허번호</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmgnumber}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반내용</label>
+                            </div>
+                            <div class="col-10">
+                                <span th:text="${vioma.gminfo}"></span>
+                            </div>
+                            <div class="col-1"></div>
+                        </div>
+                        <div class="row row-tr" id="fileContainer2">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">파일</label>
+                            </div>
+                            <div class="col-9">
+                                <div id="file2"></div>
+                                <ul id="files2" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" id="allDownload2" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${vioma.gmtype} == '기타 위반건축물'">
+                    <div id="etc">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발일자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmdate}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmname}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">발생일자</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmcdate}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반용도</label>
+                            </div>
+                            <div class="col-5">
+                                <span th:text="${vioma.gmbsub}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반내용</label>
+                            </div>
+                            <div class="col-10">
+                                <span th:text="${vioma.gminfo}"></span>
+                            </div>
+                            <div class="col-1"></div>
+                        </div>
+                        <div class="row row-tr" id="fileContainer3">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">파일</label>
+                            </div>
+                            <div class="col-9">
+                                <div id="file3"></div>
+                                <ul id="files3" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" id="allDownload3" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:if="${vioma.gmtype == '무허가 건축물'}">
+                    <div id="noper">
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발일자
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmdate}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">적발자
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmname}"></span>
+                            </div>
+                            <div class="col-1 col-th text-center">
+                                <label class="col-form-label col-form-label-sm">발생일자
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmcdate}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w120">변경 후 용도
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmbsub}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w110">위반면적(m²)
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex align-items-center">
+                                    <span th:text="${#numbers.formatInteger(vioma.gmmunjuk, 1, 'COMMA')}"></span>
+                                    <span class="ml6">m²</span>
+                                </div>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">위반층수
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex align-items-center">
+                                    <span th:text="${vioma.gmfloor}"></span>
+                                    <span class="ml6">층</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w120">지붕구조</label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmrst}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w120">주 용도
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmmst}"></span>
+                            </div>
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm w120">향측도엽번호</label>
+                            </div>
+                            <div class="col-3">
+                                <span th:text="${vioma.gmfacseq}"></span>
+                            </div>
+                        </div>
+                        <div class="row row-tr" id="fileContainer4">
+                            <div class="col-1 col-th">
+                                <label class="col-form-label col-form-label-sm">파일첨부</label>
+                            </div>
+                            <div class="col-9">
+                                <div id="file4"></div>
+                                <ul id="files4" class="list-inline">
+                                </ul>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" id="allDownload4" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <!--선택 후 바뀌는 영역-->
+
+                <p class="font-weight-bold mt-5">이행강제금 부과내역</p>
+                <div class="row row-tr row-th" style="border-left: 1px solid #ccc;">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">No.</label>
+                    </div>
+                    <div class="col-5 col-th">
+                        <label class="col-form-label col-form-label-sm">부과일자</label>
+                    </div>
+                    <div class="col-6 col-th">
+                        <label class="col-form-label col-form-label-sm">부과금액</label>
+                    </div>
+                </div>
+                <div>
+                    <th:block th:each="i: ${impo}">
+                        <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                            <div class="col-1 border-end text-center">
+                                <p th:text="${iStat.count}"></p>
+                            </div>
+                            <div class="col-5 border-end text-center">
+                                <span th:text="${i.impoDate}"></span>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="d-flex justify-content-center">
+                                    <span th:text="${#numbers.formatInteger(i.impoAmount, 1, 'COMMA')}"></span>
+                                    <span class="ml6">원</span>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                    <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                        <div class="col-1 border-end text-center">
+                            <label class="col-form-label col-form-label-sm">합계</label>
+                        </div>
+                        <div class="col-11 text-center">
+                            <span th:text="${#numbers.formatInteger(#aggregates.sum(impo.![impoAmount]), 1, 'COMMA')}"></span>
+                            <span class="ml6">원</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="font-weight-bold mt-5">이행강제금 징수내역</p>
+                <div class="row row-tr row-th" style="border-left: 1px solid #ccc;">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">No.</label>
+                    </div>
+                    <div class="col-5 col-th">
+                        <label class="col-form-label col-form-label-sm">징수일자</label>
+                    </div>
+                    <div class="col-6 col-th">
+                        <label class="col-form-label col-form-label-sm">징수금액</label>
+                    </div>
+                </div>
+                <div>
+                        <th:block th:each="c: ${coll}">
+                            <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                                <div class="col-1 border-end text-center">
+                                    <p th:text="${cStat.count}"></p>
+                                </div>
+                                <div class="col-5 border-end text-center">
+                                    <span th:text="${c.collDate}"></span>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="d-flex justify-content-center">
+                                        <span th:text="${#numbers.formatInteger(c.collAmount, 1, 'COMMA')}"></span>
+                                        <span class="ml6">원</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </th:block>
+                        <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                            <div class="col-1 border-end text-center">
+                                <label class="col-form-label col-form-label-sm">합계</label>
+                            </div>
+                            <div class="col text-center">
+                                <span th:text="${#numbers.formatInteger(#aggregates.sum(coll.![collAmount]), 1, 'COMMA')}"></span>
+                                <span class="ml6">원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                <p class="font-weight-bold bdnn mt-5">고발내역</p>
+                <div class="row row-tr"></div>
+                <div class="row row-tr">
+                        <div class="col-1 col-th">
+                            <label class="col-form-label col-form-label-sm">고발일자</label>
+                        </div>
+                        <div class="col-3">
+                            <span th:text="${vioma.gmgdate}"></span>
+                        </div>
+                        <div class="col-1 col-th text-center">
+                            <label class="col-form-label col-form-label-sm">고발에 의한<br />정비완료일자</label>
+                        </div>
+                        <div class="col-2">
+                            <span th:text="${vioma.gmjdate}"></span>
+                        </div>
+                        <div class="col-2 col-th text-center">
+                            <label class="col-form-label col-form-label-sm w110">행정대집행<br />일자</label>
+                        </div>
+                        <div class="col-3">
+                            <span th:text="${vioma.gmhdate}"></span>
+                        </div>
+                    </div>
+
+                <p class="font-weight-bold bdnn mt-5">행정조치내역</p>
+                <div class="row row-tr"></div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">담당부서</label>
+                    </div>
+                    <div class="col-3">
+                        <span th:text="${vioma.deptCd}"></span>
+                    </div>
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">담당자</label>
+                    </div>
+                    <div class="col-2">
+                        <span th:text="${vioma.registId}"></span>
+                    </div>
+                    <div class="col-2 col-th text-center">
+                        <label class="col-form-label col-form-label-sm">시정완료일자</label>
+                    </div>
+                    <div class="col-3">
+                        <span th:text="${vioma.gmhcdate}"></span>
+                    </div>
+                </div>
+                <div class="row row-tr">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">조치내용</label>
+                    </div>
+                    <div class="col-11">
+                        <p th:text="${vioma.gmhcont}"></p>
+                    </div>
+                </div>
+                <div class="row row-tr" id="fileContainer5">
+                    <div class="col-1 col-th">
+                        <label class="col-form-label col-form-label-sm">파일</label>
+                    </div>
+                    <div class="col-9">
+                        <div id="file5"></div>
+                        <ul id="files5" class="list-inline">
+                        </ul>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" id="allDownload5" class="btn btn-sm btn-primary float-end">전체 다운로드</button>
+                    </div>
+                </div>
+
+            <div class="row mt-3">
+                <div class="col-10">
+                    <button id="list" class="btn btn-light btn-sm">목록</button>
+                </div>
+                <div class="col-2 tx-right">
+                    <th:block th:if="${#authentication.principal.deptName} == ${vioma.deptCd} and ${auth.canUpdate}">
+                        <button id="modify" class="btn btn-primary btn-sm">수정</button>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        async function uploaderInit(uploader, parentKey) {
+            uploader.parentKey = parentKey;
+            await uploader.loadFiles();
+            uploader.getFiles().forEach(file => {
+                let $link = $("<a>")
+                    .text(`${file.name} (${file.vsize})`)
+                    .attr("title", file.name)
+                    .attr("href", `${file.name}`)
+                    .data("fseq", file.fseq)
+                    .data("seq", file.seq)
+                    .on("click", (e) => {
+                        e.preventDefault();
+                        let seq = $(e.target).data("seq");
+                        let fseq = $(e.target).data("fseq");
+
+                        console.log(seq)
+                        console.log(fseq)
+
+                        if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                            return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                .on("click", uploader.imgPreview(file))[0];
+                        } else {
+                            uploader.downloadFile(file);
+                        }
+                    });
+                $("<li class='list-inline-item'>")
+                    .append($link)
+                    .appendTo($(`#files${uploader.flag}`));
+            });
+        }
+
+        const type = {
+            type: 'viobldmng',
+            fileName: 750,
+            size: 200,
+            readOnly: 'Y',
+            visible: true
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            let uploader1;
+            let uploader2;
+            let uploader3;
+            let uploader4;
+            let actionDetail;
+
+            if(document.getElementById('file1')) {
+                type.modalId = 'modal-1';
+                uploader1 = new snFileUpload.Uploader(`file1`, type);
+                uploader1.flag = '1';
+            }
+            if(document.getElementById('file2')) {
+                type.modalId = 'modal-2'
+                uploader2 = new snFileUpload.Uploader(`file2`, type);
+                uploader2.flag = '2';
+            }
+            if(document.getElementById('file3')) {
+                type.modalId = 'modal-3'
+                uploader3 = new snFileUpload.Uploader(`file3`, type);
+                uploader3.flag = '3';
+            }
+            if(document.getElementById('file4')) {
+                type.modalId = 'modal-4'
+                uploader4 = new snFileUpload.Uploader(`file4`, type);
+                uploader4.flag = '4';
+            }
+
+            type.modalId = 'modal-5'
+            actionDetail = new snFileUpload.Uploader(`file5`, type);
+            actionDetail.flag = '5';
+
+            if (document.getElementById('gmskk') !== null) {
+                const fileConfigs = [
+                    { uploader: uploader1, downloadId: 'allDownload', index: 1 },
+                    { uploader: uploader2, downloadId: 'allDownload2', index: 2 },
+                    { uploader: uploader3, downloadId: 'allDownload3', index: 3 },
+                    { uploader: uploader4, downloadId: 'allDownload4', index: 4 },
+                    { uploader: actionDetail, downloadId: 'allDownload5', index: 5 }
+                ]
+                const parentKey = `${document.getElementById('gmskk').innerText}`;
+                // fileUploaderConfigs 의 값을 순회하면서 진행
+                for (const { uploader, downloadId, index } of fileConfigs) {
+                    // null or undefined 체크
+
+                    if (uploader) {
+                        await uploaderInit(uploader, parentKey);
+                        document.getElementById(downloadId).addEventListener('click', () => uploader.downloadAllFile())
+                        if(uploader.fileCount < 1) document.getElementById(`fileContainer${index}`).style.display = 'none';
+                    }
+                }
+            }
+
+            document.getElementById('list').addEventListener('click', () => {
+                const a = document.createElement('a')
+                a.href = '/viobldmng/list'
+                a.click()
+            })
+
+            document.getElementById('modify').addEventListener('click', () => {
+                const form = document.createElement("form");
+                const gmskkElement = document.createElement("input");
+                form.appendChild(gmskkElement)
+                document.body.appendChild(form);
+                gmskkElement.type = 'text';
+                gmskkElement.name = 'gmskk';
+                gmskkElement.value = document.getElementById('gmskk').textContent;
+                form.action = '/viobldmng/modify';
+                form.method = 'post';
+                form.submit();
+            })
+        })
+    </script>
+</th:block>
+</html>

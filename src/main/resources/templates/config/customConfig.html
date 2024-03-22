@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!--/* customConfig settings */-->
+<th:block th:fragment="customConfig">
+    <!--/* 별도로 추가할 css */-->
+    <th:block layout:fragment="css"></th:block>
+    <!--/* 별도로 추가할 js */-->
+    <th:block layout:fragment="configScript"></th:block>
+</th:block>
+</html>

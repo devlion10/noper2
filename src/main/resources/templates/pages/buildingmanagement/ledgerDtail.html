@@ -1,0 +1,959 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <th:block layout:fragment="LNB" th:with="ledger = 'on', ledgerBold = true">
+        <th:block th:replace="fragments/LNB :: unlcebldmng"></th:block>
+    </th:block>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}" >
+    </th:block>
+    <th:block layout:fragment="configScript">
+        <script>
+            var canUpdate = [[${auth.canUpdate}]];
+        </script>
+        <script th:src="@{/js/buildingmanagement/ledgerDtail.js}"></script>
+        <script th:src="@{/js/buildingmanagement/ledgerGrid.js}"></script>
+        <script th:src="@{/moment-js/moment.min.js}"></script>
+    </th:block>
+    <th:block layout:fragment="content">
+        <th:block th:replace="pages/common/modal :: siteCnkModal"></th:block>
+        <div class="content container-fluid">
+            <div class="title_wrap bdnn">
+                <h3 class="tit">대장상세</h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>기존무허가 건축물관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>대장관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>대장상세</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="accordion" id="accordionPanelsStayOpenExample">
+                        <div class="accordion-item">
+                            <form id="ledgerAddForm" name="ledgerAddForm" class="needs-validation" novalidate method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                    건축물현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">기본정보</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">대장번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="row align-items-center">
+                                                <span class="w70" th:utext="${ledger.gmskk}"></span> -
+                                                <span class="w100 text-center" th:text="${(ledger.gmdjgb == '0') ? '등재' : (ledger.gmdjgb == '1') ? '미등재' : '항측판독'}"></span>
+                                                - <span class="w70" th:utext="${ledger.gmseqco}"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label for="dhbh" class="col-form-label col-form-label-sm">도엽번호</label><th:block th:replace="pages/common/util :: required"></th:block>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" id="dhbh" name="dhbh" required maxlength="9" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control form-control-sm" th:value="${ledger.dhbh}" placeholder="도엽번호" aria-label="도엽번호"/>
+                                            <div class="invalid-feedback">도엽번호를 입력하세요.</div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label for="dhgbh" class="col-form-label col-form-label-sm">도엽건물번호</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" id="dhgbh" name="dhgbh"  maxlength="10" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"  class="form-control form-control-sm" th:value="${ledger.dhgbh}" placeholder="도엽건물관리번호" aria-label="도엽건물관리번호"/>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label for="dongbh" class="col-form-label col-form-label-sm">동번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" id="dongbh" th:value="${ledger.dongbh}" name="dongbh" class="form-control form-control-sm" placeholder="동번호" aria-label="동번호" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label for="donggbh" class="col-form-label col-form-label-sm">동일련번호</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" id="donggbh" th:value="${ledger.donggbh}" name="donggbh"  maxlength="4" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"  class="form-control form-control-sm" placeholder="동일련번호" aria-label="동일련번호" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label for="daejang" class="col-form-label col-form-label-sm">대장등재<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" id="daejang" required th:value="${ledger.daejang}" name="daejang"  maxlength="5" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"  class="form-control form-control-sm" placeholder="대장등재" aria-label="대장등재" />
+                                            <div class="invalid-feedback">대장등재를 입력해주세요.</div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건물주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-5">
+                                            <div class="row row-tr bdnn">
+                                                <input type="text" readonly required name="newaddr1" th:value="${ledger.newaddr1}" class="form-control form-control-sm disabled" aria-label="도로명주소" placeholder="도로명주소"/>
+                                            </div>
+                                            <div class="row row-tr bdnn mt-1">
+                                                <input type="text" readonly required name="newaddr2" th:value="${(ledger.newaddr2 == null) ? (ledger.gmskkname) : ledger.newaddr2  }" class="form-control form-control-sm disabled" aria-label="지번주소" placeholder="지번주소"/>
+                                                <div class="invalid-feedback">주소를 입력해주세요.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 align_items_center">
+                                            <button type="button" id="jusoBtn" class="btn btn-secondary btn-sm">
+                                                <i class="fa-solid fa-search"></i> 주소
+                                            </button>
+                                            <input type="hidden" class="mt-1" disabled th:value="${(ledger.gmcsah == '0') ? '대지' : (ledger.gmcsah == '1') ? '산' : (ledger.gmcsah == '2') ? '블록' : ''}" name="gmcsahTemp" aria-label="대지/산" />
+                                            <input type="hidden" th:value="${(ledger.gmcsah == '0') ? '대지' : (ledger.gmcsah == '1') ? '산' : (ledger.gmcsah == '2') ? '블록' : ''}" name="gmcsah" aria-label="대지/산" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">관리행정동<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2 align_items_center">
+                                            <select name="gmhjdcd" required th:field="*{ledger.gmhjdcd}" class="form-select form-select-sm" title="관리행정동">
+                                                <option value="" disabled selected>관리행정동</option>
+                                                <option th:each="mngAdminstrBld : ${mngAdminstrBld}" th:value="${mngAdminstrBld.hjdcd}"
+                                                        th:utext="${mngAdminstrBld.hnam}">관리행정동</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">대장내역</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="gmgzcd" th:field="*{ledger.gmgzcd}" class="form-select form-select-sm" title="구조">
+                                                <option th:each="structure : ${codeStructure}" th:value="${structure.cdvalue}"
+                                                        th:utext="${structure.cdvalue}">구조</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select name="gmyd" th:field="*{ledger.gmyd}" class="form-select form-select-sm" title="용도">
+                                                <option th:each="usage : ${codeUsage}" th:value="${usage.cdvalue}"
+                                                        th:utext="${usage.cdvalue}">소유권</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">부속건축물동수<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" th:value="${ledger.gmbsdong}" required class="form-control form-control-sm" name="gmbsdong" maxlength='1' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" aria-label="부속건축물동수" />
+                                            <div class="invalid-feedback">부속건축물동수를 입력해주세요.</div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건물면적<br>(당초)<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3 align_items_center">
+                                            <input class="form-control form-control-sm w100 tx-right" required maxlength='14' type="text" th:value="${ledger.gmmunjuk}"  name="gmmunjuk" aria-label="건물면적" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" onkeyup="fnChgPung_S1(ledgerAddForm.gmmunjuk.value,'gmgunp')" >&nbsp;㎡&nbsp;
+                                            ( <input class="form-control form-control-sm w100 tx-right" type="text" th:value="${ledger.gmgunp}" name="gmgunp" aria-label="건물면적 평" disabled readonly><span>&nbsp;평</span>)
+                                            <div class="invalid-feedback">건물면적을 입력해주세요.</div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">건물층수<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                             <input type="text" th:value="${ledger.gmfoors}" required name="gmfoors" class="form-control form-control-sm w100 tx-right" aria-label="건물층수" maxlength='1' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" placeholder="건물층수" />&nbsp;층
+                                             <div class="invalid-feedback">건물층수를 입력해주세요.</div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축일자</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="row row-tr bdnn">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" th:if="${not #strings.isEmpty(ledger.gmgunil)}" th:value="${(#strings.length(ledger.gmgunil) != 8) ? '' : #temporals.createDate(ledger.gmgunil, 'yyyyMMdd')}" name="gmgunilDate" class="form-control form-control-sm" aria-label="건축일자"  placeholder="건축일자" />
+                                            <input type="date" onkeydown="return false" max="9999-12-31" th:if="${#strings.isEmpty(ledger.gmgunil)}"  name="gmgunilDate" class="form-control form-control-sm" aria-label="건축일자"  placeholder="건축일자" />
+                                            </div>
+                                            <div class="row row-tr bdnn">
+                                            <div th:text="${ledger?.gmgunil} ?: ''"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">토지면적<br>(당초)</label>
+                                        </div>
+                                        <div class="col-3 align_items_center">
+                                            <input class="form-control form-control-sm w100 tx-right" type="text" th:value="${ledger.tojimunjuk}" maxlength='19' name="tojimunjuk" aria-label="토지면적" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" onkeyup="fnChgPung_S1(ledgerAddForm.tojimunjuk.value,'tojimj')">&nbsp;㎡&nbsp; (
+                                            <input class="form-control form-control-sm w100 tx-right" type="text" th:value="${ledger.tojimj}" name="tojimj" aria-label="토지면적 평" readonly><span class="tip_con"> 평</span>)
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">소유권<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2 align_items_center">
+                                            <select name="tojisg" th:field="*{ledger.tojisg}" class="form-select form-select-sm" title="소유권">
+                                                <option th:each="posseion : ${codePosseion}" th:value="${posseion.cdvalue}"
+                                                        th:utext="${posseion.cdvalue}">소유권</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">지목<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2 align_items_center">
+                                            <select name="tojijmg" th:field="*{ledger.tojijmg}" class="form-select form-select-sm" title="지목">
+                                                <option th:each="pdointOut : ${codePdointOut}" th:value="${pdointOut.cdkey}"
+                                                        th:utext="${pdointOut.cdvalue}">지목</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">도시계획<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="tojidp" th:field="*{ledger.tojidp}" class="form-select form-select-sm" title="도시계획">
+                                                <option th:each="urbanPlanning : ${codeUrbanPlanning}" th:value="${urbanPlanning.cdvalue}"
+                                                        th:utext="${urbanPlanning.cdvalue}">도시계획</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">재개발지구여부<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select name="jigujdg" th:field="*{ledger.jigujdg}" class="form-select form-select-sm" title="재개발지구여부">
+                                                <option th:each="redevelopmentDistrict : ${codeRedevelopmentDistrict}" th:value="${redevelopmentDistrict.cdvalue}"
+                                                        th:utext="${redevelopmentDistrict.cdvalue}">재개발지구여부</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">지구구분<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <select name="jigugb" th:field="*{ledger.jigugb}" class="form-select form-select-sm" title="지구구분">
+                                                <option th:each="district : ${codeDistrict}" th:value="${district.cdvalue}"
+                                                        th:utext="${district.cdvalue}">지구구분</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">지구여건<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="jiguug" th:field="*{ledger.jiguug}" class="form-select form-select-sm" title="지구여건">
+                                                <option th:each="conditions : ${codeConditions}" th:value="${conditions.cdvalue}"
+                                                        th:utext="${conditions.cdvalue}">지구여건</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">도로저촉<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" th:value="${ledger.jigudz}" maxlength='4' required oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" name="jigudz" aria-label="도로저촉" class="form-control form-control-sm w100 tx-right" /> ㎡
+                                            <div class="invalid-feedback">도로저촉을 입력하세요.</div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">위반사유</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text" th:value="${ledger.gmweban}" name="gmweban" maxlength='10' aria-label="위반사유" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">위반건수<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input th:value="${ledger.gmwebanno}" required type="text" maxlength='3' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" name="gmwebanno" aria-label="위반건수" class="form-control form-control-sm w100 tx-right" />&nbsp;건
+                                            <div class="invalid-feedback">위반건수을 입력하세요.</div>
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">확정일자</label>
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" th:value="${(ledger.decision == null) ? '-' : #temporals.createDate(ledger.decision, 'yyyyMMdd')}" name="decisionDate" aria-label="확정일자" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">등록사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-10">
+                                            <textarea class="form-control form-control-sm lh-sm my-1" required maxlength="500" rows="6" th:value="${ledger.reason}" th:text="${ledger.reason}" cols="70" aria-label="등록사유" name="reason"></textarea>
+                                            <div class="invalid-feedback">등록사유을 입력하세요.</div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">발급정지사유</label>
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="text" th:value="${(ledger.bgstop == null) ? '-' : ledger.bgstop}" name="bgstop" aria-label="발급정지사유" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">대장정정사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="text" required th:value="${(ledger.updatec == null) ? '-' : ledger.updatec}" name="updatec" aria-label="대장정정사유" class="form-control form-control-sm" />
+                                            <div class="invalid-feedback">대장정정사유을 입력하세요.</div>
+                                        </div>
+                                    </div>
+                                    <th:block th:if="${auth.canInsert}">
+                                        <div class="mt-3" style="text-align:right">
+                                            <button type="button" id="noperSaveBtn" class="btn btn-primary btn-sm" form="ledgerAddForm" >저장</button>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                                <input type="hidden" name="legerFlag" value="ledger" aria-label="구분"/>
+                                <input type="hidden" name="gmgunil" aria-label="건축일자" />
+                                <input type="hidden" name="decision" aria-label="확정일자" />
+                                <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+                                <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+                                <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+                                <input type="hidden" th:value="${ledger.gmskk}" name="gmskkcd" aria-label="시군구코드" />
+                                <input type="hidden" th:value="${ledger.gmbjdcd}" name="gmbjdcd" aria-label="법정동코드" />
+                                <input type="hidden" th:value="${ledger.gmcbuh}" name="gmcbuh" aria-label="본번" />
+                                <input type="hidden" th:value="${ledger.gmcji}" name="gmcji" aria-label="부번" />
+                                <input type="hidden" th:value="${ledger.gmcoh}" name="gmcoh" aria-label="상세주소" />
+                                <input type="hidden" th:value="${ledger.naSigunguCd}" name="naSigunguCd" aria-label="시군구" />
+                                <input type="hidden" th:value="${ledger.naBjdongNo}" name="naBjdongNo" aria-label="법정동" />
+                                <input type="hidden" th:value="${ledger.naRoadCd}" name="naRoadCd" aria-label="새주소관련" />
+                                <input type="hidden" th:value="${ledger.naRoadNm}" name="naRoadNm" aria-label="도로명" />
+                                <input type="hidden" th:value="${ledger.naMainBun}" name="naMainBun" aria-label="새주소본번" />
+                                <input type="hidden" th:value="${ledger.naSubBun}" name="naSubBun" aria-label="건물부번" />
+                                <input type="hidden" th:value="${ledger.naEtc}" name="naEtc" aria-label="새주소그외" />
+                            </form>
+                        </div>
+                        <div class="accordion-item">
+                            <form id="ledgerOwnerAddForm" name="ledgerOwnerAddForm" method="post">
+                                <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                                        건물주현황
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
+                                    <div class="accordion-body">
+                                        <p class="font-weight-bold">건물주 현황입력</p>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">건물주명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" id="gmjname" name="gmjname" class="form-control form-control-sm d-block" placeholder="건물주명" aria-label="건물주명" required/>
+                                            </div>
+                                            <div class="col-2 col-th">
+                                                <label class="col-form-label col-form-label-sm">주민등록번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-6">
+                                                <select name="gmjjgn" class="w100 form-select form-select-sm required" title="주민구분">
+                                                    <option th:each="gmjjgnTemp : ${codeGmjjgnTemp}" th:value="${gmjjgnTemp.cdkey}"
+                                                            th:utext="${gmjjgnTemp.cdvalue}" th:selected="${gmjjgnTemp.cdkey} == ${ledger.gmjjgnTemp}">
+                                                    </option>
+                                                </select>
+                                                &nbsp;&nbsp;
+                                                <input type="text" name="gmjjumin1" required maxlength="6" aria-label="주민번호1" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="w150 form-control form-control-sm" />
+                                                &nbsp;&nbsp;-&nbsp;&nbsp;
+                                                <input type="text" name="gmjjumin2" required maxlength="7" aria-label="주민번호2" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="w150 form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">건물주<br>주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-5">
+                                                <div class="row row-tr bdnn">
+                                                    <input type="text" required name="newAddr1" placeholder="도로명주소" aria-label="도로명주소" class="form-control form-control-sm" />
+                                                </div>
+                                                <div class="row row-tr bdnn mt-1">
+                                                    <input type="text" required name="newAddr2" placeholder="지번주소" aria-label="지번주소" class="form-control form-control-sm" />
+                                                </div>
+                                                <div class="invalid-feedback">주소를 입력해주세요.</div>
+                                            </div>
+                                            <div class="col-2 align_items_center">
+                                                <button type="button" id="jusoBtn2" class="btn btn-secondary btn-sm">
+                                                    <i class="fa-solid fa-search"></i> 주소
+                                                </button>
+                                                <input type="hidden" class="form-control form-control-sm d-block w90" name="gmcsahTemp" disabled>
+                                                <input type="hidden" class="form-control form-control-sm" name="gmcsah">
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center mt-3">
+                                            <div class="col-12 justify-content-end mb-5">
+                                                <div class="float-start">
+                                                    <h5 style="color: #808080"> ※ 건물주현황 추가는 신규대장 입력시 가능합니다.
+                                                        기존 건물주정보 변경은 &lt;소유자변경관리&gt; 메뉴에서 변경하실수 있습니다.</h5>
+                                                </div>
+                                                <div class="float-end">
+                                                    <button type="button" id="ledgerOwnerResetBtn" class="btn btn-secondary me-2 btn-sm">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                    <button type="button" form="ledgerOwnerAddForm" id="ledgerOwnerAddBtn" class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-magnifying-glass"></i> 추가
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row align-items-end">
+                                            <div id="NoperOwnerTotCnt" class="col-1 mb-3">
+                                                <h3></h3>
+                                            </div>
+                                            <div id="ownerGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+                                <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+                                <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+                                <input type="hidden" th:value="${gmjilNo}" name="gmjilno" aria-label="건물주일련번호" />
+                                <input type="hidden" name="ownerFlag" value="owner" aria-label="구분" />
+                                <input type="hidden" name="newAddrTemp1" aria-label="시군구코드" />
+                                <input type="hidden" name="newAddrTemp2" aria-label="시군구코드" />
+                                <input type="hidden" name="naSigunguCdOwner" aria-label="법정동코드" />
+                                <input type="hidden" name="naBjdongNo" aria-label="법정동코드" />
+                                <input type="hidden" name="gmjzip1" aria-label="우편번호 앞" />
+                                <input type="hidden" name="gmjzip2" aria-label="우편번호 뒤" />
+                                <input type="hidden" name="gmjsna" aria-label="상세주소" />
+                                <input type="hidden" name="naRoadCd" aria-label="새주소관련" />
+                                <input type="hidden" name="naRoadNm" aria-label="새주소관련" />
+                                <input type="hidden" name="naMainBun" aria-label="새주소본번" />
+                                <input type="hidden" name="naSubBun" aria-label="새주소부번" />
+                                <input type="hidden" name="naEtc" aria-label="새주소그외" />
+                                <input type="hidden" name="gmjjumin" aria-label="주민" />
+                                <input type="hidden" name="rn" aria-label="no" />
+                            </form>
+                        </div>
+                        <div class="accordion-item">
+                                <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+                                        소유자변경이력
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+                                    <div class="accordion-body">
+                                        <p class="font-weight-bold mt-3">소유자변경이력 현황</p>
+                                        <div class="row row-tr align-items-end bdnn">
+                                            <div id="NoperOwnerChangeTotCnt" class="col-1 mb-3">
+                                                Total <span></span>
+                                            </div>
+                                            <div id="ownerChangeGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="float-start">
+                                                <h5 style="color: #808080"> ※ 소유자변경이력은 조회만 가능합니다. 소유자 변경은 &lt;소유자변경신고&gt; 메뉴에서 변경하실수 있습니다.</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="accordion-item">
+                            <form id="ledgerFixAddForm" name="ledgerFixAddForm" method="post">
+                                <h2 class="accordion-header" id="panelsStayOpen-headingFour">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false" aria-controls="panelsStayOpen-collapseFour">
+                                        개보수신고내역
+                                    </button>
+                                </h2>
+                                <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingFour">
+                                    <div class="accordion-body">
+                                        <p class="font-weight-bold">개보수신고내역</p>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">접수일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                                <div class="invalid-feedback">접수일자를 선택해주세요.</div>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="date" onkeydown="return false" max="9999-12-31" required name="gbsgoilTemp" class="form-control form-control-sm" aria-label="접수일자" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">접수번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" disabled name="gmbalno2" class="form-control form-control-sm" value="자동부여" readonly aria-label="개보수발급순번;" />
+                                                <input type="hidden" name="gmilno" readonly aria-label="개보수일련번호" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">준공일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                                <div class="invalid-feedback">준공일자를 선택해주세요.</div>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="date" onkeydown="return false" max="9999-12-31" required name="jgongTemp" class="form-control form-control-sm" aria-label="준공일자" />
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">위반내용<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-11">
+                                                <input type="text" required name="wbgb" maxlength="20" class="form-control form-control-sm" aria-label="위반내용" />
+                                                <div class="invalid-feedback">위반내용을 입력해주세요.</div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">신고내용</label>
+                                            </div>
+                                            <div class="col-11">
+                                                <input type="text" name="gbscotent" class="form-control form-control-sm" aria-label="신고내용" />
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">조치내용<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                            </div>
+                                            <div class="col-11">
+                                                <input type="text" required name="chcontent" maxlength="254" class="form-control form-control-sm" aria-label="조치내용" />
+                                                <div class="invalid-feedback">조치내용을 입력해주세요.</div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-2 col-th">
+                                                <label class="col-form-label col-form-label-sm">현장확인자직명</label>
+                                            </div>
+                                            <div class="col-2">
+                                                <input type="text" name="hhgname" class="form-control form-control-sm" aria-label="접수일자" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">신고담당</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="sinda" class="form-control form-control-sm" aria-label="접수번호" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">준공담당</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="jungon" class="form-control form-control-sm" aria-label="접수번호" />
+                                            </div>
+                                        </div>
+                                        <div class="row row-tr">
+                                            <div class="col-2 col-th">
+                                                <label class="col-form-label col-form-label-sm">현장확인자성명</label>
+                                            </div>
+                                            <div class="col-2">
+                                                <input type="text" name="hhname" class="form-control form-control-sm" aria-label="접수일자" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">신고동장</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="sinda1" class="form-control form-control-sm" aria-label="접수번호" />
+                                            </div>
+                                            <div class="col-1 col-th">
+                                                <label class="col-form-label col-form-label-sm">준공동장</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <input type="text" name="jungon1" class="form-control form-control-sm" aria-label="접수번호" />
+                                            </div>
+                                        </div>
+
+
+                                        <div class="tx-right mt-3" th:if="${auth.canInsert}">
+                                            <button type="button" id="fixResetBtn" class="btn btn-secondary me-2 btn-sm"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                            <button type="button" id="fixAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                            <button type="button" id="fixModyBtn" class="btn btn-primary btn-sm">수정</button>
+                                        </div>
+                                        <p class="font-weight-bold mt-3">개보수신고내역 현황</p>
+                                        <div class="row row-tr align-items-end">
+                                            <div id="findnoperFixTotCnt" class="col-1 mb-3">
+                                                Total <span></span>
+                                            </div>
+                                            <div id="noperFixGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="gmbalno" aria-label="접수번호" />
+                                <input type="hidden" name="fixRn" aria-label="no" />
+                                <input type="hidden" name="gbsgoil" aria-label="접수일자" />
+                                <input type="hidden" name="jgong" aria-label="준공일자" />
+                                <input type="hidden" name="fixParam" aria-label="분기" />
+                                <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+                                <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+                                <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+                            </form>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseFive" aria-expanded="false" aria-controls="panelsStayOpen-collapseFive">
+                                    배치도/사진
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseFive" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingFive">
+                                <div class="accordion-body">
+                                    <div class="row row-tr bdnn">
+                                        <p class="font-weight-bold">배치도/사진등록</p>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">이미지 종류</label>
+                                        </div>
+                                        <div class="col-11">
+                                            <select id="fileFlagTemp" name="fileFlagTemp" required class="form-select required" title="이미지 종류">
+                                                <option value="1" >배치도</option>
+                                                <option value="2" >사진</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                                        <div id="myId"></div>
+                                        <div th:style="${auth.canInsert ? 'display:block' : 'display:none'}">
+                                            <div class="d-flex justify-content-end pb-2">
+                                                <button id="upload" class="btn btn-warning btn-sm">업로드</button>
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center align-content-center mt-2 fileList">
+                                            <div class="col-1 text-center">파일</div>
+                                            <div class="col-9">
+                                                <ul id="user-files" class="list-inline">
+                                                </ul>
+                                            </div>
+                                            <div class="col-2">
+                                                <button id="allDownload" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3" style="color: #808080">
+                                        ※ 대장출력시 뒷장 이미지가 표시될 수 있는 파일 : jpg, gif, bmp
+                                        확인용으로 업로드시에는 gif, jpg, tif, dwg, pdf, bmp, psd, tga, png, hwp 파일만 가능합니다.
+                                        <br /><br />
+                                        ※ autocad파일인 dwg파일을 image파일로 변환하는 툴 :
+                                        <a th:href="@{/file/download/fileconv.zip}" class="text-decoration-underline">다운로드</a><i class="bi bi-hand-index"></i> 다운받으신 fileconv.zip의 압축을 풀고, 폴더안의 fileconv.exe 을 실행한 후 변환하시면 됩니다.
+                                        <br />변환될 이미지 사이즈는 값이 클수록 상세한 이미지를 얻을 수 있습니다.(값이 클수록 파일의 크기가 증가합니다.)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                                <h2 class="accordion-header" id="panelsStayOpen-headingSix">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseSix" aria-expanded="false" aria-controls="panelsStayOpen-collapseSix">
+                                        현장점검내역
+                                    </button>
+                                </h2>
+                                <form id="siteChkAddForm" name="siteChkAddForm" method="post">
+                                    <div id="panelsStayOpen-collapseSix" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingSix">
+                                        <div class="accordion-body">
+                                            <div>
+                                                <div th:style="${auth.canUpdate ? 'display:block' : 'display:none'}">
+                                                    <p class="font-weight-bold">현장점검 등록</p>
+                                                    <div class="row row-tr">
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">점검일자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <input type="date" onkeydown="return false" max="9999-12-31" name="chkDateTemp" required class="form-control form-control-sm mt4-5 w180" aria-label="점검일자" />
+                                                            <div class="invalid-feedback">점검일자를 선택해주세요.</div>
+                                                        </div>
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">점검담당자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                                        </div>
+                                                        <div class="col-5 p0">
+                                                            <div class="row row-tr border-end-0">
+                                                                <div class="col-12">
+                                                                    행정구: <span class="bjdongNm" th:utext="${bjdongMgm.bnam}"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row row-tr border-end-0">
+                                                                <div class="col-12">
+                                                                    성명: <span th:utext="${userName}"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row row-tr border-bottom-0 border-end-0">
+                                                                <div class="col-12">
+                                                                    <input type="hidden" name="chkChargeNm" th:value="${userName}" placeholder="성명" aria-label="성명" class="form-control form-control-sm d-inline-block" />
+                                                                    직급: <input type="text" name="chkChargeClspos" maxlength="10" placeholder="직급" aria-label="직급" class="w200 form-control form-control-sm d-inline-block" required/>
+                                                                    <div class="invalid-feedback">직급을 등록해주세요.</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">위반여부<span style="color: red">&nbsp;*</span></label>
+                                                        </div>
+                                                        <div class="col-2 align_items_center">
+                                                            <div class="form-check form-check-inline p0">
+                                                                <input class="form-check-input mx-1" type="radio" name="violYn" id="inlineRadio1" value="Y" required>
+                                                                <label class="form-check-label" for="inlineRadio1">유</label>
+                                                                <br />
+                                                                <input class="form-check-input mx-1" type="radio" name="violYn" id="inlineRadio2" value="N" required>
+                                                                <label class="form-check-label" for="inlineRadio2">무</label>
+                                                                <div class="invalid-feedback">위반여부를 선택해주세요.</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row row-tr">
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">위반내용<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                                        </div>
+                                                        <div class="col-11">
+                                                            <textarea class="form-control form-control-sm lh-sm my-1" required rows="2" value="" cols="70" id="violCntt" aria-label="위반내용" name="violCntt"></textarea>
+                                                        </div>
+                                                        <div class="invalid-feedback">위반내용을 등록해주세요.</div>
+                                                    </div>
+                                                    <div class="row row-tr">
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">비고/기타</label>
+                                                        </div>
+                                                        <div class="col-11">
+                                                            <textarea class="form-control form-control-sm lh-sm my-1" rows="2" value="" cols="70" aria-label="비고/기타" name="rem" ></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <th:block th:if="${auth.canUpdate}">
+                                                    <div class="row row-tr">
+                                                        <div class="col-1 col-th">
+                                                            <label class="col-form-label col-form-label-sm">점검사진<span style="color: red">&nbsp;*</span></label>
+                                                        </div>
+                                                        <div class="col-11">
+                                                            <div class="row">
+                                                                <!-- name="uploadfile" -->
+                                                                <div id="siteChkFile"></div>
+                                                                <div class="siteChkFileHide">
+                                                                    <div class="row justify-content-center align-content-center mt-2">
+                                                                        <div class="col-1 text-center">파일</div>
+                                                                        <div class="col-11">
+                                                                            <ul id="user-files3" class="list-inline">
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </th:block>
+                                                <th:block th:if="!${auth.canUpdate}">
+                                                    <div id="siteChkFile"></div>
+                                                </th:block>
+                                                <div th:style="${auth.canUpdate ? 'display:block' : 'display:none'}">
+                                                    <div class="tx-right mt-3">
+                                                        <button type="button" id="siteChkResetBtn" class="btn btn-secondary me-2 btn-sm"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                                        <button type="button" id="siteChkAddBtn" class="btn btn-primary btn-sm">등록</button>
+                                                        <button type="button" id="siteChkModyBtn" class="btn btn-primary btn-sm">수정</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="font-weight-bold mt-3">현장점검 현황</p>
+                                            <div class="row align-items-end">
+                                                <div id="noperSiteChkTotCnt" class="col-1 mb-3">
+                                                    Total <span></span>
+                                                </div>
+                                                <div id="siteChkGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary me-2 modalBtn" data-bs-toggle="modal" data-bs-target="#siteCnkModal"></button>
+                                    <input type="hidden" th:value="${ledger.gmskk}" name="gmskk" aria-label="기관코드" />
+                                    <input type="hidden" th:value="${ledger.gmdjgb}" name="gmdjgb" aria-label="등재코드" />
+                                    <input type="hidden" th:value="${ledger.gmseqco}" name="gmseqco" aria-label="무허가관리번호" />
+                                    <input type="hidden" th:value="${ledger.gmskk}" name="chkChargeGmskk" aria-label="기관코드" />
+
+                                    <input type="hidden" name="chkDate" aria-label="점검일" />
+                                    <input type="hidden" name="chkilno" aria-label="현장점검 채번" />
+                                    <input type="hidden" name="sitechkParam" aria-label="분기"/>
+                                </form>
+                            </div>
+                        <!--
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingSeven">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseSeven" aria-expanded="false" aria-controls="panelsStayOpen-collapseSeven">
+                                    항측현황도
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseSeven" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingSeven">
+                                <div class="accordion-body">
+
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                </div>
+                <form id="ledgerFindForm" onsubmit="return false;">
+                    <input type="hidden" name="calendarType" th:value="${searchParamDTO?.calendarType}" />
+                    <input type="hidden" name="calendarBtn" th:value="${searchParamDTO?.calendarBtn}" />
+                </form>
+            </div>
+            <div class="row mt-3">
+                <div class="col-10">
+
+                        <a th:href="@{/unlcebldmng/confirmation(gmskk=${ledger.gmskk}, gmdjgb=${ledger.gmdjgb}, gmseqco=${ledger.gmseqco})}" class="btn btn-light btn-sm bdaaa">기존무허가확인원</a>
+                        <a th:href="@{/unlcebldmng/ownerChange(gmskk=${ledger.gmskk}, gmdjgb=${ledger.gmdjgb}, gmseqco=${ledger.gmseqco})}" class="btn btn-light btn-sm bdaaa">소유자관리</a>
+                        <a th:href="@{/unlcebldmng/demolition(gmskk=${ledger.gmskk}, gmdjgb=${ledger.gmdjgb}, gmseqco=${ledger.gmseqco})}" class="btn btn-light btn-sm bdaaa">철거신고</a>
+                        <a th:href="@{/unlcebldmng/partDemolition(gmskk=${ledger.gmskk}, gmdjgb=${ledger.gmdjgb}, gmseqco=${ledger.gmseqco})}" class="btn btn-light btn-sm bdaaa">부분철거신고</a>
+                        <button id="listBtn" class="btn btn-light btn-sm bdaaa">목록</button>
+
+                    <!--
+                        <a th:href="@{/unlcebldmng/confirmation}" class="btn btn-light btn-sm bdaaa">기존무허가확인원</a>
+                        <a th:href="@{/unlcebldmng/ownerChange}" class="btn btn-light btn-sm bdaaa">소유자관리</a>
+                        <a th:href="@{/unlcebldmng/demolition}" class="btn btn-light btn-sm bdaaa">철거신고</a>
+                        <a th:href="@{/unlcebldmng/partDemolition}" class="btn btn-light btn-sm bdaaa">부분철거신고</a>
+                    -->
+                </div>
+                <!--<div class="col-2 tx-right">
+                    <button id="listBtn" class="btn btn-light btn-sm bdaaa">목록</button>
+                </div>-->
+            </div>
+         </div>
+
+
+        <script th:inline="javascript">
+            const ledgerFindForm = [[${ledgerFindForm}]] || {}
+            addSearchFormDataToHiddenInputInForm($('#ledgerFindForm')[0], ledgerFindForm)
+
+
+            var noperOwnerObj = [[${findNoperOwner}]];
+            var noperOwnerChangeObj = [[${findNoperOwnerChange}]];
+            var noperFixObj = [[${findnoperFix}]];
+            var noperSiteChkObj = [[${findNoperSiteChk}]];
+            var gmbunho = [[${gmbunho}]];
+            var seqVal = ""
+            var gmjdgb = "";
+
+            const seqWords = gmbunho.split("-");
+            if(seqWords[1] === "등재"){
+                gmjdgb = '0'
+            }else if(seqWords[1] === "미등재"){
+                gmjdgb = '1'
+            }else if(seqWords[1] === "항측판독"){
+                gmjdgb = '2'
+            }
+            seqVal = seqWords[0]+"-"+gmjdgb+"-"+seqWords[2];
+            // 해당 화면의 seq를 호출
+            var seq = seqVal.trim();
+            let flag = document.getElementById('fileFlagTemp').value
+            const type = {
+                type:'ledgerLayout',
+                fileName: 900,
+                modalId: 'modal-1',
+                size: 200,
+                readOnly: canUpdate ? 'N' : 'Y',
+                visible: canUpdate ? false : true
+            }
+
+            const siteChkType = {
+                type:'ledgerSiteChk',
+                fileName: 800,
+                modalId: 'modal-2',
+                size: 200,
+                readOnly: canUpdate ? 'N' : 'Y',
+                visible: canUpdate ? false : true
+            }
+
+            const uploader = new snFileUpload.Uploader("myId", type);
+            const siteChkUploader = new snFileUpload.Uploader("siteChkFile", siteChkType);
+
+            uploader.setFlag(flag);
+            fileLoad();
+
+            // 배치도/사진 업로드
+            document.getElementById('upload').addEventListener('click', () => {
+                if($("#fileFlagTemp option:selected").val() == "0"){
+                    snAlert.alert('배치도/사진 종류를 선택해주세요.');
+                }else{
+                    uploader.setFlag(flag);
+                    uploader.parentKey = seq;
+                    uploader.uploadFiles();
+                    uploader.clearFiles()
+                }
+            });
+
+            // 셀렉트박스(배치도/사진)
+            document.getElementById('fileFlagTemp').addEventListener("change", async (e) => {
+                flag = e.target.value;
+                uploader.setFlag(flag);
+                uploader.parentKey = seq;
+                await uploader.loadFiles();
+                $("#user-files").html("");
+                // 파일정보 로딩
+                uploader.getFiles().forEach(file=>{
+                    console.log(file);
+                    let $link = $("<a>")
+                        .text(`${file.name} (${file.vsize})`)
+                        .attr("title", file.name)
+                        .attr("href", `${file.name}`)
+                        .data("fseq", file.fseq)
+                        .data("seq", file.gmskk+'-'+file.gmdjgb+'-'+file.gmseqco)
+                        .on("click", (e)=>{
+                            e.preventDefault();
+                            if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                        .on("click", uploader.imgPreview(file))[0];
+                            } else {
+                                uploader.downloadFile(file);
+                            }
+                        });
+                    let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                    $deleteLink.on("click", (e) => {
+                        $(e.target).closest("li").remove()
+                        console.log(file)
+                        uploader.deleteFiles(file)
+                    });
+                    $("<li class='list-inline-item'>")
+                            .append($link)
+                            .append($deleteLink)
+                            .appendTo($("#user-files"));
+                });
+                if (uploader.getFileCount() === 0) {
+                    document.getElementsByClassName('fileList')[0].style.display = 'none';
+                } else {
+                    document.getElementsByClassName('fileList')[0].style.display = '';
+                }
+                uploader.clearFiles();
+            });
+
+
+            function fileLoad(){
+               document.addEventListener('DOMContentLoaded', async () => {
+                    $("#user-files").html("");
+                    uploader.parentKey = seq;
+                    await uploader.loadFiles();
+                    // 파일정보 로딩
+                    uploader.getFiles().forEach(file=>{
+                        console.log(file);
+                        let $link = $("<a>")
+                            .text(`${file.name} (${file.vsize})`)
+                            .attr("title", file.name)
+                            .attr("href", `${file.name}`)
+                            .data("fseq", file.fseq)
+                            .data("seq", file.gmskk+'-'+file.gmdjgb+'-'+file.gmseqco)
+                            .on("click", (e)=>{
+                                e.preventDefault();
+                                let seq = $(e.target).data("seq");
+                                let fseq =$(e.target).data("fseq");
+                                // 이미 파일명/확장자명을 알기때문에 전달해주면 될 듯
+                                console.log(file.type);
+                                if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                    return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                            .on("click", uploader.imgPreview(file))[0];
+                                } else {
+                                    uploader.downloadFile(file);
+                                }
+                            });
+                        let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                        $deleteLink.on("click", (e) => {
+                            $(e.target).closest("li").remove()
+                            console.log(file)
+                            uploader.deleteFiles(file)
+                        });
+                        $("<li class='list-inline-item'>")
+                                .append($link)
+                                .append($deleteLink)
+                                .appendTo($("#user-files"));
+                    });
+                    if(uploader.getFileCount() === 0) document.getElementsByClassName('fileList')[0].style.display = 'none';
+                    uploader.clearFiles()
+                });
+            }
+
+        // 전체 다운로드
+        document.getElementById('allDownload').addEventListener('click', () => {
+            uploader.downloadAllFile()
+        })
+
+        </script>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/common/modal.js}"></script>
+    </th:block>
+</html>

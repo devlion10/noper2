@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <!--/* meta 호출 */-->
+    <th:block th:replace="config/meta :: meta"></th:block>
+    <!--/* library 호출 */-->
+    <th:block th:replace="config/library :: library"></th:block>
+    <!--/* customConfig 호출 */-->
+    <th:block th:replace="config/customConfig :: customConfig"></th:block>
+    <title>서울시 기존무허가건물관리시스템</title>
+</head>
+<body>
+    <!-- 스킵 네비게이션(웹접근성 준수 위함) -->
+    <div id="wrap">
+        <!--/* header 호출 */-->
+        <th:block th:replace="fragments/header :: header"></th:block>
+
+        <!-- 서브 컨테이너 sub_container 클래스 -->
+        <div id="container" class="sub_container">
+            <div class="inner">
+                <th:block layout:fragment="LNB">
+                </th:block>
+                <!--/*
+                    contents 호출
+                    (/pages/?) 경로에 있는 html호출
+                    % 주의 % - content div class 에 content 기입
+                */-->
+                <th:block layout:fragment="content">
+                </th:block>
+            </div>
+        </div>
+
+        <!--/* footer 호출 */-->
+        <th:block th:replace="fragments/footer :: footer"></th:block>
+    </div>
+    <div id="skipNavi">
+        <a th:href="@{/board/list}">본문바로가기</a>
+    </div>
+
+    <!--/* DOM요소 조작 혹은 이벤트 처리할 js */-->
+    <th:block layout:fragment="script"></th:block>
+</body>
+</html>

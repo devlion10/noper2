@@ -1,0 +1,141 @@
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<!--/* LNB Fragment 선언 */-->
+<!--/* 기존무허가 건축물관리 */-->
+<ul th:fragment="unlcebldmng" class="lnb">
+    <li class="tit">
+        <h2>기존무허가<br />건축물관리</h2>
+    </li>
+    <li th:class="toggle + ' ' + ${ledger}">
+        <a>대장관리</a>
+        <ul th:class="depth2 + ' ' + ${ledger}">
+            <li>
+                <a th:href="@{/unlcebldmng/ledger}" th:class="${ledgerBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">대장현황</a>
+            </li>
+            <li>
+                <a th:href="@{/unlcebldmng/newLedger}" th:class="${newledgerBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">신규대장현황</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a th:href="@{/unlcebldmng/confirmation}" th:class="${confirmationBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">확인원관리
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/unlcebldmng/ownerChange}" th:class="${ownerChangeBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">소유자변경관리
+        </a>
+    </li>
+    <li th:class="toggle + ' ' + ${demolition}">
+        <a>철거신고관리</a>
+        <ul th:class="depth2 + ' ' + ${demolition}">
+            <li>
+                <a th:href="@{/unlcebldmng/demolition}" th:class="${demolitionBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">철거신고현황</a>
+            </li>
+            <li>
+                <a th:href="@{/unlcebldmng/partDemolition}" th:class="${partDemolitionBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">부분철거신고현황</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a th:href="@{/unlcebldmng/renovation/list}" th:class="${renovationBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">개보수신고관리
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/unlcebldmng/DailyHistory/list}" th:class="${DailyHistoryBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">일일처리내역
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/unlcebldmng/noperSiteChk/list}" th:class="${noperSiteChkBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">현장점검대장현황
+        </a>
+    </li>
+    <li th:class="toggle + ' ' + ${ledgerStatus}">
+        <a class="activeBorderBottom">통계&#47;관리</a>
+        <ul th:class="depth2 + ' ' + ${ledgerStatus}">
+            <li>
+                <a th:href="@{/unlcebldmng/ledgerStatus}" th:class="${ledgerStatusBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">관리현황</a>
+            </li>
+            <li>
+                <a th:href="@{/unlcebldmng/ledgerStatus/period}" th:class="${periodBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">기간별통계</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="#" onclick="menuIdCheck(isAuthenticated, this)" th:class="${aerialPhotoBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">항공사진측량 현황도
+        </a>
+    </li>
+</ul>
+<!--/* 개발제한구역내 건축물관리 */-->
+<ul th:fragment="bldmngingb" class="lnb">
+    <li class="tit">
+        <h2>개발제한구역내<br />건축물관리</h2>
+    </li>
+    <li th:class="toggle + ' ' + ${ledger}">
+        <a>대장관리</a>
+        <ul th:class="depth2 + ' ' + ${ledger}">
+            <li>
+                <a th:href="@{/bldmngingb/ledger}" th:class="${ledgerBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">대장현황</a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a th:href="@{/bldmngingb/dailyHistory}" th:class="${dailyHistoryBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">일일처리내역
+        </a>
+    </li>
+</ul>
+<!--/* 위반건축물관리 */-->
+<ul th:fragment="viobldmng" class="lnb">
+    <li class="tit">
+        <h2>위반건축물관리</h2>
+    </li>
+    <li>
+        <a th:href="@{/viobldmng/list}" th:class="${viobldmngListBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">위반건축물현황
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/viobldmng/status}" th:class="${viobldmngStatusBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">위반건축물통계
+        </a>
+    </li>
+</ul>
+<!--/* 게시판 */-->
+<ul th:fragment="board" class="lnb">
+    <li class="tit">
+        <h2>게시판</h2>
+    </li>
+    <li>
+        <a th:href="@{/board/user/list}" th:class="${userBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">가입신청
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/board/notice/list}" th:class="${noticeBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">공지사항
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/board/questionAndAnswer/list}" th:class="${questionAndAnswerBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">Q&A
+        </a>
+    </li>
+    <li>
+        <a th:href="@{/board/GPKI}" th:class="${GPKIBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">GPKI 인증서 사용 안내
+        </a>
+    </li>
+</ul>
+<!--/* 관리자메뉴 */-->
+<ul th:fragment="admin" class="lnb">
+    <li class="tit">
+        <h2>관리자 메뉴</h2>
+    </li>
+    <li>
+        <a th:href="@{/admin/user/list}" th:class="${userBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">사용자관리</a>
+    </li>
+    <li th:class="toggle + ' ' + ${auth}">
+        <a>운영관리</a>
+        <ul th:class="depth2 + ' ' + ${auth}">
+            <li>
+                <a th:href="@{/admin/session-management}" th:class="${sessionManagementBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">로그인 관리</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/permit/list}" th:class="${permitBold == true ? 'fw-bolder clr-blue text-decoration-underline' : ''}">권한관리</a>
+            </li>
+        </ul>
+    </li>
+</ul>
+</html>

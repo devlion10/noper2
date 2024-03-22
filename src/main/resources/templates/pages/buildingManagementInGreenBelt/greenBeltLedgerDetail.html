@@ -1,0 +1,982 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}" lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="ledgerBold = true, ledger = 'on'">
+    <th:block th:replace="fragments/LNB :: bldmngingb"></th:block>
+</th:block>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/buildingmanagement/ledger.css}">
+</th:block>
+<th:block layout:fragment="configScript">
+    <script>
+        var canUpdate = [[${auth.canUpdate}]];
+    </script>
+    <script th:src="@{/js/buildingManagementInGreenBelt/greenBeltLedgerDetail.js}"></script>
+    <script th:src="@{/js/buildingManagementInGreenBelt/greenBeltLedgerGrid.js}"></script>
+    <script th:src="@{/moment-js/moment.min.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="content container-fluid">
+        <div class="title_wrap bdnn">
+            <h3 class="tit">대장상세</h3>
+            <div class="loc">
+                <i class="bi bi-house-fill"></i>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>개발제한구역내 건축물관리</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>대장현황</span>
+                <i class="bi bi-chevron-compact-right"></i>
+                <span>대장상세</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="accordion" id="accordionPanelsStayOpenExample">
+                    <div class="accordion-item">
+                        <form id="ledgerLimitedAddForm" name="ledgerLimitedAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                    건축물현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">기본현황</p>
+                                    <div class="row row-tr align-items-center">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축시기<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="radio" name="buildFlag" id="buildFlagBefore" value="01" checked />
+                                            <label for="buildFlagBefore"> 구역지정이전</label>
+                                            <input type="radio" name="buildFlag" id="buildFlagAfter" class="ms-3" value="02" />
+                                            <label for="buildFlagAfter"> 구역지정이후</label>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">관리행정동<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="hjdCd" required class="form-select form-select-sm required" title="관리행정동">
+                                                <option value="" disabled selected>관리행정동</option>
+                                                <option th:each="mngAdminstrBld : ${mngAdminstrBld}" th:value="${mngAdminstrBld.hjdcd}"
+                                                        th:utext="${mngAdminstrBld.hnam}" th:selected="${mngAdminstrBld.hjdcd == legerLimited.hjdCd}">관리행정동</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">관리번호<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" id="splitAdmSeq" th:value="${admSeq}" class="form-control form-control-sm" disabled readonly />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr align-items-center">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축물주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" name="buildAddr1" id="buildAddr1" th:value="${legerLimited.buildAddr1}" class="form-control form-control-sm disabled"
+                                                   aria-label="건축물 도로명주소" placeholder="건축물 도로명주소" readonly required/>
+                                            <div class="invalid-feedback">
+                                                ※ 건축물 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="text" name="buildAddr2" id="buildAddr2" th:value="${legerLimited.buildAddr2}" class="form-control form-control-sm disabled"
+                                                   aria-label="건축물 지번주소" placeholder="건축물 지번주소" readonly required/>
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="button" id="buildingJusoBtn" class="btn btn-secondary btn-sm">
+                                                <i class="fa-solid fa-search"></i> 주소
+                                            </button>
+                                            <div class="invalid-feedback">
+                                                ※ 건축물 주소를 입력해주세요
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">건축물현황</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">대지면적<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="groundArea" th:value="${legerLimited.groundArea}" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">주용도<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="jydCd" class="form-select form-select-sm required" title="용도">
+                                                <option value="">전체</option>
+                                                <option th:each="codeJydCd : ${codeJydCd}" th:value="${codeJydCd.cdkey}"
+                                                        th:utext="${codeJydCd.cdvalue}" th:selected="${codeJydCd.cdkey == legerLimited.jydCd}">용도
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">작성사유<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="writeReason" th:value="${legerLimited.writeReason}" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건축면적<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="buildMj" th:value="${legerLimited.buildMj}" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="stCd" class="form-select form-select-sm required" title="구조">
+                                                <option value="">전체</option>
+                                                <option th:each="codeStCd : ${codeStCd}" th:value="${codeStCd.cdkey}"
+                                                        th:utext="${codeStCd.cdvalue}" th:selected="${codeStCd.cdkey == legerLimited.stCd}">구조
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">작성자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="registId" th:value="${legerLimited.userName}" disabled readonly />
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">소유자</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">성명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="owner1Name" th:value="${legerLimited.owner1Name}" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">확인자<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="confirmName" th:value="${legerLimited.confirmName}" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr align-items-center">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">소유자주소<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                            <div class="col-5">
+                                                <input type="text" id="owner1Addr1" name="owner1Addr1" th:value="${legerLimited.owner1Addr1}" class="form-control form-control-sm disabled"
+                                                       aria-label="소유자 도로명주소" placeholder="소유자 도로명주소" readonly required/>
+                                                <div class="invalid-feedback">
+                                                    ※ 소유자 주소를 입력해주세요
+                                                </div>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="text" id="owner1Addr2" name="owner1Addr2" th:value="${legerLimited.owner1Addr2}" class="form-control form-control-sm disabled"
+                                                       aria-label="소유자 지번주소" placeholder="소유자 지번주소" readonly required/>
+                                                <div class="invalid-feedback">
+                                                    ※ 소유자 주소를 입력해주세요
+                                                </div>
+                                            </div>
+                                            <div class="col-1">
+                                                <button type="button" id="ownerJusoBtn" class="btn btn-secondary btn-sm">
+                                                    <i class="fa-solid fa-search"></i> 주소
+                                                </button>
+                                            </div>
+                                    </div>
+                                    <p class="font-weight-bold mt-3">기타</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">위법사항<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="text" class="form-control form-control-sm" name="illegal" th:value="${legerLimited.illegal}" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">비고<th:block th:replace="pages/common/util :: required"></th:block></label>
+                                        </div>
+                                        <div class="col-10">
+                                            <input type="text" class="form-control form-control-sm" name="bigo" th:value="${legerLimited.bigo}" />
+                                        </div>
+                                    </div>
+                                    <div class="mt-3" style="text-align:right">
+                                        <button th:if="${auth.canUpdate}" type="button" id="limitedSaveBtn" class="btn btn-primary btn-sm" form="ledgerLimitedAddForm" >저장</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="admSeq" th:value="${admSeq}" aria-label="관리번호" />
+                            <input type="hidden" name="limitedParam" aria-label="분기" />
+                            <input type="hidden" id="skkCd" name="skkCd" aria-label="위치시군구코드" value="" />
+                            <!-- Building -->
+                            <input type="hidden" id="gmcSahBuilding" name="gmcSah" aria-label="대지/산" value="" />
+                            <input type="hidden" id="bjdCdBuilding" name="bjdCd" aria-label="법정동" th:value="${legerLimited.bjdCd} ?: ''" />
+                            <input type="hidden" id="gmcbuhBuilding" name="gmcbuh" aria-label="번" value="" />
+                            <input type="hidden" id="gmcjiBuilding" name="gmcji" aria-label="지" value="" />
+                            <input type="hidden" id="gmcohBuilding" name="gmcoh" aria-label="상세주소" value="" />
+                            <!-- Owner -->
+                            <input type="hidden" id="gmcSahOwner" name="gmcSahOwner" aria-label="대지/산" value="" />
+                            <input type="hidden" id="bjdCdOwner" name="bjdCdOwner" aria-label="법정동" value="" />
+                            <input type="hidden" id="gmcbuhOwner" name="gmcbuhOwner" aria-label="번" value="" />
+                            <input type="hidden" id="gmcjiOwner" name="gmcjiOwner" aria-label="지" value="" />
+                            <input type="hidden" id="gmcohOwner" name="gmcohOwner" aria-label="상세주소" value="" />
+                            <input type="hidden" id="owner1Zip1" name="owner1Zip1" aria-label="우편번호 앞" value="" />
+                            <input type="hidden" id="owner1Zip2" name="owner1Zip2" aria-label="우편번호 뒤" value="" />
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <form id="ledgerOwnerAddForm" name="ledgerOwnerAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseTwo">
+                                    소유자현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
+                                 aria-labelledby="panelsStayOpen-headingTwo">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">소유자정보</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">양도양수일자</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" name="chDate" class="form-control form-control-sm" aria-label="양도양수일자" />
+                                            <input type="hidden" name="chDateTemp" class="form-control form-control-sm" aria-label="양도양수일자" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">양수자성명</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="preOwnerName" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">확인자</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="confirmName" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">건물주 주소</label>
+                                        </div>
+                                        <div class="col-11">
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <input type="text" id="ownerAddr1" name="ownerAddr1" placeholder="도로명주소"
+                                                           aria-label="건물주 도로명주소" class="form-control form-control-sm disabled" readonly required/>
+                                                    <div class="invalid-feedback">
+                                                        ※ 건물주 주소를 입력해주세요
+                                                    </div>
+                                                </div>
+                                                <div class="col-5">
+                                                    <input type="text" id="ownerAddr2" name="ownerAddr2" placeholder="지번주소"
+                                                           aria-label="건물주 지번주소" class="form-control form-control-sm disabled" readonly required/>
+                                                    <div class="invalid-feedback">
+                                                        ※ 건물주 주소를 입력해주세요
+                                                    </div>
+                                                </div>
+                                                <div class="col-2">
+                                                    <button type="button" id="ownerTempJusoBtn" class="btn btn-secondary btn-sm">
+                                                        <i class="fa-solid fa-search"></i> 주소
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 justify-content-end mb-5 mt-3">
+                                            <div class="float-end">
+                                                <button th:if="${auth.canDelete}" type="button" id="ownerResetBtn" class="btn btn-secondary btn-sm">취소</button>
+                                                <button th:if="${auth.canInsert}" type="button" id="ownerAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                                <button th:if="${auth.canUpdate}" type="button" id="ownerModyBtn" class="btn btn-primary btn-sm" style="display: none;">수정</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold">소유자현황</p>
+                                    <div class="row align-items-end mt-3">
+                                        <div id="legerOwnerTotCnt" class="col-1 mb-3">
+                                            Total <span></span>
+                                        </div>
+                                        <div id="ownerGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="ownerRn" aria-label="no" />
+                            <input type="hidden" name="ownerParam" aria-label="분기" />
+                            <input type="hidden" name="admSeq" aria-label="관리번호" th:value="${admSeq}" />
+                            <input type="hidden" name="ownerSeq" aria-label="소유자정보" value="" />
+
+                            <input type="hidden" id="ownerZip1" name="ownerZip1" aria-label="우편번호 앞" value="" />
+                            <input type="hidden" id="ownerZip2" name="ownerZip2" aria-label="우편번호 뒤" value="" />
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <form id="ledgerDongAddForm" name="ledgerDongAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseThree">
+                                    동별현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse"
+                                 aria-labelledby="panelsStayOpen-headingThree">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">동별정보</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">동별번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" oninput="numberMaxLength(this, 3)" class="form-control form-control-sm" name="dongNo" placeholder="숫자만 입력해주세요." />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">용도</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="dongJydCd" class="form-select form-select-sm required mb-1" title="용도">
+                                                <option value="">전체</option>
+                                                <option th:each="codeJydCd : ${codeJydCd}" th:value="${codeJydCd.cdkey}"
+                                                        th:utext="${codeJydCd.cdvalue}" >용도
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="dongJydName" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="dongStCd" class="form-select form-select-sm required mb-1" title="구조">
+                                                <option value="">전체</option>
+                                                <option th:each="codeStCd : ${codeStCd}" th:value="${codeStCd.cdkey}"
+                                                        th:utext="${codeStCd.cdvalue}" >구조
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="dongStName" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th py-0 pe-0">
+                                            <div class="col-6">
+                                                <label class="col-form-label col-form-label-sm">규모<br>(m2)</label>
+                                            </div>
+                                            <div class="col-6 border-start">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">지하</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">3층</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 p-0">
+                                            <div class="col">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <input type="text" class="form-control form-control-sm" name="underScale" />
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col">
+                                                        <input type="text" class="form-control form-control-sm" name="floor3Scale" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th p-0">
+                                            <div class="col">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">1층</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">4층 이상</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 p-0">
+                                            <div class="col">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <input type="text" class="form-control form-control-sm" name="floor1Scale" />
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col">
+                                                        <input type="text" class="form-control form-control-sm" name="floor4Scale" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1 col-th p-0">
+                                            <div class="col">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">2층</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col">
+                                                        <label class="col-form-label col-form-label-sm">소계</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 p-0">
+                                            <div class="col">
+                                                <div class="row row-tr border-end-0">
+                                                    <div class="col">
+                                                        <input type="text" class="form-control form-control-sm" name="floor2Scale" />
+                                                    </div>
+                                                </div>
+                                                <div class="row row-tr border-bottom-0 border-end-0">
+                                                    <div class="col-9">
+                                                        <input type="text" class="form-control form-control-sm" name="floorsSumScale" id="sumResult"  value="0" />
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="calculateSum()">계산기</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">허가(신고일)</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" name="dongPermitDate" class="form-control form-control-sm" aria-label="허가(신고일)" />
+                                            <input type="hidden" name="dongPermitDateTemp" class="form-control form-control-sm" aria-label="허가(신고일)" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">허가<br>(신고번호)</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="dongPermitNo" aria-label="허가(신고번호)" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">준공일자</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" name="dongCompDate" class="form-control form-control-sm" aria-label="준공일자" />
+                                            <input type="hidden" name="dongCompDateTemp" class="form-control form-control-sm" aria-label="준공일자" />
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 justify-content-end mb-5 mt-3">
+                                            <div class="float-end">
+                                                <button th:if="${auth.canDelete}" type="button" id="dongResetBtn" class="btn btn-secondary btn-sm">취소</button>
+                                                <button th:if="${auth.canInsert}" type="button" id="dongAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                                <button th:if="${auth.canUpdate}" type="button" id="dongModyBtn" class="btn btn-primary btn-sm" style="display: none;">수정</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold">동별현황</p>
+                                    <div class="row align-items-end mt-3">
+                                        <div id="legerDongTotCnt" class="col-1 mb-3">
+                                            Total <span></span>
+                                        </div>
+                                        <div id="dongGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="dongRn" aria-label="no" />
+                            <input type="hidden" name="dongParam" aria-label="분기" />
+                            <input type="hidden" name="admSeq" aria-label="관리번호" th:value="${admSeq}" />
+                            <input type="hidden" name="dongSeq" aria-label="소유자정보" value="" />
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <form id="legerStructuresAddForm" name="legerStructuresAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseFour">
+                                    구조물현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse"
+                                 aria-labelledby="panelsStayOpen-headingFour">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">구조물정보</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">동별번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" oninput="numberMaxLength(this, 3)" class="form-control form-control-sm" name="stDongNo" placeholder="숫자만 입력해주세요." />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">용도(시설물)</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="stJydCd" class="form-select form-select-sm required" title="용도">
+                                                <option value="">전체</option>
+                                                <option th:each="codeJydCd : ${codeJydCd}" th:value="${codeJydCd.cdkey}"
+                                                        th:utext="${codeJydCd.cdvalue}" >용도
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="stJydName" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <select name="stCd" class="form-select form-select-sm required" title="구조">
+                                                <option value="">전체</option>
+                                                <option th:each="codeStCd : ${codeStCd}" th:value="${codeStCd.cdkey}"
+                                                        th:utext="${codeStCd.cdvalue}" >구조
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="stName" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">면적</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="stArea" aria-label="면적" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">높이</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="stHeight" class="form-control form-control-sm" aria-label="높이"/>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">허가(신고일)</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" name="stPermitDate" class="form-control form-control-sm" aria-label="허가(신고일)"/>
+                                            <input type="hidden" name="stPermitDateTemp" class="form-control form-control-sm" aria-label="허가(신고일)"/>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm text-nowrap">허가(신고)번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="stPermitNo" class="form-control form-control-sm"
+                                                   aria-label="허가(신고일)"/>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">준공일자</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" name="stCompDate" class="form-control form-control-sm" aria-label="준공일자"/>
+                                            <input type="hidden" name="stCompDateTemp" class="form-control form-control-sm" aria-label="준공일자"/>
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 justify-content-end mb-5 mt-3">
+                                            <div class="float-end">
+                                                <button th:if="${auth.canDelete}" type="button" id="stResetBtn" class="btn btn-secondary btn-sm">취소</button>
+                                                <button th:if="${auth.canInsert}" type="button" id="stAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                                <button th:if="${auth.canUpdate}" type="button" id="stModyBtn" class="btn btn-primary btn-sm" style="display: none;">수정</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold">구조물현황</p>
+                                    <div class="row align-items-end mt-3">
+                                        <div id="legerStructuresTotCnt" class="col-1 mb-3">
+                                            Total <span></span>
+                                        </div>
+                                        <div id="structureGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="stRn" aria-label="no" />
+                            <input type="hidden" name="stParam" aria-label="분기" />
+                            <input type="hidden" name="admSeq" aria-label="관리번호" th:value="${admSeq}" />
+                            <input type="hidden" name="stSeq" aria-label="소유자정보" value="" />
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <form id="legerGroundAddForm" name="legerGroundAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseFive" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseFive">
+                                    대지현황
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseFive" class="accordion-collapse collapse"
+                                 aria-labelledby="panelsStayOpen-headingFive">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">대지정보</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">토지면적</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="groundArea" class="form-control form-control-sm"
+                                                   aria-label="토지면적"/>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">대지</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="groundContents" class="form-control form-control-sm" aria-label="대지"/>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">형질변경</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="chaArea" class="form-control form-control-sm" aria-label="형질변경"/>
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">농지전용</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="farmArea" class="form-control form-control-sm"
+                                                   aria-label="농지전용"/>
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">기타</label>
+                                        </div>
+                                        <div class="col-7">
+                                            <input type="text" name="groundEtc" class="form-control form-control-sm" aria-label="기타"/>
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 justify-content-end mb-5 mt-3">
+                                            <div class="float-end">
+                                                <button th:if="${auth.canDelete}" type="button" id="groundResetBtn" class="btn btn-secondary btn-sm">취소</button>
+                                                <button th:if="${auth.canInsert}" type="button" id="groundAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                                <button th:if="${auth.canUpdate}" type="button" id="groundModyBtn" class="btn btn-primary btn-sm" style="display: none;">수정</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold">대지현황</p>
+                                    <div class="row align-items-end mt-3">
+                                        <div id="legerGroundTotCnt" class="col-1 mb-3">
+                                            Total <span></span>
+                                        </div>
+                                        <div id="groundGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="groundRn" aria-label="no" />
+                            <input type="hidden" name="groundParam" aria-label="분기" />
+                            <input type="hidden" name="admSeq" aria-label="관리번호" th:value="${admSeq}" />
+                            <input type="hidden" name="groundSeq" aria-label="소유자정보" value="" />
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <form id="legerPermitAddForm" name="legerPermitAddForm" method="post">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingSix">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#panelsStayOpen-collapseSix" aria-expanded="false"
+                                        aria-controls="panelsStayOpen-collapseSix">
+                                    허가(신고)사항
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseSix" class="accordion-collapse collapse"
+                                 aria-labelledby="panelsStayOpen-headingSix">
+                                <div class="accordion-body">
+                                    <p class="font-weight-bold">허가(신고)</p>
+                                    <div class="row row-tr">
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm text-nowrap">허가(신고)번호</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" class="form-control form-control-sm" name="permitNo" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">허가(신고)일</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="permitDate" />
+                                            <input type="hidden" class="form-control form-control-sm" name="permitDateTemp" />
+                                        </div>
+                                        <div class="col-1 col-th">
+                                            <label class="col-form-label col-form-label-sm">준공일자</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="date" onkeydown="return false" max="9999-12-31" class="form-control form-control-sm" name="permitCompDate" />
+                                            <input type="hidden" class="form-control form-control-sm" name="permitCompDateTemp" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">행위구분</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" class="form-control form-control-sm" name="actFlag" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">구조</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <select name="permitStCd" class="form-select form-select-sm required" title="구조">
+                                                <option value="">전체</option>
+                                                <option th:each="codeStCd : ${codeStCd}" th:value="${codeStCd.cdkey}"
+                                                        th:utext="${codeStCd.cdvalue}" >구조
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="permitStName" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">규모(m2)</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" class="form-control form-control-sm" name="permitArea" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">용도</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <select name="permitJydCd" class="form-select form-select-sm required" title="용도">
+                                                <option value="">전체</option>
+                                                <option th:each="codeJydCd : ${codeJydCd}" th:value="${codeJydCd.cdkey}"
+                                                        th:utext="${codeJydCd.cdvalue}" >용도
+                                                </option>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" name="permitJydName" />
+                                        </div>
+                                    </div>
+                                    <div class="row row-tr">
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">작성자(인)<br>
+                                                (소속,직위,성명)</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" class="form-control form-control-sm" name="registInfo" />
+                                        </div>
+                                        <div class="col-2 col-th">
+                                            <label class="col-form-label col-form-label-sm">확인자(인)<br>
+                                                (소속,직위,성명)</label>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" class="form-control form-control-sm" name="confirmInfo" />
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center">
+                                        <div class="col-12 justify-content-end mb-5 mt-3">
+                                            <div class="float-end">
+                                                <button th:if="${auth.canDelete}" type="button" id="permitResetBtn" class="btn btn-secondary btn-sm">취소</button>
+                                                <button th:if="${auth.canInsert}" type="button" id="permitAddBtn" class="btn btn-primary btn-sm">추가</button>
+                                                <button th:if="${auth.canUpdate}" type="button" id="permitModyBtn" class="btn btn-primary btn-sm" style="display: none;">수정</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="font-weight-bold">허가(신고)현황</p>
+                                    <div class="row align-items-end mt-3">
+                                        <div id="legerPermitTotCnt" class="col-1 mb-3">
+                                            Total <span></span>
+                                        </div>
+                                        <div id="permitGrid" style="height: 500px; width:100%;" class="ag-theme-alpine"></div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="permitRn" aria-label="no" />
+                                <input type="hidden" name="permitParam" aria-label="분기" />
+                                <input type="hidden" name="admSeq" aria-label="관리번호" th:value="${admSeq}" />
+                                <input type="hidden" name="permitSeq" aria-label="소유자정보" value="" />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="panelsStayOpen-headingSeven">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#panelsStayOpen-collapseSeven" aria-expanded="false"
+                                    aria-controls="panelsStayOpen-collapseSeven">
+                                배치도/사진
+                            </button>
+                        </h2>
+                        <div id="panelsStayOpen-collapseSeven" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingSeven">
+                            <div class="accordion-body">
+                                <div class="row row-tr bdnn">
+                                    <p class="font-weight-bold">배치도/사진등록</p>
+                                </div>
+                                <div class="row row-tr">
+                                    <div class="col-1 col-th">
+                                        <label class="col-form-label col-form-label-sm">이미지 종류</label>
+                                    </div>
+                                    <div class="col-11">
+                                        <select id="fileFlagTemp" name="fileFlagTemp" required class="form-select required" title="이미지 종류">
+                                            <option value="1" >배치도</option>
+                                            <option value="2" >사진</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row row-tr" style="border-left: 1px solid #ccc;">
+                                    <div th:style="${auth.canInsert ? 'display:block' : 'display:none'}">
+                                        <div id="myId"></div>
+                                        <div class="d-flex justify-content-end pb-2">
+                                            <button id="upload" class="btn btn-warning btn-sm">업로드</button>
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-center align-content-center mt-2 fileList">
+                                        <div class="col-1 text-center">파일</div>
+                                        <div class="col-9">
+                                            <ul id="user-files" class="list-inline">
+                                            </ul>
+                                        </div>
+                                        <div class="col-2">
+                                            <button id="allDownload" class="btn btn-success btn-sm float-end"><i class="fa-solid fa-download"></i> 전체 다운로드</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3" style="color: #808080">
+                                    ※ 대장출력시 뒷장 이미지가 표시될 수 있는 파일 : jpg, gif, bmp
+                                    확인용으로 업로드시에는 gif, jpg, tif, dwg, pdf, bmp, psd, tga, png, hwp 파일만 가능합니다.
+                                    <br /><br />
+                                    ※ autocad파일인 dwg파일을 image파일로 변환하는 툴 :
+                                    <a th:href="@{/file/download/fileconv.zip}" class="text-decoration-underline">다운로드</a><i class="bi bi-hand-index"></i> 다운받으신 fileconv.zip의 압축을 풀고, 폴더안의 fileconv.exe 을 실행한 후 변환하시면 됩니다.
+                                    <br />변환될 이미지 사이즈는 값이 클수록 상세한 이미지를 얻을 수 있습니다.(값이 클수록 파일의 크기가 증가합니다.)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 tx-right">
+                <button type="button" id="listBtn" class="btn btn-light btn-sm">목록</button>
+                <button th:if="${auth.canDelete} and ${legerLimited.degb != 'Y'}" type="button" id="delLedgerBtn" class="btn btn-danger btn-sm">폐쇄처리</button>
+                <button type="button" id="printBtn" class="btn btn-primary btn-sm" th:attr="data-user=${#authentication.principal.userName}">대장출력</button>
+                <!--<button type="button" id="limitedAddBtn" class="btn btn-primary btn-sm">저장</button>-->
+            </div>
+        </div>
+        <script th:inline="javascript">
+            var legerOwnerObj = [[${legerOwner}]];
+            var legerDongObj = [[${legerDong}]];
+            var legerStructuresObj = [[${legerStructures}]];
+            var legerGroundObj = [[${legerGround}]];
+            var legerPermitObj = [[${legerPermit}]];
+            var admSeq = [[${admSeq}]];
+            var buildFlagValue = [[${legerLimited.buildFlag}]];
+            var degb = [[${legerLimited.degb}]];
+
+            if (buildFlagValue === "01") {
+                $('#buildFlagBefore').prop('checked', true);
+                $('#buildFlagAfter').prop('checked', false);
+            } else if (buildFlagValue === "02") {
+                $('#buildFlagBefore').prop('checked', false);
+                $('#buildFlagAfter').prop('checked', true);
+            }
+
+            // 해당 화면의 seq를 호출
+            const seq = admSeq;
+
+            let flag = document.getElementById('fileFlagTemp').value
+
+            // 각자 화면 개발할 때의
+            const type = {
+                type:'ledgerGreenBeltLayout',
+                fileName: 850,
+                modalId: 'modal-1',
+                size: 250,
+                readOnly: 'N'
+            }
+            const uploader = new snFileUpload.Uploader("myId", type);
+
+            uploader.setFlag(flag);
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                await fileLoad();
+            })
+
+            // 업로드
+            document.getElementById('upload').addEventListener('click', () => {
+                uploader.parentKey = seq
+                uploader.uploadFiles();
+                uploader.clearFiles()
+            })
+
+            document.getElementById('fileFlagTemp').addEventListener("change", async (e) => {
+                flag = e.target.value;
+                uploader.setFlag(flag);
+                console.log("flag : " + flag);
+                uploader.clearFiles();
+                $("#user-files").html("");
+                await fileLoad()
+            });
+
+            document.getElementById('printBtn').addEventListener('click', (e) => {
+                const url = new URL(window.location.href);
+                const seq = url.searchParams.get('admSeq');
+                const userName = e.target.getAttribute('data-user')
+                snReport.open('DEVLOP_LMTT_ZONE', {admSeq: seq, user: userName})
+            })
+
+            async function fileLoad(){
+                    uploader.parentKey = seq;
+                    uploader.setFlag(document.getElementById('fileFlagTemp').value)
+                    await uploader.loadFiles();
+                    // 파일정보 로딩
+                    const files = uploader.getFiles();
+
+                    if (files.length > 0) {
+                        // 파일이 있는 경우
+                        document.getElementById('allDownload').style.display = 'block';
+                        document.getElementById('allDownload').addEventListener('click', () => {
+                            uploader.downloadAllFile();
+                        });
+                    } else {
+                        // 파일이 없는 경우
+                        document.getElementById('allDownload').style.display = 'none';
+                    }
+
+                    files.forEach(file => {
+                        console.log(file);
+                        let $link = $("<a>")
+                            .text(`${file.name} (${file.vsize})`)
+                            .attr("title", file.name)
+                            .attr("href", `${file.name}`)
+                            .data("fseq", file.fseq)
+                            .data("seq", file.seq)
+                            .on("click", (e)=>{
+                                e.preventDefault();
+                                let seq = $(e.target).data("seq");
+                                let fseq =$(e.target).data("fseq");
+                                // 이미 파일명/확장자명을 알기때문에 전달해주면 될 듯
+                                if (file.type.match(/jpg|jpeg|png|gif/ig)) {
+                                    return $(`<a onclick='' href='javascript:;'>${file.name}</a>`)
+                                        .on("click", uploader.imgPreview(file))[0];
+                                } else {
+                                    uploader.downloadFile(file);
+                                }
+                            });
+                        let $deleteLink = $(`<a href="javascript:;" class="ms-2"><i class='fa fa-trash'></i></a>`);
+                        $deleteLink.on("click", (e) => {
+                            $(e.target).closest("li").remove()
+                            console.log(file)
+                            uploader.deleteFiles(file)
+                        });
+
+                        $("<li class='list-inline-item'>")
+                            .append($link)
+                            .append($deleteLink)
+                            .appendTo($("#user-files"));
+                    });
+                    if(uploader.getFileCount() === 0) {
+                        document.getElementsByClassName('fileList')[0].style.display = 'none';
+                    } else {
+                        document.getElementsByClassName('fileList')[0].style.display = '';
+                    }
+
+                    uploader.clearFiles();
+            }
+        </script>
+    </div>
+    </div>
+</th:block>
+
+</html>

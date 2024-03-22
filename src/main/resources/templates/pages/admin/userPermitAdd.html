@@ -1,0 +1,128 @@
+<!doctype html>
+<html layout:decorate="~{layouts/main}"
+      lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<th:block layout:fragment="LNB" th:with="permitBold = true, auth = 'on'">
+    <th:block th:replace="fragments/LNB :: admin"></th:block>
+</th:block>
+    <th:block layout:fragment="configScript">
+        <script th:src="@{/js/admin/permit.js}"></script>
+    </th:block>
+
+    <!--/* 주 화면 컨텐츠 */-->
+    <th:block layout:fragment="content">
+        <div class="content container-fluid">
+            <div class="title_wrap mb-3">
+                <h3 class="tit" th:text="|권한 ${flag}|"></h3>
+                <div class="loc">
+                    <i class="bi bi-house-fill"></i>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>관리자 메뉴</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>운영관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span>권한관리</span>
+                    <i class="bi bi-chevron-compact-right"></i>
+                    <span th:text="|권한 ${flag}|"></span>
+                </div>
+            </div>
+            <div class="row">
+                <!--/* 트리 */-->
+                <div class="col-3">
+                    <p class="font-weight-bold bdnn">권한메뉴 선택</p>
+                    <div id="jstree" class="jstree"></div>
+                </div>
+                <!--/* 테이블 */-->
+                <div class="col-9">
+                    <p class="font-weight-bold bdnn">권한메뉴 등록</p>
+                    <form id="addPermissionForm" class="needs-validation" novalidate>
+                        <input id="oriName" type="hidden" th:value="${perInfo.getPerName()}">
+                        <div class="row row-tr" style="border-top: 1px solid #ccc;">
+                            <div class="col-2 col-th">
+                                <label for="perId" class="col-form-label col-form-label-sm">권한 ID<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-10 d-flex flex-column">
+                                <input id="perId" type="text" name="perId" class="form-control form-control-sm bg-gray-04" th:value="${perInfo.getPerId()} ? ${perInfo.getPerId()} : '자동생성'" readonly>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="perName" class="col-form-label col-form-label-sm">권한명<th:block th:replace="pages/common/util :: required"></th:block></label>
+                            </div>
+                            <div class="col-10 d-flex flex-column">
+                                <input id="perName" type="text" class="form-control form-control-sm" th:value="${perInfo.getPerName()}" disableCommon="true" required>
+                                <p id="checkVal" class="invalid-feedback"></p>
+                            </div>
+                        </div>
+                        <div class="row row-tr">
+                            <div class="col-2 col-th">
+                                <label for="perComment" class="col-form-label col-form-label-sm">권한 설명</label>
+                            </div>
+                            <div class="col-10 d-flex flex-column">
+                                <textarea id="perComment" class="form-control form-control-sm" maxlength="50" placeholder="권한 설명 문구를 50자 이내로 입력할 수 있습니다." th:text="${perInfo.getPerComment()}"></textarea>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-between mt-3">
+                            <div class="col-2">
+                                <button id="goLst" class="btn btn-light btn-sm" type="button">목록</button>
+                            </div>
+                            <div class="col-10 tx-right">
+                                <button id="cancel" class="btn btn-secondary btn-sm" type="button">
+                                    <i class="fa-solid fa-xmark"></i> 취소
+                                </button>
+                                <button id="savePermission" class="btn btn-primary btn-sm">
+                                    <i class="fa-regular fa-floppy-disk"></i> 권한저장
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script th:inline="javascript">
+            $.get('/api/user/permit/menu/list', function (data) {
+                console.log(data)
+                let json = [];
+                let selectList = [[${perList}]]
+                for(let el of data) {
+                    let selected = false;
+                    for(let select of selectList) {
+                        if(el.menuId === select.menuId) {
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if(!selected) {
+                        json.push({
+                            'id' : el.menuId,
+                            'parent' : el.menuTop === 'TOP' ? '#' : el.menuTop,
+                            'text' : el.menuName,
+                        });
+                    } else {
+                        json.push({
+                            'id' : el.menuId,
+                            'parent' : el.menuTop === 'TOP' ? '#' : el.menuTop,
+                            'text' : el.menuName,
+                            'state' : {
+                                selected: true
+                            }
+                        });
+                    }
+                }
+
+                $('#jstree').jstree({
+                    'plugins': ['checkbox'],
+                    'core' : {
+                        'data' : json
+                    }
+                });
+            });
+        </script>
+    </th:block>
+
+    <!--/* DOM요소 조작 혹은 이벤트 처리할 JS 추가 */-->
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/indexControl.js}"></script>
+    </th:block>
+</html>
